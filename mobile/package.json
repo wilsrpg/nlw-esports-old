@@ -1,0 +1,20 @@
+{
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "expo": "^46.0.10",
+    "expo-status-bar": "~1.4.0",
+    "react": "18.0.0",
+    "react-native": "^0.61.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.9",
+    "@types/node": "^18.7.18"
+  },
+  "private": true
+}
