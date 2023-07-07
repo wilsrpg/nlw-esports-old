@@ -2,7 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import { PrismaClient } from '@prisma/client';
 
-console.log("iniciou server");
+//console.log("iniciou server");
 
 const servidor = express();
 servidor.use(express.json());
@@ -96,9 +96,14 @@ servidor.get('/jogos', async (req, resp) => {
 					anuncios: true
 				}
 			}
-		}}
-	);
-	return resp.json(jogos)
+		}
+	});
+	return resp.json(jogos);
+})
+
+servidor.get('/anuncios', async (req, resp) => {
+	const anuncios = await prisma.anuncio.findMany();
+	return resp.json(anuncios);
 })
 
 servidor.post('/jogos/:id/anuncios', async (req, resp) => {
@@ -116,14 +121,13 @@ servidor.post('/jogos/:id/anuncios', async (req, resp) => {
 			usaChatDeVoz: body.usaChatDeVoz
 		}
 	});
-
-	return resp.status(201).json(anuncio)
+	return resp.status(201).json(anuncio);
 })
 
 function converterHoraStringParaMinutos(horaString:string) {
-	const [horas,minutos] = horaString.split(':').map(Number);
+	const [horas, minutos] = horaString.split(':').map(Number);
 	//const minutos = h*60+m;
-	return horas*60+minutos;
+	return horas*60 + minutos;
 }
 
 servidor.get('/jogos/:id/anuncios', async (req, resp) => {
@@ -146,14 +150,14 @@ servidor.get('/jogos/:id/anuncios', async (req, resp) => {
 		return {...anuncio, diasQueJoga: anuncio.diasQueJoga.split(','),
 			deHora: converterMinutosParaHoraString(anuncio.deHora),
 			ateHora: converterMinutosParaHoraString(anuncio.ateHora)
-		}
+		};
 	}));
 })
 
 function converterMinutosParaHoraString(minutos:number) {
 	const hora = Math.floor(minutos/60);
 	const minuto = minutos%60;
-	return `${String(hora).padStart(2,'0')}:${String(minuto).padStart(2,'0')}`;
+	return String(hora).padStart(2,'0') + ":" + String(minuto).padStart(2,'0');
 }
 
 servidor.get('/anuncios/:id/discord', async (req, resp) => {
@@ -162,8 +166,7 @@ servidor.get('/anuncios/:id/discord', async (req, resp) => {
 		select: {discord: true},
 		where: {id: anuncioId}
 	});
-
-	return resp.json({discord: anuncio.discord})
+	return resp.json({discord: anuncio.discord});
 })
 
-servidor.listen(3333);
+servidor.listen(3333, ()=>console.log("iniciou server, ouvindo porta 3333"));
