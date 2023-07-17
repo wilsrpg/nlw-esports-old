@@ -9,7 +9,9 @@ servidor.use(express.json());
 servidor.use(cors({
 	//origin: 'http://meudominio.com'
 }));
-const prisma = new PrismaClient({log:['query']});
+const prisma = new PrismaClient(
+	//{log:['query']}
+);
 
 //criação da lista inicial de jogos
 /* n prestou
