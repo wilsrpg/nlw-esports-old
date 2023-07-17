@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { THEME } from '../../theme';
 
 export const styles = StyleSheet.create({
     container: {
@@ -11,7 +12,7 @@ export const styles = StyleSheet.create({
       borderRadius: 8,
       overflow: 'hidden'
     },
-    f: {
+    rodape: {
       width: '100%',
       height: 102,
       padding: 16,

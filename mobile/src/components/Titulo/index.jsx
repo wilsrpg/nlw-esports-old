@@ -1,14 +1,14 @@
 import { View, Text, ViewProps } from 'react-native';
 import { styles } from './styles';
 
-export function Titulo() {
+export function Titulo(props) {
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>
-        {titulo}
+        {props.titulo}
       </Text>
       <Text style={styles.subtitulo}>
-        {subtitulo}
+        {props.subtitulo}
       </Text>
     </View>
   )

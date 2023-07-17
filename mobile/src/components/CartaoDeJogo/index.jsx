@@ -1,17 +1,21 @@
-import { ImageBackground, TouchableOpacity } from 'react-native';
+import { ImageBackground, Text, TouchableOpacity } from 'react-native';
 import { THEME } from '../../theme';
 import { styles } from './styles';
+import { LinearGradient } from 'expo-linear-gradient';
 
-export function CartaoDeJogo() {
+export function CartaoDeJogo(props) {
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={props.onPress}
+    >
       <ImageBackground
         style={styles.cartao}
-        source={props.imagem}
+        source={{uri: props.urlImagem}}
       >
         <LinearGradient
           colors={THEME.COLORS.FOOTER}
-          style={styles.f}
+          style={styles.rodape}
         >
           <Text style={styles.nome}>
             {props.nome}
