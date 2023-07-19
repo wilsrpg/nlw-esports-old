@@ -3,20 +3,31 @@ import { THEME } from '../../theme';
 
 export const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center'
+    //width: "100%",
+    //flex: 1,
+    //alignItems: 'center',
+    //justifyContent: 'center'
   },
   cabecalho: {
-    width: "100%",
+    //width: "100%",
+    //flex: 1,
     alignItems: 'center',
     flexDirection: 'row',
     paddingHorizontal: 32,
-    marginTop: 28,
-    justifyContent: 'space-between'
+    marginVertical: 16,
+    justifyContent: 'space-between',
+    //justifyContent: 'center'
   },
   logo: {
     width: 72,
     height: 40,
+    //alignSelf: 'center'
+  },
+  scrollConteudo: {
+    //width: "100%",
+    //flex: 1,
+    alignItems: 'center',
+    //justifyContent: 'center'
   },
   imagemDoJogo: {
     width: 311,
@@ -24,11 +35,18 @@ export const styles = StyleSheet.create({
     marginTop: 28
   },
   lista: {
-    width: '100%'
+    //width: '100%',
+    //flex: 1,
+    alignSelf: 'flex-start',
+    //alignItems: 'flex-start',
+    //justifyContent: 'center'
   },
   listaConteudo: {
-    paddingLeft: 32,
-    paddingRight: 64,
+    columnGap: 16,
+    paddingHorizontal: 32,
+    marginRight: 0,
+    marginBottom: 32,
+    //flex: 1,
     alignItems: 'flex-start'
   },
   listaConteudoVazio: {

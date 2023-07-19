@@ -19,7 +19,7 @@ img.nlw-logo {
   margin-bottom: 1rem;
 }
 
-h1 {
+h1.titulo {
   font-size: 4rem;
   font-weight: 900;
   color: white;
@@ -37,7 +37,7 @@ span.nlw-gradient {
   -webkit-text-fill-color: transparent;
 }
 
-.grid {
+.jogos {
   /*display: inline-grid;
   grid-template-columns: auto auto auto auto auto auto;*/
   display: flex;
@@ -46,7 +46,7 @@ span.nlw-gradient {
   justify-content: center;
 }
 
-.grid a {
+.jogos a {
   position: relative;
   height: 10rem;
   width: 10rem;
@@ -54,7 +54,7 @@ span.nlw-gradient {
   overflow: hidden;
 }
 
-.grid img {
+.jogos img {
   height: 10rem;
   width: 10rem;
   object-fit: cover;
@@ -118,6 +118,26 @@ img.lupa {
   width: 2rem;
 }
 
+.flex {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/*.centralizado {
+  display: grid;
+  place-items: center center;
+}*/
+
+.roxinho { 
+  background-color: #8b5cf6;
+}
+
 .modalAnuncioFora {
   position: fixed;
   top: 0;
@@ -135,31 +155,67 @@ img.lupa {
 .modalAnuncio {
   background-color: gray;
   padding: 1.5rem;
+  gap: 1rem;
+  color: white;
+  border: 1px solid #7c3aed;
+  border-radius: 0.5rem;
+  /*display: flex;*/
 }
 
-h2 {
-  margin: 0;
+.modalAnuncio h2 {
+  margin-top: 0;
 }
 
-.flexColumn {
-  display: flex;
-  flex-direction: column;
+.modalAnuncio select {
+  border: 1px solid gray;
 }
 
-.flex {
-  display: flex;
+.modalAnuncio #dias {
+  border: 1px solid gray;
 }
 
-/*.centralizado {
+.modalAnuncio #dias input {
+  width: 1.25rem;
+  text-align: center;
+}
+
+.modalAnuncio .grid {
   display: grid;
-  place-items: center center;
-}*/
-
-.roxinho { 
-  background-color: #8b5cf6;
+  grid: auto/auto auto;
+  gap: 0.5rem;
 }
 
-.modalAnuncio form.botoes {
+.modalAnuncio .chatDeVoz {
   display: flex;
-  align-items: end;
+  align-items: center;
+  height: 2rem;
+}
+
+.modalAnuncio .chatDeVoz input {
+  /*width: 1rem;
+  height: 1rem;*/
+  width: 5%;
+  height: 100%;
+  accent-color: #8b5cf6;
+}
+
+.modalAnuncio form .botoes {
+  display: flex;
+  gap: 0.5rem;
+  align-self: flex-end;
+}
+
+.botoes * {
+  font-size: 1rem;
+  padding: 0.5rem 0.5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.botoes input { 
+  background-color: #8b5cf6;
+  color: white;
+}
+.botoes input:hover { 
+  background-color: #7c3aed;
 }

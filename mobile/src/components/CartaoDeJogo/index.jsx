@@ -7,7 +7,7 @@ export function CartaoDeJogo(props) {
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={props.onPress}
+      onPress={props.funcTocar}
     >
       <ImageBackground
         style={styles.cartao}

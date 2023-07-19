@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './App.css'
 import nlwLogo from './assets/NLW-eSports-Logo.svg'
 import CartaoDeJogo from './components/CartaoDeJogo'
@@ -34,11 +34,11 @@ export default function App() {
     <div className='tudo'>
       <img className='nlw-logo' src={nlwLogo} />
       <div>
-        <h1>
+        <h1 className='titulo'>
           Seu <span className="nlw-gradient">duo</span> está aqui.
         </h1>
 
-        <div className='grid'>
+        <div className='jogos'>
           {erroAoObterDados && <p>Erro ao obter dados dos jogos.</p>}
           {jogos.map((jogo,id)=>
             <CartaoDeJogo key={id}
