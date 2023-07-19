@@ -100,11 +100,13 @@ servidor.get('/jogos', async (req, resp) => {
 			}
 		}
 	});
+	console.log("GET jogos, qtde="+jogos.length+", ip="+req.ip);
 	return resp.json(jogos);
 })
 
 servidor.get('/anuncios', async (req, resp) => {
 	const anuncios = await prisma.anuncio.findMany();
+	console.log("GET anuncios, qtde="+anuncios.length);
 	return resp.json(anuncios);
 })
 
@@ -123,6 +125,7 @@ servidor.post('/jogos/:id/anuncios', async (req, resp) => {
 			usaChatDeVoz: body.usaChatDeVoz
 		}
 	});
+	console.log("POST anuncio, usuário="+body.nomeDoUsuario);
 	return resp.status(201).json(anuncio);
 })
 
@@ -147,7 +150,7 @@ servidor.get('/jogos/:id/anuncios', async (req, resp) => {
 		where: {jogoId: jogoId},
 		orderBy: {dataDeCriacao: 'desc'}
 	});
-
+	console.log("GET jogo/anuncios, qtde="+anuncios.length);
 	return resp.json(anuncios.map((anuncio)=>{
 		return {...anuncio, diasQueJoga: anuncio.diasQueJoga.split(','),
 			deHora: converterMinutosParaHoraString(anuncio.deHora),
@@ -168,6 +171,7 @@ servidor.get('/anuncios/:id/discord', async (req, resp) => {
 		select: {discord: true},
 		where: {id: anuncioId}
 	});
+	console.log("GET anuncios/discord, discord="+anuncio.discord);
 	return resp.json({discord: anuncio.discord});
 })
 
