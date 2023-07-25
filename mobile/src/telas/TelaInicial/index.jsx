@@ -1,4 +1,4 @@
-import { FlatList, Image, ScrollView, Text } from 'react-native';
+import { FlatList, Image, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from './styles';
 import logo from '../../assets/logo-nlw-esports.png'
@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { Background } from '../../components/Background';
 import { useNavigation } from '@react-navigation/native';
 import { Carregando } from '../../components/Carregando';
+import { SimpleLineIcons } from '@expo/vector-icons';
 
 export function TelaInicial() {
   const navegador = useNavigation();
@@ -15,8 +16,9 @@ export function TelaInicial() {
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
 
   useEffect(()=>{
-    //fetch('http://192.168.0.144:3333/jogos')
-    fetch('http://192.168.1.16:3333/jogos')
+    const naCasaDeWisney = fetch(`http://192.168.0.144:3333/jogos`);
+    const naMinhaCasa = fetch(`http://192.168.1.16:3333/jogos`);
+    Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(resp=>resp.json())
     .then(dados=>{
       definirErroAoObterDados(false);
@@ -32,11 +34,18 @@ export function TelaInicial() {
     //console.log(jogo);
     navegador.navigate('telaDoJogo', jogo);
   }
+  
+  function irParaTelaDeCriacaoDeAnuncio() {
+    navegador.navigate('telaDeCriacaoDeAnuncio');
+  }
 
   return (
     <Background>
       <SafeAreaView style={styles.container}>
-        <ScrollView style={styles.lista}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollViewConteudo}
+        >
           <Image
             source={logo}
             style={styles.logo}
@@ -47,7 +56,7 @@ export function TelaInicial() {
           />
           {erroAoObterDados ?
             <Text style={styles.textoConteudoVazio}>
-              Erro ao obter dados do servidor.
+              Erro ao obter dados dos jogos do servidor.
             </Text>
           :
             !jogos ? <Carregando/>
@@ -74,6 +83,19 @@ export function TelaInicial() {
                 }
               />
           }
+          <Titulo
+            titulo="Não encontrou seu duo?"
+            subtitulo="Publique um anúncio para encontrar novos players!"
+          />
+          <TouchableOpacity
+            style={styles.botaoPublicarAnuncio}
+            onPress={irParaTelaDeCriacaoDeAnuncio}
+          >
+            <SimpleLineIcons name="magnifier-add" size={24} color="white"/>
+            <Text style={styles.textoPublicarAnuncio}>
+              Publicar anúncio
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
     </Background>

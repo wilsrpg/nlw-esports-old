@@ -2,21 +2,16 @@ body {
   background-image: url('./assets/NLW-Fundo.png');
   background-size: cover;
   background-attachment: fixed;
-
 }
 
 .tudo {
-  margin-left: auto;
-  margin-right: auto;
+  margin: 4rem auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-family: Inter, sans-serif;
-}
-
-img.nlw-logo {
-  margin-top: 5rem;
-  margin-bottom: 1rem;
+  position: relative;
+  z-index: 0;
 }
 
 h1.titulo {
@@ -24,7 +19,8 @@ h1.titulo {
   font-weight: 900;
   color: white;
   text-align: center;
-  margin-bottom: 3.25rem;
+  margin: 3rem;
+  /*margin-bottom: 3.25rem;*/
 }
 
 .nlw-gradient {
@@ -46,19 +42,29 @@ span.nlw-gradient {
   justify-content: center;
 }
 
-.jogos a {
+.jogos .cartaoJogo {
   position: relative;
   height: 10rem;
   width: 10rem;
   border-radius: 0.5rem;
   overflow: hidden;
+  cursor: pointer;
 }
 
-.jogos img {
+.jogos .imagemDoJogo {
   height: 10rem;
   width: 10rem;
   object-fit: cover;
   object-position: center;
+}
+
+.ponteiro {
+  cursor: pointer;
+}
+
+.carregando {
+  height: 1.5rem;
+  width: 1.5rem;
 }
 
 .game-desc-gradient {
@@ -85,7 +91,7 @@ div.caixa {
   border-radius: 0.5rem;
 }
 
-div.caixa>div {
+div.caixa div:only-child {
   border-radius: 0.5rem;
   display: flex;
   position: relative;
@@ -103,15 +109,11 @@ div.caixa>div {
   display: flex;
   align-items: center;
   gap: 1rem;
-  background-color: #8b5cf6;
   color: white;
   font-size: 1.5rem;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   cursor: pointer;
-}
-.botao-publicar:hover { 
-  background-color: #7c3aed;
 }
 
 img.lupa {
@@ -137,6 +139,14 @@ img.lupa {
 .roxinho { 
   background-color: #8b5cf6;
 }
+.roxinho:hover { 
+  background-color: #7c3aed;
+}
+
+.roxinhoOcupado { 
+  background-color: #8b5cf6;
+  cursor: wait;
+}
 
 .modalAnuncioFora {
   position: fixed;
@@ -144,12 +154,14 @@ img.lupa {
   left: 0;
   width: 100%;
   height: 100%;
+  z-index: 1;
   background-color: rgba(0,0,0,0.5);
   /*display: flex;
   justify-content: center;
   align-items: center;*/
   display: grid;
   place-items: center center;
+  cursor: auto;
 }
 
 .modalAnuncio {
@@ -159,11 +171,12 @@ img.lupa {
   color: white;
   border: 1px solid #7c3aed;
   border-radius: 0.5rem;
-  /*display: flex;*/
+  display: grid;
+  justify-items: center;
 }
 
 .modalAnuncio h2 {
-  margin-top: 0;
+  margin: 0;
 }
 
 .modalAnuncio select {
@@ -177,6 +190,8 @@ img.lupa {
 .modalAnuncio #dias input {
   width: 1.25rem;
   text-align: center;
+  border-radius: 15%;
+  border-width: 1px;
 }
 
 .modalAnuncio .grid {
@@ -199,23 +214,19 @@ img.lupa {
   accent-color: #8b5cf6;
 }
 
-.modalAnuncio form .botoes {
-  display: flex;
-  gap: 0.5rem;
-  align-self: flex-end;
-}
-
-.botoes * {
-  font-size: 1rem;
-  padding: 0.5rem 0.5rem;
+.botaoPublicarAnuncio {
+  width: 50%;
+  height: 2.5rem;
+  /*padding: 0.5rem 0.5rem;*/
   border-radius: 0.25rem;
-  cursor: pointer;
+  align-self: center;
+  color: white;
+  font-size: 1rem;
 }
 
-.botoes input { 
-  background-color: #8b5cf6;
-  color: white;
-}
-.botoes input:hover { 
-  background-color: #7c3aed;
+.anuncios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center; 
 }

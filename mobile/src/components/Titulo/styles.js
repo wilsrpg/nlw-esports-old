@@ -4,7 +4,8 @@ import { THEME } from '../../theme';
 export const styles = StyleSheet.create({
     container: {
       width: '100%',
-      padding: 32
+      padding: 32,
+      alignItems: 'center'
     },
     titulo: {
       color: THEME.COLORS.TEXT,

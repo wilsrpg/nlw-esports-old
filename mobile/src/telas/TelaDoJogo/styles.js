@@ -30,8 +30,8 @@ export const styles = StyleSheet.create({
     //justifyContent: 'center'
   },
   imagemDoJogo: {
-    width: 311,
-    height: 160,
+    width: 400,
+    height: 200,
     marginTop: 28
   },
   lista: {
@@ -40,6 +40,7 @@ export const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     //alignItems: 'flex-start',
     //justifyContent: 'center'
+    marginBottom: 48
   },
   listaConteudo: {
     columnGap: 16,

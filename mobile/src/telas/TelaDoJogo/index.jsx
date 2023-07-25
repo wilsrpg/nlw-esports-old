@@ -18,35 +18,37 @@ export function TelaDoJogo() {
   const jogo = rota.params;
   const navegador = useNavigation();
   const [anuncios, definirAnuncios] = useState();
-  //const [erroAoObterDados, definirErroAoObterDados] = useState(false);
+  const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [discord, definirDiscord] = useState('');
   //console.log(jogo);
 
   useEffect(()=>{
-    //fetch(`http://192.168.0.144:3333/jogos/${jogo.id}/anuncios`)
-    fetch(`http://192.168.1.16:3333/jogos/${jogo.id}/anuncios`)
+    const naCasaDeWisney = fetch(`http://192.168.0.144:3333/jogos/${jogo.id}/anuncios`);
+    const naMinhaCasa = fetch(`http://192.168.1.16:3333/jogos/${jogo.id}/anuncios`);
+    Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(resp=>resp.json())
     .then(dados=>{
-      //definirErroAoObterDados(false);
+      definirErroAoObterDados(false);
       definirAnuncios(dados);
     })
     .catch(erro=>{
-      //definirErroAoObterDados(true);
+      definirErroAoObterDados(true);
       console.log(erro);
     })
   }, [])
 
   async function obterDiscord(id) {
-    //fetch(`http://192.168.0.144:3333/anuncios/${jogo.id}/anuncios`)
-    fetch(`http://192.168.1.16:3333/anuncios/${id}/discord`)
+    const naCasaDeWisney = fetch(`http://192.168.0.144:3333/anuncios/${id}/discord`);
+    const naMinhaCasa = fetch(`http://192.168.1.16:3333/anuncios/${id}/discord`);
+    Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(resp=>resp.json())
     .then(dados=>{
-      //definirErroAoObterDados(false);
+      definirErroAoObterDados(false);
       definirDiscord(dados.discord);
       //console.log("clicou em conectar, discord="+dados.discord);
     })
     .catch(erro=>{
-      //definirErroAoObterDados(true);
+      definirErroAoObterDados(true);
       console.log(erro);
     })
   }
@@ -54,27 +56,25 @@ export function TelaDoJogo() {
   return (
     <Background>
       <SafeAreaView style={styles.container}>
-          <View style={styles.cabecalho}>
-            <TouchableOpacity onPress={navegador.goBack}>
-              <Entypo
-                name='chevron-thin-left'
-                color={THEME.COLORS.CAPTION_300}
-                size={24}
-              />
-            </TouchableOpacity>
-            <Image style={styles.logo}
-              source={logo}
-            />
+        <View style={styles.cabecalho}>
+          <TouchableOpacity onPress={navegador.goBack}>
             <Entypo
-              name='chevron-thin-right'
+              name='chevron-thin-left'
               color={THEME.COLORS.CAPTION_300}
               size={24}
             />
-          </View>
-        <ScrollView //style={styles.scrollview}
-          contentContainerStyle={styles.scrollConteudo}
-          //stickyHeaderIndices={[0]}
-        >
+          </TouchableOpacity>
+          <Image
+            style={styles.logo}
+            source={logo}
+          />
+          <Entypo
+            name='chevron-thin-right'
+            color={THEME.COLORS.CAPTION_300}
+            size={24}
+          />
+        </View>
+        <ScrollView contentContainerStyle={styles.scrollConteudo}>
           <Image
             source={{uri: jogo.urlImagem}}
             style={styles.imagemDoJogo}
@@ -85,7 +85,12 @@ export function TelaDoJogo() {
             subtitulo="Conecte-se e comece a jogar!"
           />
 
-          {!anuncios ? <Carregando/> :
+          {erroAoObterDados ?
+            <Text style={styles.textoConteudoVazio}>
+              Erro ao obter dados dos anúncios do servidor.
+            </Text>
+          :
+            !anuncios ? <Carregando/> :
             <FlatList
               style={styles.lista}
               contentContainerStyle={anuncios.length > 0 ? styles.listaConteudo : styles.listaConteudoVazio}

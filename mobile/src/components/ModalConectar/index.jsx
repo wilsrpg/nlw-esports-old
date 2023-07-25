@@ -13,7 +13,7 @@ export function ModalConectar({discord, funcFechar}) {
   async function copiar(){
     definirCopiando(true);
     await setStringAsync(discord);
-    Alert.alert('Discord copiado.', 'Nome de Discord do usuário copiado para área de transferência. Agora é só entrar em contato através do Discord.')
+    Alert.alert('Discord copiado.', 'Nome de Discord do usuário copiado para área de transferência. Agora é só entrar em contato através do Discord.');
     definirCopiando(false);
   }
 
