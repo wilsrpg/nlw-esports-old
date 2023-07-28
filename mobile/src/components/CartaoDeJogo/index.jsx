@@ -21,7 +21,7 @@ export function CartaoDeJogo(props) {
             {props.nome}
           </Text>
           <Text style={styles.anuncios}>
-            {props.qtdeAnuncios} anúncios
+            {props.qtdeAnuncios == 0 ? 'Nenhum' : props.qtdeAnuncios} anúncio{props.qtdeAnuncios > 1 && 's'}
           </Text>
         </LinearGradient>
       </ImageBackground>

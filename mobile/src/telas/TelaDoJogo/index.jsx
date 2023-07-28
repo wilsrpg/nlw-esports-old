@@ -1,79 +1,65 @@
 import { FlatList, Image, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from './styles';
-import logo from '../../assets/logo-nlw-esports.png';
 import { Titulo } from '../../components/Titulo';
 import { Background } from '../../components/Background';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { TouchableOpacity } from 'react-native';
-import { Entypo } from '@expo/vector-icons';
-import { THEME } from '../../theme';
+import { useRoute } from '@react-navigation/native';
 import { CartaoDeAnuncio } from '../../components/CartaoDeAnuncio';
 import { useEffect, useState } from 'react';
 import { Carregando } from '../../components/Carregando';
 import { ModalConectar } from '../../components/ModalConectar';
+import {IP_NA_MINHA_CASA, IP_NA_CASA_DE_WISNEY, PORTA_DO_SERVIDOR } from '@env'
+import { Cabecalho } from '../../components/Cabecalho';
 
 export function TelaDoJogo() {
+  const urlNaMinhaCasa = ""+IP_NA_MINHA_CASA+":"+PORTA_DO_SERVIDOR;
+  const urlNaCasaDeWisney = ""+IP_NA_CASA_DE_WISNEY+":"+PORTA_DO_SERVIDOR;
+  const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const rota = useRoute();
   const jogo = rota.params;
-  const navegador = useNavigation();
   const [anuncios, definirAnuncios] = useState();
-  const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [discord, definirDiscord] = useState('');
-  //console.log(jogo);
 
   useEffect(()=>{
-    const naCasaDeWisney = fetch(`http://192.168.0.144:3333/jogos/${jogo.id}/anuncios`);
-    const naMinhaCasa = fetch(`http://192.168.1.16:3333/jogos/${jogo.id}/anuncios`);
+    const endereco = `/jogos/${jogo.id}/anuncios`;
+    const abortista = new AbortController();
+    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
+    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
     Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(resp=>resp.json())
     .then(dados=>{
+      abortista.abort();
       definirErroAoObterDados(false);
       definirAnuncios(dados);
     })
     .catch(erro=>{
       definirErroAoObterDados(true);
       console.log(erro);
-    })
+    });
   }, [])
 
-  async function obterDiscord(id) {
-    const naCasaDeWisney = fetch(`http://192.168.0.144:3333/anuncios/${id}/discord`);
-    const naMinhaCasa = fetch(`http://192.168.1.16:3333/anuncios/${id}/discord`);
+  async function obterDiscord(anuncioId) {
+    const endereco = `/anuncios/${anuncioId}/discord`;
+    const abortista = new AbortController();
+    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
+    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
     Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(resp=>resp.json())
     .then(dados=>{
+      abortista.abort();
       definirErroAoObterDados(false);
       definirDiscord(dados.discord);
-      //console.log("clicou em conectar, discord="+dados.discord);
     })
     .catch(erro=>{
       definirErroAoObterDados(true);
       console.log(erro);
-    })
+    });
   }
 
   return (
     <Background>
       <SafeAreaView style={styles.container}>
-        <View style={styles.cabecalho}>
-          <TouchableOpacity onPress={navegador.goBack}>
-            <Entypo
-              name='chevron-thin-left'
-              color={THEME.COLORS.CAPTION_300}
-              size={24}
-            />
-          </TouchableOpacity>
-          <Image
-            style={styles.logo}
-            source={logo}
-          />
-          <Entypo
-            name='chevron-thin-right'
-            color={THEME.COLORS.CAPTION_300}
-            size={24}
-          />
-        </View>
+        <Cabecalho/>
         <ScrollView contentContainerStyle={styles.scrollConteudo}>
           <Image
             source={{uri: jogo.urlImagem}}
@@ -95,7 +81,6 @@ export function TelaDoJogo() {
               style={styles.lista}
               contentContainerStyle={anuncios.length > 0 ? styles.listaConteudo : styles.listaConteudoVazio}
               horizontal
-              //showsHorizontalScrollIndicator={false}
               data={anuncios}
               keyExtractor={item=>item.id}
               renderItem={({item})=>

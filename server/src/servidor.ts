@@ -2,8 +2,6 @@ import express from 'express'
 import cors from 'cors'
 import { PrismaClient } from '@prisma/client';
 
-//console.log("iniciou server");
-
 const servidor = express();
 servidor.use(express.json());
 servidor.use(cors({
@@ -12,83 +10,6 @@ servidor.use(cors({
 const prisma = new PrismaClient(
 	//{log:['query']}
 );
-
-//criação da lista inicial de jogos
-/* n prestou
-servidor.get('/cadastrarjogospadrao', () => {
-	prisma.jogo.create({
-		data: {
-			nome: "Sword of Mana",
-			url: "https://gamefaqs.gamespot.com/gba/914616-sword-of-mana/",
-			urlImagem: "https://gamefaqs.gamespot.com/a/box/8/7/2/52872_thumb.jpg"
-		}
-	});
-	prisma.jogo.create({
-		data: {
-			nome: "Golden Sun",
-			url: "https://gamefaqs.gamespot.com/gba/468548-golden-sun/",
-			urlImagem: "https://gamefaqs.gamespot.com/a/box/8/0/5/12805_thumb.jpg"
-		}
-	});
-	prisma.jogo.create({
-		data: {
-			nome: "Golden Sun: The Lost Age",
-			url: "https://gamefaqs.gamespot.com/gba/561356-golden-sun-the-lost-age/",
-			urlImagem: "https://gamefaqs.gamespot.com/a/box/7/6/9/17769_thumb.jpg"
-		}
-	});
-	prisma.jogo.create({
-		data: {
-			nome: "Pokémon Emerald Version",
-			url: "https://gamefaqs.gamespot.com/gba/921905-pokemon-emerald-version/",
-			urlImagem: "https://gamefaqs.gamespot.com/a/box/6/0/2/61602_thumb.jpg"
-		}
-	});
-	prisma.jogo.create({
-		data: {
-			nome: "Chrono Trigger",
-			url: "https://gamefaqs.gamespot.com/snes/563538-chrono-trigger/",
-			urlImagem: "https://gamefaqs.gamespot.com/a/box/3/0/2/20302_thumb.jpg"
-		}
-	});
-	prisma.jogo.create({
-		data: {
-			nome: "Seiken Densetsu 3",
-			url: "https://gamefaqs.gamespot.com/snes/588648-seiken-densetsu-3/",
-			urlImagem: "https://gamefaqs.gamespot.com/a/box/1/2/8/51128_thumb.jpg"
-		}
-	});
-})*/
-/*<GameBanner nome="Sword of Mana"
-		url="https://gamefaqs.gamespot.com/gba/914616-sword-of-mana/"
-		urlImagem="https://gamefaqs.gamespot.com/a/box/8/7/2/52872_thumb.jpg"
-		qtdeAnuncios="6"
-	/>
-	<GameBanner nome="Golden Sun"
-		url="https://gamefaqs.gamespot.com/gba/468548-golden-sun/"
-		urlImagem="https://gamefaqs.gamespot.com/a/box/8/0/5/12805_thumb.jpg"
-		qtdeAnuncios="5"
-	/>
-	<GameBanner nome="Golden Sun: The Lost Age"
-		url="https://gamefaqs.gamespot.com/gba/561356-golden-sun-the-lost-age/"
-		urlImagem="https://gamefaqs.gamespot.com/a/box/7/6/9/17769_thumb.jpg"
-		qtdeAnuncios="4"
-	/>
-	<GameBanner nome="Pokémon Emerald Version"
-		url="https://gamefaqs.gamespot.com/gba/921905-pokemon-emerald-version/"
-		urlImagem="https://gamefaqs.gamespot.com/a/box/6/0/2/61602_thumb.jpg"
-		qtdeAnuncios="3"
-	/>
-	<GameBanner nome="Chrono Trigger"
-		url="https://gamefaqs.gamespot.com/snes/563538-chrono-trigger/"
-		urlImagem="https://gamefaqs.gamespot.com/a/box/3/0/2/20302_thumb.jpg"
-		qtdeAnuncios="2"
-	/>
-	<GameBanner nome="Seiken Densetsu 3"
-		url="https://gamefaqs.gamespot.com/snes/588648-seiken-densetsu-3/"
-		urlImagem="https://gamefaqs.gamespot.com/a/box/1/2/8/51128_thumb.jpg"
-		qtdeAnuncios="1"
-	/>*/
 
 servidor.get('/jogos', async (req, resp) => {
 	const jogos = await prisma.jogo.findMany({
@@ -106,7 +27,7 @@ servidor.get('/jogos', async (req, resp) => {
 
 servidor.get('/anuncios', async (req, resp) => {
 	const anuncios = await prisma.anuncio.findMany();
-	console.log("GET anuncios, qtde="+anuncios.length);
+	console.log("GET anuncios, qtde="+anuncios.length+", ip="+req.ip);
 	return resp.json(anuncios);
 })
 
@@ -125,13 +46,12 @@ servidor.post('/jogos/:id/anuncios', async (req, resp) => {
 			usaChatDeVoz: body.usaChatDeVoz
 		}
 	});
-	console.log("POST anuncio, usuário="+body.nomeDoUsuario);
+	console.log("POST anuncio, usuário="+body.nomeDoUsuario+", ip="+req.ip);
 	return resp.status(201).json(anuncio);
 })
 
 function converterHoraStringParaMinutos(horaString:string) {
 	const [horas, minutos] = horaString.split(':').map(Number);
-	//const minutos = h*60+m;
 	return horas*60 + minutos;
 }
 
@@ -150,9 +70,10 @@ servidor.get('/jogos/:id/anuncios', async (req, resp) => {
 		where: {jogoId: jogoId},
 		orderBy: {dataDeCriacao: 'desc'}
 	});
-	console.log("GET jogo/anuncios, qtde="+anuncios.length);
+	console.log("GET jogo/anuncios, qtde="+anuncios.length+", ip="+req.ip);
 	return resp.json(anuncios.map((anuncio)=>{
-		return {...anuncio, diasQueJoga: anuncio.diasQueJoga.split(','),
+		return {...anuncio,
+			diasQueJoga: anuncio.diasQueJoga.split(','),
 			deHora: converterMinutosParaHoraString(anuncio.deHora),
 			ateHora: converterMinutosParaHoraString(anuncio.ateHora)
 		};
@@ -171,8 +92,11 @@ servidor.get('/anuncios/:id/discord', async (req, resp) => {
 		select: {discord: true},
 		where: {id: anuncioId}
 	});
-	console.log("GET anuncios/discord, discord="+anuncio.discord);
+	console.log("GET anuncios/discord, discord="+anuncio.discord+", ip="+req.ip);
 	return resp.json({discord: anuncio.discord});
 })
 
-servidor.listen(3333, ()=>console.log("iniciou server, ouvindo porta 3333"));
+servidor.listen(
+	process.env.PORTA_DO_SERVIDOR,
+	()=>console.log("iniciou server, ouvindo porta "+process.env.PORTA_DO_SERVIDOR)
+);

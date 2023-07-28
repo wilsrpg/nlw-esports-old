@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import carregando from '../assets/loading.svg'
 
 export default function ModalParaCriarAnuncio({funcFechar}) {
+  const urlNaMinhaCasa = import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
+  const urlNaCasaDeWisney = import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [jogos, definirJogos] = useState();
   const [dias, definirDias] = useState([
@@ -18,9 +20,14 @@ export default function ModalParaCriarAnuncio({funcFechar}) {
 
   useEffect(()=>{
     document.body.onkeydown = (e)=>{fechar(e)};
-    fetch("http://localhost:3333/jogos")
+    const endereco = `/jogos`;
+    const abortista = new AbortController();
+    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
+    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
+    Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(resp=>resp.json())
     .then(dados=>{
+      abortista.abort();
       definirErroAoObterDados(false);
       definirJogos(dados);
     })
@@ -70,34 +77,29 @@ export default function ModalParaCriarAnuncio({funcFechar}) {
     });
     definirPublicando(true);
     tentarPublicar(dados.jogoId, novoAnuncio);
-    //try {
-    //  await fetch(`http://localhost:3333/jogos/${dados.jogoId}/anuncios`, {
-    //    method: "POST", 
-    //    headers: {"Content-Type": "application/json"},
-    //    body: novoAnuncio
-    //  });
-    //  alert("Anúncio publicado com sucesso!");
-    //}
-    //catch(erro){
-    //  console.log(erro);
-    //  alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.");
-    //}
   }
 
   function tentarPublicar(jogoId, anuncio) {
-    console.log("início public");
-    fetch(`http://localhost:3333/jogos/${jogoId}/anuncios`, {
+    const endereco = `/jogos/${jogoId}/anuncios`;
+    const abortista = new AbortController();
+    const dados = {
       method: "POST", 
       headers: {"Content-Type": "application/json"},
-      body: anuncio
+      body: anuncio,
+      signal: abortista.signal
+    };
+    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, dados);
+    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, dados);
+    Promise.any([naMinhaCasa,naCasaDeWisney])
+    .then(()=>{
+      abortista.abort();
+      alert("Anúncio publicado com sucesso!");
     })
-    .then(()=>alert("Anúncio publicado com sucesso!"))
     .catch((erro)=>{
       console.log(erro);
       alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.");
     })
     .finally(()=>definirPublicando(false))
-    console.log("fim public");
   }
 
   return (
@@ -105,7 +107,7 @@ export default function ModalParaCriarAnuncio({funcFechar}) {
       <div className="modalAnuncio" onClick={(e)=>e.stopPropagation()}>
 
         <h2>Publique seu anúncio</h2>
-        <form className='flexColumn' onSubmit={publicarAnuncio}>
+        <form className='flex flexColumn' onSubmit={publicarAnuncio}>
           
           <label>Jogo</label>
           <select disabled={!jogos} id="jogo" name="jogoId" onChange={(e)=>e.target.style.borderColor = "gray"}>
@@ -124,19 +126,19 @@ export default function ModalParaCriarAnuncio({funcFechar}) {
           <label htmlFor="nome">Nome ou apelido</label>
           <input id="nome" name="nome" required/>
 
-          <div className='grid'>
+          <div className='aoLado'>
 
-            <div className='flexColumn'>
+            <div className='flex flexColumn'>
               <label htmlFor="discord">Discord</label>
               <input id="discord" name="discord" placeholder='Nome de Usuário#0000' pattern='.*[\S][#][\d]{4}'/>
             </div>
 
-            <div className='flexColumn'>
+            <div className='flex flexColumn'>
               <label htmlFor="tempo de jogo">Joga há quantos anos?</label>
               <input id="tempo de jogo" name="tempoDeJogo" type="number" required/>
             </div>
 
-            <div className='flexColumn'>
+            <div className='flex flexColumn'>
               <label>Dias disponíveis</label>
               <div id='dias' className='flex'>
                 {dias.map((dia,id)=>
@@ -160,7 +162,7 @@ export default function ModalParaCriarAnuncio({funcFechar}) {
               </div>
             </div>
 
-            <div className='flexColumn'>
+            <div className='flex flexColumn'>
               <label>Horário disponível</label>
               <div className='flex'>
                 <label htmlFor='de'>De</label>

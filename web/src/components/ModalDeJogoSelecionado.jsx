@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from 'react'
 import CartaoDeAnuncio from './CartaoDeAnuncio';
 import carregando from '../assets/loading.svg'
+import iconeCopiar from '../assets/icons8-restore-down-26.png'
 
-export default function ModalDeJogoSelecionado({jogoId, funcFechar}) {
-  const [anuncios, definirAnuncios] = useState();
+export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
+  const urlNaMinhaCasa = import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
+  const urlNaCasaDeWisney = import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
+  const [anuncios, definirAnuncios] = useState();
   const [discord, definirDiscord] = useState('');
 
   useEffect(()=>{
     document.body.onkeydown = (e)=>{fechar(e)};
-    fetch(`http://localhost:3333/jogos/${jogoId}/anuncios`)
+    const endereco = `/jogos/${jogo.id}/anuncios`;
+    const abortista = new AbortController();
+    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
+    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
+    Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(resp=>resp.json())
     .then(dados=>{
+      abortista.abort();
       definirErroAoObterDados(false);
       definirAnuncios(dados);
     })
@@ -27,10 +35,15 @@ export default function ModalDeJogoSelecionado({jogoId, funcFechar}) {
       funcFechar();
   }
 
-  async function obterDiscord(anuncioId) {
-    fetch(`http://localhost:3333/anuncios/${anuncioId}/discord`)
+  function obterDiscord(anuncioId) {
+    const endereco = `/anuncios/${anuncioId}/discord`;
+    const abortista = new AbortController();
+    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
+    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
+    Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(resp=>resp.json())
     .then(dados=>{
+      abortista.abort();
       definirErroAoObterDados(false);
       definirDiscord(dados.discord);
     })
@@ -44,7 +57,13 @@ export default function ModalDeJogoSelecionado({jogoId, funcFechar}) {
     <div className="modalAnuncioFora" onClick={funcFechar}>
       <div className="modalAnuncio" onClick={(e)=>e.stopPropagation()}>
 
-        <h2>Conecte-se e comece a jogar!</h2>
+        <div className='jogoSelecionado'>
+          <img className='imagemDoJogo' src={jogo.urlImagem}/>
+          <div>
+            <h2>{jogo.nome}</h2>
+            <strong>Conecte-se e comece a jogar!</strong>
+          </div>
+        </div>
 
         <div className='anuncios'>
           {!anuncios ?
@@ -61,28 +80,26 @@ export default function ModalDeJogoSelecionado({jogoId, funcFechar}) {
                 <CartaoDeAnuncio
                   key={id}
                   anuncio={anuncio}
-                  funcConectar={()=>{obterDiscord(anuncio.id);console.log("clicou em conectar")}}
+                  funcConectar={()=>obterDiscord(anuncio.id)}
                 />
               )
             )
           }
-          {/*{erroAoObterDados && <p>Erro ao obter dados dos anúncios do servidor.</p>}
-          {anuncios &&
-            (anuncios.length == 0 ?
-              <p>Nenhum anúncio publicado.</p>
-            :
-              anuncios.map((anuncio,id)=>
-                <CartaoDeAnuncio
-                  key={id}
-                  anuncio={anuncio}
-                  funcConectar={()=>{obterDiscord(anuncio.id);console.log("clicou em conectar")}}
-                />
-              )
-            )
-          }*/}
         </div>
 
-        {discord && <p>Discord: {discord}</p>}
+        {discord &&
+          <div className='flex alignCenter'>
+            <p>Discord: {discord}</p>
+            {window.isSecureContext &&
+              <img src={iconeCopiar} className='copiar'
+                onClick={()=>{
+                  navigator.clipboard.writeText(discord);
+                  //definirDiscord('');
+                }}
+              />
+            }
+          </div>
+        }
 
       </div>
     </div>

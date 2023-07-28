@@ -3,39 +3,27 @@ import { THEME } from '../../theme';
 
 export const styles = StyleSheet.create({
   container: {
-    //width: "100%",
-    //flex: 1,
-    //alignItems: 'center',
-    //justifyContent: 'center'
   },
   cabecalho: {
-    //width: "100%",
-    //flex: 1,
     alignItems: 'center',
     flexDirection: 'row',
     paddingHorizontal: 32,
     marginVertical: 16,
     justifyContent: 'space-between',
-    //justifyContent: 'center'
   },
   logo: {
     width: 72,
     height: 40,
-    //alignSelf: 'center'
   },
   scrollConteudo: {
-    //width: "100%",
-    //flex: 1,
-    alignItems: 'center',
-    //justifyContent: 'center'
+    alignItems: 'center'
   },
   formulario: {
     width: '50%',
     backgroundColor: THEME.COLORS.SHAPE,
     padding: 20,
     borderRadius: 8,
-    marginVertical: 24,
-    //gap: 8
+    marginVertical: 24
   },
   titulo: {
     color: THEME.COLORS.TEXT,
@@ -59,10 +47,12 @@ export const styles = StyleSheet.create({
   },
   horizontal: {
     alignItems: 'center',
-    //justifyContent: 'center',
     flexDirection: 'row',
     gap: 8,
     marginBottom: 8
+  },
+  gap: {
+    gap: 8
   },
   dia: {
     height: 32,
@@ -70,24 +60,12 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 8,
     backgroundColor: 'white',
     color: 'black',
-    //padding: 0,
-    //margin: 0,
     fontSize: THEME.FONT_SIZE.MD,
     alignItems: 'center',
-    //alignContent: 'center',
-    //textAlignVertical: 'center',
-    //textAlign: 'center',
-    //verticalAlign: 'middle',
-    //includeFontPadding: false,
     justifyContent: 'center',
-    //fontSize: 4,
-    borderRadius: 4,
-    //backgroundColor: THEME.COLORS.CAPTION_400,
+    borderRadius: 4
   },
   diaMarcado: {
-    //height: 16,
-    //fontSize: THEME.FONT_SIZE.SM,
-    //includeFontPadding: false,
     backgroundColor: THEME.COLORS.PRIMARY,
     color: 'white'
   },
@@ -110,7 +88,6 @@ export const styles = StyleSheet.create({
     backgroundColor: THEME.COLORS.PRIMARY,
     borderRadius: 8,
     marginVertical: 16,
-    //flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center'
   },

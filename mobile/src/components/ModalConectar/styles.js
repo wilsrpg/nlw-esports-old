@@ -16,8 +16,9 @@ export const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   botaoFechar: {
-    margin: 16,
-    alignSelf: 'flex-end',
+    margin: 8,
+    padding: 8,
+    alignSelf: 'flex-end'
   },
   texto: {
     color: THEME.COLORS.CAPTION_300,
@@ -26,12 +27,16 @@ export const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 8,
   },
-  botaodiscord: {
-    width: 231,
-    height: 48,
+  caixaDiscord: {
+    maxWidth: '90%',
+    height: 'auto',
+    paddingVertical: 8,
+    paddingHorizontal: 24,
     marginBottom: 32,
     borderRadius: 4,
     backgroundColor: THEME.COLORS.BACKGROUND_900,
+    flexDirection: 'row',
+    gap: 8,
     alignItems: 'center',
     justifyContent: 'center'
   },

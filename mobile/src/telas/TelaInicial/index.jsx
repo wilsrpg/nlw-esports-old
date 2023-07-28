@@ -9,18 +9,24 @@ import { Background } from '../../components/Background';
 import { useNavigation } from '@react-navigation/native';
 import { Carregando } from '../../components/Carregando';
 import { SimpleLineIcons } from '@expo/vector-icons';
+import {IP_NA_MINHA_CASA, IP_NA_CASA_DE_WISNEY, PORTA_DO_SERVIDOR } from '@env'
 
 export function TelaInicial() {
+  const urlNaMinhaCasa = ""+IP_NA_MINHA_CASA+":"+PORTA_DO_SERVIDOR;
+  const urlNaCasaDeWisney = ""+IP_NA_CASA_DE_WISNEY+":"+PORTA_DO_SERVIDOR;
+  const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const navegador = useNavigation();
   const [jogos, definirJogos] = useState();
-  const [erroAoObterDados, definirErroAoObterDados] = useState(false);
 
   useEffect(()=>{
-    const naCasaDeWisney = fetch(`http://192.168.0.144:3333/jogos`);
-    const naMinhaCasa = fetch(`http://192.168.1.16:3333/jogos`);
+    const endereco = `/jogos`;
+    const abortista = new AbortController();
+    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
+    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
     Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(resp=>resp.json())
     .then(dados=>{
+      abortista.abort();
       definirErroAoObterDados(false);
       definirJogos(dados);
     })

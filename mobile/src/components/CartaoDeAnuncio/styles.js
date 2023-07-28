@@ -6,9 +6,7 @@ export const styles = StyleSheet.create({
     width: 220,
     backgroundColor: THEME.COLORS.SHAPE,
     padding: 20,
-    borderRadius: 8,
-    //marginRight: 16,
-    //alignItems: 'center'
+    borderRadius: 8
   },
   rotulo: {
     color: THEME.COLORS.CAPTION_300,
@@ -33,8 +31,6 @@ export const styles = StyleSheet.create({
     height: 36,
     backgroundColor: THEME.COLORS.PRIMARY,
     borderRadius: 8,
-    //marginBottom: 16,
-    //flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center'
   },

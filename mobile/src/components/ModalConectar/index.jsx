@@ -11,7 +11,7 @@ export function ModalConectar({discord, funcFechar}) {
   const [copiando, definirCopiando] = useState(false);
 
   async function copiar(){
-    definirCopiando(true);
+    //definirCopiando(true);
     await setStringAsync(discord);
     Alert.alert('Discord copiado.', 'Nome de Discord do usuário copiado para área de transferência. Agora é só entrar em contato através do Discord.');
     definirCopiando(false);
@@ -24,8 +24,8 @@ export function ModalConectar({discord, funcFechar}) {
       statusBarTranslucent
       visible={discord.length > 0}
     >
-      <View style={styles.container}>
-        <View style={styles.conteudo}>
+      <View style={styles.container} onTouchStart={funcFechar}>
+        <View style={styles.conteudo} onTouchStart={(e)=>{e.stopPropagation()}}>
           <TouchableOpacity
             onPress={funcFechar}
             style={styles.botaoFechar}
@@ -48,15 +48,28 @@ export function ModalConectar({discord, funcFechar}) {
           <Text style={styles.texto}>
             Adicione no Discord:
           </Text>
-          <TouchableOpacity
-            style={styles.botaodiscord}
-            onPress={copiar}
-            disabled={copiando}
-          >
+          <View style={styles.caixaDiscord}>
             <Text style={styles.discord}>
-              {copiando ? <ActivityIndicator/> : discord}
+              {discord}
             </Text>
-          </TouchableOpacity>
+            {copiando ?
+              <ActivityIndicator/>
+            :
+              <TouchableOpacity
+                onPress={()=>{
+                  definirCopiando(true);
+                  copiar();
+                }}
+                disabled={copiando}
+              >
+                <AntDesign
+                  name="copy1"
+                  size={20}
+                  color={THEME.COLORS.SUCCESS}
+                />
+              </TouchableOpacity>
+            }
+          </View>
         </View>
       </View>
     </Modal>

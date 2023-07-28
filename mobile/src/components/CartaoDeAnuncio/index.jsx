@@ -16,14 +16,16 @@ export function CartaoDeAnuncio({anuncio,funcConectar}) {
         Tempo de jogo
       </Text>
       <Text style={styles.valor}>
-        {anuncio.tempoDeJogoEmAnos} ano(s)
+        {anuncio.tempoDeJogoEmAnos == 0 ? 'Nenhum' :
+          anuncio.tempoDeJogoEmAnos + " ano" + (anuncio.tempoDeJogoEmAnos > 1 ? 's' : '')
+        }
       </Text>
 
       <Text style={styles.rotulo}>
         Disponibilidade
       </Text>
       <Text style={styles.valor}>
-        {anuncio.diasQueJoga.length + " dia(s) • " + anuncio.deHora + " - " + anuncio.ateHora}
+        {anuncio.diasQueJoga.length} dia{anuncio.diasQueJoga.length > 1 && 's'} • {anuncio.deHora} - {anuncio.ateHora}
       </Text>
 
       <Text style={styles.rotulo}>
