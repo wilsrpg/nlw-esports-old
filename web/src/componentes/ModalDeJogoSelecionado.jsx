@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import CartaoDeAnuncio from './CartaoDeAnuncio';
-import carregando from '../assets/loading.svg'
-import iconeCopiar from '../assets/icons8-restore-down-26.png'
+import carregando from '../imagens/loading.svg'
+import iconeCopiar from '../imagens/icons8-restore-down-26.png'
 
 export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
   const urlNaMinhaCasa = import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
@@ -62,6 +62,7 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
           <div>
             <h2>{jogo.nome}</h2>
             <strong>Conecte-se e comece a jogar!</strong>
+            {anuncios && anuncios.length > 0 && <p>{anuncios.length} anúncio{anuncios.length > 1 ? 's' : ''}</p>}
           </div>
         </div>
 

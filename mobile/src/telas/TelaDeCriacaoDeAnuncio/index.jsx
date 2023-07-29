@@ -1,15 +1,15 @@
 import { Alert, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from './styles';
-import { Background } from '../../components/Background';
+import { ImagemDeFundo } from '../../componentes/ImagemDeFundo';
 import { TouchableOpacity } from 'react-native';
-import { THEME } from '../../theme';
+import { THEME } from '../../tema';
 import { useEffect, useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Checkbox from 'expo-checkbox';
 import {IP_NA_MINHA_CASA, IP_NA_CASA_DE_WISNEY, PORTA_DO_SERVIDOR } from '@env'
-import { Cabecalho } from '../../components/Cabecalho';
+import { Cabecalho } from '../../componentes/Cabecalho';
 
 export function TelaDeCriacaoDeAnuncio() {
   const urlNaMinhaCasa = ""+IP_NA_MINHA_CASA+":"+PORTA_DO_SERVIDOR;
@@ -164,7 +164,7 @@ export function TelaDeCriacaoDeAnuncio() {
   }
 
   return (
-    <Background>
+    <ImagemDeFundo>
       <SafeAreaView style={styles.container}>
         <Cabecalho/>
         <ScrollView contentContainerStyle={styles.scrollConteudo}>
@@ -290,6 +290,6 @@ export function TelaDeCriacaoDeAnuncio() {
           </View>
         </ScrollView>
       </SafeAreaView>
-    </Background>
+    </ImagemDeFundo>
   )
 }

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { THEME } from '../../theme';
+import { THEME } from '../../tema';
 
 export const styles = StyleSheet.create({
   container: {
@@ -16,10 +16,12 @@ export const styles = StyleSheet.create({
     height: 40,
   },
   scrollConteudo: {
-    alignItems: 'center'
+    alignItems: 'center',
+    paddingBottom: 72
   },
   formulario: {
-    width: '50%',
+    width: 500,
+    maxWidth: '90%',
     backgroundColor: THEME.COLORS.SHAPE,
     padding: 20,
     borderRadius: 8,
@@ -48,6 +50,7 @@ export const styles = StyleSheet.create({
   horizontal: {
     alignItems: 'center',
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
     marginBottom: 8
   },
@@ -87,7 +90,7 @@ export const styles = StyleSheet.create({
     height: 36,
     backgroundColor: THEME.COLORS.PRIMARY,
     borderRadius: 8,
-    marginVertical: 16,
+    marginTop: 16,
     alignItems: 'center',
     justifyContent: 'center'
   },

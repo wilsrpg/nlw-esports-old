@@ -1,5 +1,5 @@
 import { ImageBackground, Text, TouchableOpacity } from 'react-native';
-import { THEME } from '../../theme';
+import { THEME } from '../../tema';
 import { styles } from './styles';
 import { LinearGradient } from 'expo-linear-gradient';
 

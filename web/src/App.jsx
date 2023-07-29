@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import './App.css'
-import nlwLogo from './assets/NLW-eSports-Logo.svg'
-import carregando from './assets/loading.svg'
-import CartaoDeJogo from './components/CartaoDeJogo'
-import lupa from './assets/magnifying-glass-plus-reverse.svg'
-import ModalParaCriarAnuncio from './components/ModalParaCriarAnuncio';
-import ModalDeJogoSelecionado from './components/ModalDeJogoSelecionado'
+import logo from './imagens/NLW-eSports-Logo.svg'
+import carregando from './imagens/loading.svg'
+import CartaoDeJogo from './componentes/CartaoDeJogo'
+import lupa from './imagens/magnifying-glass-plus-reverse.svg'
+import ModalParaCriarAnuncio from './componentes/ModalParaCriarAnuncio';
+import ModalDeJogoSelecionado from './componentes/ModalDeJogoSelecionado'
 
 export default function App() {
   const urlNaMinhaCasa = ""+import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
@@ -35,7 +35,7 @@ export default function App() {
 
   return (
     <div className='tudo'>
-      <img src={nlwLogo}/>
+      <img src={logo}/>
         <h1>Seu <span className="nlw-gradient">duo</span> está aqui.</h1>
 
         <div className='jogos'>

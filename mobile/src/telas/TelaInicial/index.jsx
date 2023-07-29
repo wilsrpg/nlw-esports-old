@@ -1,13 +1,13 @@
 import { FlatList, Image, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from './styles';
-import logo from '../../assets/logo-nlw-esports.png'
-import { Titulo } from '../../components/Titulo';
-import { CartaoDeJogo } from '../../components/CartaoDeJogo';
+import logo from '../../imagens/logo-nlw-esports.png'
+import { Titulo } from '../../componentes/Titulo';
+import { CartaoDeJogo } from '../../componentes/CartaoDeJogo';
 import { useEffect, useState } from 'react';
-import { Background } from '../../components/Background';
+import { ImagemDeFundo } from '../../componentes/ImagemDeFundo';
 import { useNavigation } from '@react-navigation/native';
-import { Carregando } from '../../components/Carregando';
+import { Carregando } from '../../componentes/Carregando';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import {IP_NA_MINHA_CASA, IP_NA_CASA_DE_WISNEY, PORTA_DO_SERVIDOR } from '@env'
 
@@ -46,7 +46,7 @@ export function TelaInicial() {
   }
 
   return (
-    <Background>
+    <ImagemDeFundo>
       <SafeAreaView style={styles.container}>
         <ScrollView
           style={styles.scrollView}
@@ -104,6 +104,6 @@ export function TelaInicial() {
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
-    </Background>
+    </ImagemDeFundo>
   )
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import carregando from '../assets/loading.svg'
+import carregando from '../imagens/loading.svg'
 
 export default function ModalParaCriarAnuncio({funcFechar}) {
   const urlNaMinhaCasa = import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { THEME } from '../../theme';
+import { THEME } from '../../tema';
 
 export const styles = StyleSheet.create({
   container: {
@@ -42,6 +42,7 @@ export const styles = StyleSheet.create({
   textoConteudoVazio: {
     color: THEME.COLORS.CAPTION_300,
     fontFamily: THEME.FONT_FAMILY.REGULAR,
-    fontSize: THEME.FONT_SIZE.SM
+    fontSize: THEME.FONT_SIZE.SM,
+    marginBottom: 16
   }
 })

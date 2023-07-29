@@ -1,12 +1,12 @@
 import { ImageBackground } from 'react-native';
 import { styles } from './styles';
-import backgroundImg from '../../assets/background-galaxy.png';
+import imagem from '../../imagens/background-galaxy.png';
 
-export function Background({children}) {
+export function ImagemDeFundo({children}) {
   return (
     <ImageBackground
-      source={backgroundImg}
-      defaultSource={backgroundImg}
+      source={imagem}
+      defaultSource={imagem}
       style={styles.container}
     >
       {children}

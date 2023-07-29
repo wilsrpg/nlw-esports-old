@@ -1,5 +1,5 @@
 body {
-  background-image: url('./assets/NLW-Fundo.png');
+  background-image: url('./imagens/NLW-Fundo.png');
   background-size: cover;
   background-attachment: fixed;
 }
@@ -224,6 +224,7 @@ h2 {
 
 .modalAnuncio #dias {
   border: 1px solid gray;
+  width: fit-content;
 }
 
 .modalAnuncio #dias input {
@@ -240,7 +241,7 @@ h2 {
 }
 @media only screen and (max-width: 600px) {
   .aoLado {
-    grid: auto/auto;
+    grid: auto/100%;
   }
 }
 

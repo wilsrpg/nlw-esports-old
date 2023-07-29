@@ -1,15 +1,15 @@
-import { FlatList, Image, ScrollView, Text, View } from 'react-native';
+import { FlatList, Image, ScrollView, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from './styles';
-import { Titulo } from '../../components/Titulo';
-import { Background } from '../../components/Background';
+import { Titulo } from '../../componentes/Titulo';
+import { ImagemDeFundo } from '../../componentes/ImagemDeFundo';
 import { useRoute } from '@react-navigation/native';
-import { CartaoDeAnuncio } from '../../components/CartaoDeAnuncio';
+import { CartaoDeAnuncio } from '../../componentes/CartaoDeAnuncio';
 import { useEffect, useState } from 'react';
-import { Carregando } from '../../components/Carregando';
-import { ModalConectar } from '../../components/ModalConectar';
+import { Carregando } from '../../componentes/Carregando';
+import { ModalConectar } from '../../componentes/ModalConectar';
 import {IP_NA_MINHA_CASA, IP_NA_CASA_DE_WISNEY, PORTA_DO_SERVIDOR } from '@env'
-import { Cabecalho } from '../../components/Cabecalho';
+import { Cabecalho } from '../../componentes/Cabecalho';
 
 export function TelaDoJogo() {
   const urlNaMinhaCasa = ""+IP_NA_MINHA_CASA+":"+PORTA_DO_SERVIDOR;
@@ -57,7 +57,7 @@ export function TelaDoJogo() {
   }
 
   return (
-    <Background>
+    <ImagemDeFundo>
       <SafeAreaView style={styles.container}>
         <Cabecalho/>
         <ScrollView contentContainerStyle={styles.scrollConteudo}>
@@ -70,31 +70,38 @@ export function TelaDoJogo() {
             titulo={jogo.nome}
             subtitulo="Conecte-se e comece a jogar!"
           />
-
+          
           {erroAoObterDados ?
             <Text style={styles.textoConteudoVazio}>
               Erro ao obter dados dos anúncios do servidor.
             </Text>
           :
             !anuncios ? <Carregando/> :
-            <FlatList
-              style={styles.lista}
-              contentContainerStyle={anuncios.length > 0 ? styles.listaConteudo : styles.listaConteudoVazio}
-              horizontal
-              data={anuncios}
-              keyExtractor={item=>item.id}
-              renderItem={({item})=>
-                <CartaoDeAnuncio
-                  anuncio={item}
-                  funcConectar={()=>obterDiscord(item.id)}
-                />
-              }
-              ListEmptyComponent={()=>
+            <>
+              {anuncios.length > 0 &&
                 <Text style={styles.textoConteudoVazio}>
-                  Nenhum anúncio publicado.
+                  {anuncios.length} anúncio{anuncios.length > 1 ? 's' : ''}
                 </Text>
               }
-            />
+              <FlatList
+                style={styles.lista}
+                contentContainerStyle={anuncios.length > 0 ? styles.listaConteudo : styles.listaConteudoVazio}
+                horizontal
+                data={anuncios}
+                keyExtractor={item=>item.id}
+                renderItem={({item})=>
+                  <CartaoDeAnuncio
+                    anuncio={item}
+                    funcConectar={()=>obterDiscord(item.id)}
+                  />
+                }
+                ListEmptyComponent={()=>
+                  <Text style={styles.textoConteudoVazio}>
+                    Nenhum anúncio publicado.
+                  </Text>
+                }
+              />
+            </>
           }
           {/*{discord.length > 0 &&*/}
             <ModalConectar
@@ -104,6 +111,6 @@ export function TelaDoJogo() {
           {/*}*/}
         </ScrollView>
       </SafeAreaView>
-    </Background>
+    </ImagemDeFundo>
   )
 }

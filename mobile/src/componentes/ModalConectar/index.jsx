@@ -1,6 +1,6 @@
 import { Modal, Text, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
-import { THEME } from '../../theme';
+import { THEME } from '../../tema';
 import { styles } from './styles';
 import { MaterialIcons } from '@expo/vector-icons';
 import { AntDesign  } from '@expo/vector-icons';
