@@ -201,6 +201,7 @@ p {
 }
 
 .modalAnuncio {
+  position: relative;
   /*width: 80%;
   height: 80%;*/
   max-width: 90%;
@@ -337,13 +338,13 @@ h2 {
   cursor: help;
 }
 
-.copiar {
+.botaoCopiar {
   height: 1.5rem;
   width: 1.5rem;
   opacity: 0.5;
 }
 
-.copiar:hover {
+.botaoCopiar:hover {
   cursor: pointer;
   opacity: 1;
 }
@@ -374,5 +375,7 @@ h2 {
 }
 
 .botaoFechar {
-
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import carregando from '../imagens/loading.svg'
+import iconeFechar from '../imagens/x.svg'
 
 export default function ModalParaCriarAnuncio({funcFechar}) {
   const urlNaMinhaCasa = import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
@@ -106,6 +107,7 @@ export default function ModalParaCriarAnuncio({funcFechar}) {
     <div className="modalAnuncioFora" onClick={funcFechar}>
       <div className="modalAnuncio" onClick={(e)=>e.stopPropagation()}>
 
+        <img className='botaoCopiar botaoFechar' src={iconeFechar} onClick={funcFechar}/>
         <h2>Publique seu anúncio</h2>
         <form className='flex flexColumn' onSubmit={publicarAnuncio}>
           
