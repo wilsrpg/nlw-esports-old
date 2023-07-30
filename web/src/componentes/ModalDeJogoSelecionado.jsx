@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import CartaoDeAnuncio from './CartaoDeAnuncio';
 import carregando from '../imagens/loading.svg'
 import iconeCopiar from '../imagens/icons8-restore-down-26.png'
+import ModalConectar from './ModalConectar';
 
 export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
   const urlNaMinhaCasa = import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
@@ -11,7 +12,7 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
   const [discord, definirDiscord] = useState('');
 
   useEffect(()=>{
-    document.body.onkeydown = (e)=>{fechar(e)};
+    //document.body.onkeydown = (e)=>{fechar(e)};
     const endereco = `/jogos/${jogo.id}/anuncios`;
     const abortista = new AbortController();
     const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
@@ -28,6 +29,11 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
       console.log(erro);
     });
   }, [])
+
+  useEffect(()=>{
+    if(!discord)
+      document.body.onkeydown = (e)=>{fechar(e)};
+  }, [discord])
 
   function fechar(e) {
     if(e.repeat) return;
@@ -54,7 +60,7 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
   }
 
   return (
-    <div className="modalAnuncioFora" onClick={funcFechar}>
+    <div className={`modalAnuncioFora ${discord && ' semFundo'}`} onClick={funcFechar}>
       <div className="modalAnuncio" onClick={(e)=>e.stopPropagation()}>
 
         <div className='jogoSelecionado'>
@@ -89,17 +95,18 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
         </div>
 
         {discord &&
-          <div className='flex alignCenter'>
-            <p>Discord: {discord}</p>
-            {window.isSecureContext &&
-              <img src={iconeCopiar} className='copiar'
-                onClick={()=>{
-                  navigator.clipboard.writeText(discord);
-                  //definirDiscord('');
-                }}
-              />
-            }
-          </div>
+          <ModalConectar discord={discord} funcFechar={()=>definirDiscord('')}/>
+          //<div className='flex alignCenter'>
+          //  <p>Discord: {discord}</p>
+          //  {window.isSecureContext &&
+          //    <img src={iconeCopiar} className='copiar'
+          //      onClick={()=>{
+          //        navigator.clipboard.writeText(discord);
+          //        //definirDiscord('');
+          //      }}
+          //    />
+          //  }
+          //</div>
         }
 
       </div>
