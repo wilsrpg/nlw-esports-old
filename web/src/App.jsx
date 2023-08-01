@@ -33,13 +33,6 @@ export default function App() {
     });
   }, [])
 
-  //useEffect(()=>{
-  //  if(exibindoModalParaCriarAnuncio || jogoProModalDeAnuncios)
-  //    document.body.style.overflow = 'hidden';
-  //  else
-  //    document.body.style.overflow = 'auto';
-  //}, [exibindoModalParaCriarAnuncio, jogoProModalDeAnuncios])
-
   return (
     <div className='tudo'>
       <img src={logo}/>

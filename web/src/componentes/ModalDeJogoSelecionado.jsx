@@ -94,20 +94,7 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
           }
         </div>
 
-        {discord &&
-          <ModalConectar discord={discord} funcFechar={()=>definirDiscord('')}/>
-          //<div className='flex alignCenter'>
-          //  <p>Discord: {discord}</p>
-          //  {window.isSecureContext &&
-          //    <img src={iconeCopiar} className='botaoCopiar'
-          //      onClick={()=>{
-          //        navigator.clipboard.writeText(discord);
-          //        //definirDiscord('');
-          //      }}
-          //    />
-          //  }
-          //</div>
-        }
+        {discord && <ModalConectar discord={discord} funcFechar={()=>definirDiscord('')}/>}
 
       </div>
     </div>

@@ -48,7 +48,7 @@ export default function ModalParaCriarAnuncio({funcFechar}) {
     if(publicando) return;
     e.preventDefault();
     if(document.getElementById("jogo").value == "nenhum"){
-      document.getElementById("jogo").style.borderColor = "red";
+      document.getElementById("jogo").style.backgroundColor = "red";
       document.getElementById("jogo").focus();
       return;
     }
@@ -92,9 +92,12 @@ export default function ModalParaCriarAnuncio({funcFechar}) {
     const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, dados);
     const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, dados);
     Promise.any([naMinhaCasa,naCasaDeWisney])
-    .then(()=>{
+    .then((resp)=>{
       abortista.abort();
-      alert("Anúncio publicado com sucesso!");
+      if(resp.ok)
+        alert("Anúncio publicado com sucesso!");
+      else 
+        alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.");
     })
     .catch((erro)=>{
       console.log(erro);
@@ -112,7 +115,9 @@ export default function ModalParaCriarAnuncio({funcFechar}) {
         <form className='flex flexColumn' onSubmit={publicarAnuncio}>
           
           <label>Jogo</label>
-          <select disabled={!jogos} id="jogo" name="jogoId" onChange={(e)=>e.target.style.borderColor = "gray"}>
+          <select disabled={!jogos} id="jogo" name="jogoId" className='flex'
+            onFocus={(e)=>e.target.style.backgroundColor='white'}
+          >
             <option value="nenhum">
               {!jogos ?
                 (!erroAoObterDados ? "Buscando jogos..." : "Erro ao obter dados dos anúncios do servidor.")
@@ -132,12 +137,12 @@ export default function ModalParaCriarAnuncio({funcFechar}) {
 
             <div className='flex flexColumn'>
               <label htmlFor="discord">Discord</label>
-              <input id="discord" name="discord" placeholder='Nome de Usuário#0000' pattern='.*[\S][#][\d]{4}'/>
+              <input id="discord" name="discord" placeholder='Nome de Usuário#0000' pattern='.*[\S][#][\d]{4}' required/>
             </div>
 
             <div className='flex flexColumn'>
               <label htmlFor="tempo de jogo">Joga há quantos anos?</label>
-              <input id="tempo de jogo" name="tempoDeJogo" type="number" required/>
+              <input id="tempo de jogo" name="tempoDeJogo" type="tel" maxLength="2" pattern='\d' required/>
             </div>
 
             <div className='flex flexColumn'>
@@ -152,7 +157,7 @@ export default function ModalParaCriarAnuncio({funcFechar}) {
                     title={dia.dia}
                     className={dia.marcado ? 'roxinho' : ''}
                     onClick={()=>{
-                      document.getElementById("dias").style.borderColor = "gray";
+                      document.getElementById("dias").style.borderColor='#71717a';
                       definirDias([
                         ...dias.slice(0,id),
                         {...dia, marcado: !dia.marcado},
