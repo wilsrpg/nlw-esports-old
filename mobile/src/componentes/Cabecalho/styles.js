@@ -8,6 +8,9 @@ export const styles = StyleSheet.create({
     marginVertical: 16,
     justifyContent: 'space-between'
   },
+  botaoVoltar: {
+    padding: 8
+  },
   logo: {
     width: 72,
     height: 40,

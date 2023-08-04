@@ -5,14 +5,18 @@ import { styles } from './styles';
 import { THEME } from '../../tema';
 import logo from '../../imagens/logo-nlw-esports.png';
 
-export function Cabecalho() {
+export function Cabecalho({recarregarAoVoltar}) {
   const navegador = useNavigation();
 
   return (
     <View style={styles.cabecalho}>
       <TouchableOpacity onPress={navegador.goBack}>
+      {/*<TouchableOpacity onPress={()=>
+        recarregarAoVoltar ? navegador.navigate("telaInicial", {recarregarAoVoltar}) : navegador.goBack()}
+      >*/}
         <Entypo
           name='chevron-thin-left'
+          style={styles.botaoVoltar}
           color={THEME.COLORS.CAPTION_300}
           size={24}
         />

@@ -1,20 +1,20 @@
-import { Alert, ScrollView, Text, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from './styles';
-import { ImagemDeFundo } from '../../componentes/ImagemDeFundo';
-import { TouchableOpacity } from 'react-native';
-import { THEME } from '../../tema';
+import { Alert, ScrollView, Text, TextInput, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Checkbox from 'expo-checkbox';
-import {IP_NA_MINHA_CASA, IP_NA_CASA_DE_WISNEY, PORTA_DO_SERVIDOR } from '@env'
+import { styles } from './styles';
+import { THEME } from '../../tema';
+import { ImagemDeFundo } from '../../componentes/ImagemDeFundo';
 import { Cabecalho } from '../../componentes/Cabecalho';
+import { IP_NA_MINHA_CASA, IP_NA_CASA_DE_WISNEY, PORTA_DO_SERVIDOR } from '@env'
 
 export function TelaDeCriacaoDeAnuncio() {
   const urlNaMinhaCasa = ""+IP_NA_MINHA_CASA+":"+PORTA_DO_SERVIDOR;
   const urlNaCasaDeWisney = ""+IP_NA_CASA_DE_WISNEY+":"+PORTA_DO_SERVIDOR;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
+  const [recarregarJogos, definirRecarregarJogos] = useState(false);
   const [jogos, definirJogos] = useState();
   const [jogoId, definirJogoId] = useState('');
   const [nome, definirNome] = useState('');
@@ -33,6 +33,7 @@ export function TelaDeCriacaoDeAnuncio() {
   const [horaAte, definirHoraAte] = useState('--:--');
   const [relogio, definirRelogio] = useState({exibindo: false, horario: new Date(2000,0,1), definirHorario: definirHoraDe});
   const [usaChatDeVoz, definirUsaChatDeVoz] = useState(false);
+  const [publicando, definirPublicando] = useState(false);
 
   useEffect(()=>{
     const endereco = `/jogos`;
@@ -92,6 +93,7 @@ export function TelaDeCriacaoDeAnuncio() {
   }
 
   function publicarAnuncio() {
+    if(publicando) return;
     if(erroAoObterDados){
       Alert.alert("Erro ao obter dados dos jogos do servidor.");
       return;
@@ -107,7 +109,7 @@ export function TelaDeCriacaoDeAnuncio() {
       Alert.alert("Digite um nome.");
       return;
     }
-    if(!discord.match('.*\\S#\\d{4}')){
+    if(!discord.match('.*\\S#\\d{4}$')){
       Alert.alert("Digite um discord válido.");
       return;
     }
@@ -133,7 +135,7 @@ export function TelaDeCriacaoDeAnuncio() {
       if(dia.marcado)
         diasNum.push(id);
     });
-    const anuncio = JSON.stringify({
+    const novoAnuncio = JSON.stringify({
       jogoId: jogoId,
       nomeDoUsuario: nome,
       tempoDeJogoEmAnos: Number(tempoDeJogo),
@@ -143,7 +145,11 @@ export function TelaDeCriacaoDeAnuncio() {
       ateHora: horaAte,
       usaChatDeVoz: usaChatDeVoz,
     });
-    
+    definirPublicando(true);
+    tentarPublicar(jogoId, novoAnuncio);
+  }
+
+  function tentarPublicar(jogoId, anuncio) {
     const endereco = `/jogos/${jogoId}/anuncios`;
     const abortista = new AbortController();
     const dados = {
@@ -156,16 +162,21 @@ export function TelaDeCriacaoDeAnuncio() {
     const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, dados);
     Promise.any([naCasaDeWisney,naMinhaCasa])
     Promise.any([naCasaDeWisney,naMinhaCasa])
-    .then(Alert.alert("Anúncio publicado com sucesso!"))
+    .then(()=>{
+      Alert.alert("Anúncio publicado com sucesso!");
+      definirRecarregarJogos(true);
+    })
     .catch((erro)=>{
       console.log(erro);
       Alert.alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.\n"+erro);
     })
+    .finally(()=>definirPublicando(false));
   }
 
   return (
     <ImagemDeFundo>
       <SafeAreaView style={styles.container}>
+        {/*<Cabecalho recarregarAoVoltar={recarregarJogos}/>*/}
         <Cabecalho/>
         <ScrollView contentContainerStyle={styles.scrollConteudo}>
           <Text style={styles.titulo}>Publique seu anúncio</Text>
@@ -280,10 +291,11 @@ export function TelaDeCriacaoDeAnuncio() {
 
             <TouchableOpacity
               style={styles.botao}
+              disabled={publicando}
               onPress={publicarAnuncio}
             >
               <Text style={styles.botaoTitulo}>
-                Publicar
+                {!publicando ? "Publicar" : <ActivityIndicator/>}
               </Text>
             </TouchableOpacity>
 

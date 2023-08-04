@@ -95,8 +95,8 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
     .then((resp)=>{
       abortista.abort();
       if(resp.ok) {
-        alert("Anúncio publicado com sucesso!");
         funcRecarregarJogos();
+        alert("Anúncio publicado com sucesso!");
       } else 
         alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.");
     })
@@ -104,7 +104,7 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
       console.log(erro);
       alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.");
     })
-    .finally(()=>definirPublicando(false))
+    .finally(()=>definirPublicando(false));
   }
 
   return (

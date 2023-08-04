@@ -1,24 +1,48 @@
 import { FlatList, Image, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SimpleLineIcons } from '@expo/vector-icons';
 import { styles } from './styles';
+import { ImagemDeFundo } from '../../componentes/ImagemDeFundo';
 import logo from '../../imagens/logo-nlw-esports.png'
 import { Titulo } from '../../componentes/Titulo';
-import { CartaoDeJogo } from '../../componentes/CartaoDeJogo';
-import { useEffect, useState } from 'react';
-import { ImagemDeFundo } from '../../componentes/ImagemDeFundo';
-import { useNavigation } from '@react-navigation/native';
 import { Carregando } from '../../componentes/Carregando';
-import { SimpleLineIcons } from '@expo/vector-icons';
-import {IP_NA_MINHA_CASA, IP_NA_CASA_DE_WISNEY, PORTA_DO_SERVIDOR } from '@env'
+import { CartaoDeJogo } from '../../componentes/CartaoDeJogo';
+import { IP_NA_MINHA_CASA, IP_NA_CASA_DE_WISNEY, PORTA_DO_SERVIDOR } from '@env'
 
 export function TelaInicial() {
   const urlNaMinhaCasa = ""+IP_NA_MINHA_CASA+":"+PORTA_DO_SERVIDOR;
   const urlNaCasaDeWisney = ""+IP_NA_CASA_DE_WISNEY+":"+PORTA_DO_SERVIDOR;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const navegador = useNavigation();
+  //const [carregarJogos, definirCarregarJogos] = useState(true);
+  //const [recarregarJogos, definirRecarregarJogos] = useState(false);
+  //const recarregarJogosAoVoltarRef = useRef(true);
   const [jogos, definirJogos] = useState();
+  //console.log(recarregarJogosAoVoltarRef.current);
+  
+  /*useFocusEffect(useCallback(()=>{}));
+
 
   useEffect(()=>{
+    //if(rota.params && rota.params.recarregarAoVoltar){
+    //if(recarregarJogos){
+    if(recarregarJogosAoVoltarRef.current){
+      definirCarregarJogos(true);
+      //rota.params.recarregarAoVoltar = false;
+      //definirRecarregarJogos(false);
+      //recarregarJogosAoVoltarRef.current = false;
+    }
+    recarregarJogosAoVoltarRef.current = !recarregarJogosAoVoltarRef.current;
+    console.log("dentro:"+recarregarJogosAoVoltarRef.current);
+  })*/
+
+  //useEffect(()=>{
+  //useFocusEffect(useCallback(()=>{
+  useFocusEffect(useCallback(()=>{
+    //if(!carregarJogos) return;
+    //console.log("carregando...");
     const endereco = `/jogos`;
     const abortista = new AbortController();
     const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
@@ -31,19 +55,13 @@ export function TelaInicial() {
       definirJogos(dados);
     })
     .catch(erro=>{
-      definirErroAoObterDados(true);
+      if(!jogos)
+        definirErroAoObterDados(true);
       console.log(erro);
-    })
-  }, [])
-
-  function irParaTelaDoJogo(jogo) {
-    //console.log(jogo);
-    navegador.navigate('telaDoJogo', jogo);
-  }
-  
-  function irParaTelaDeCriacaoDeAnuncio() {
-    navegador.navigate('telaDeCriacaoDeAnuncio');
-  }
+    });
+    //.finally(()=>definirCarregarJogos(false));
+  }, []))
+  //}, [carregarJogos])
 
   return (
     <ImagemDeFundo>
@@ -79,7 +97,7 @@ export function TelaInicial() {
                     nome={item.nome}
                     urlImagem={item.urlImagem}
                     qtdeAnuncios={item._count.anuncios}
-                    funcTocar={()=>irParaTelaDoJogo(item)}
+                    funcTocar={()=>navegador.navigate('telaDoJogo', item)}
                   />
                 }
                 ListEmptyComponent={()=>
@@ -95,7 +113,7 @@ export function TelaInicial() {
           />
           <TouchableOpacity
             style={styles.botaoPublicarAnuncio}
-            onPress={irParaTelaDeCriacaoDeAnuncio}
+            onPress={()=>navegador.navigate('telaDeCriacaoDeAnuncio')}
           >
             <SimpleLineIcons name="magnifier-add" size={24} color="white"/>
             <Text style={styles.textoPublicarAnuncio}>
