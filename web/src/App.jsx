@@ -11,11 +11,13 @@ export default function App() {
   const urlNaMinhaCasa = ""+import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const urlNaCasaDeWisney = ""+import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
+  const [carregarJogos, definirCarregarJogos] = useState(true);
   const [jogos, definirJogos] = useState();
   const [exibindoModalParaCriarAnuncio, definirExibindoModalParaCriarAnuncio] = useState(false);
   const [jogoProModalDeAnuncios, definirJogoProModalDeAnuncios] = useState('');
 
   useEffect(()=>{
+    if(!carregarJogos) return;
     const endereco = `/jogos`;
     const abortista = new AbortController();
     const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
@@ -30,8 +32,9 @@ export default function App() {
     .catch(erro=>{
       definirErroAoObterDados(true);
       console.log(erro);
-    });
-  }, [])
+    })
+    .finally(()=>definirCarregarJogos(false));
+  }, [carregarJogos])
 
   return (
     <div className='tudo'>
@@ -75,6 +78,7 @@ export default function App() {
 
         {exibindoModalParaCriarAnuncio &&
           <ModalParaCriarAnuncio
+            funcRecarregarJogos={()=>definirCarregarJogos(true)}
             funcFechar={()=>definirExibindoModalParaCriarAnuncio(false)}
           />
         }

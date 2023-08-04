@@ -1,17 +1,16 @@
 import { Modal, Text, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
-import { THEME } from '../../tema';
-import { styles } from './styles';
 import { MaterialIcons } from '@expo/vector-icons';
 import { AntDesign  } from '@expo/vector-icons';
 import { setStringAsync } from 'expo-clipboard';
+import { styles } from './styles';
+import { THEME } from '../../tema';
 import { Titulo } from '../Titulo';
 
 export function ModalConectar({discord, funcFechar}) {
   const [copiando, definirCopiando] = useState(false);
 
   async function copiar(){
-    //definirCopiando(true);
     await setStringAsync(discord);
     Alert.alert('Discord copiado.', 'Nome de Discord do usuário copiado para área de transferência. Agora é só entrar em contato através do Discord.');
     definirCopiando(false);

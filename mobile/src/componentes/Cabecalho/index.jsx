@@ -1,9 +1,9 @@
 import { TouchableOpacity, View, Image } from "react-native";
 import { useNavigation } from '@react-navigation/native';
-import { styles } from './styles';
-import logo from '../../imagens/logo-nlw-esports.png';
 import { Entypo } from '@expo/vector-icons';
+import { styles } from './styles';
 import { THEME } from '../../tema';
+import logo from '../../imagens/logo-nlw-esports.png';
 
 export function Cabecalho() {
   const navegador = useNavigation();

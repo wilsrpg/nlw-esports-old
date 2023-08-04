@@ -1,7 +1,7 @@
 import { ImageBackground, Text, TouchableOpacity } from 'react-native';
-import { THEME } from '../../tema';
-import { styles } from './styles';
 import { LinearGradient } from 'expo-linear-gradient';
+import { styles } from './styles';
+import { THEME } from '../../tema';
 
 export function CartaoDeJogo(props) {
   return (

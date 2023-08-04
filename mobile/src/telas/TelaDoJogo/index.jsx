@@ -1,15 +1,15 @@
 import { FlatList, Image, ScrollView, Text } from 'react-native';
+import { useEffect, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from './styles';
-import { Titulo } from '../../componentes/Titulo';
 import { ImagemDeFundo } from '../../componentes/ImagemDeFundo';
-import { useRoute } from '@react-navigation/native';
-import { CartaoDeAnuncio } from '../../componentes/CartaoDeAnuncio';
-import { useEffect, useState } from 'react';
-import { Carregando } from '../../componentes/Carregando';
-import { ModalConectar } from '../../componentes/ModalConectar';
-import {IP_NA_MINHA_CASA, IP_NA_CASA_DE_WISNEY, PORTA_DO_SERVIDOR } from '@env'
 import { Cabecalho } from '../../componentes/Cabecalho';
+import { Titulo } from '../../componentes/Titulo';
+import { Carregando } from '../../componentes/Carregando';
+import { CartaoDeAnuncio } from '../../componentes/CartaoDeAnuncio';
+import { ModalConectar } from '../../componentes/ModalConectar';
+import { IP_NA_MINHA_CASA, IP_NA_CASA_DE_WISNEY, PORTA_DO_SERVIDOR } from '@env'
 
 export function TelaDoJogo() {
   const urlNaMinhaCasa = ""+IP_NA_MINHA_CASA+":"+PORTA_DO_SERVIDOR;

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import carregando from '../imagens/loading.svg'
 import iconeFechar from '../imagens/x.svg'
 
-export default function ModalParaCriarAnuncio({funcFechar}) {
+export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) {
   const urlNaMinhaCasa = import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const urlNaCasaDeWisney = import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
@@ -94,9 +94,10 @@ export default function ModalParaCriarAnuncio({funcFechar}) {
     Promise.any([naMinhaCasa,naCasaDeWisney])
     .then((resp)=>{
       abortista.abort();
-      if(resp.ok)
+      if(resp.ok) {
         alert("Anúncio publicado com sucesso!");
-      else 
+        funcRecarregarJogos();
+      } else 
         alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.");
     })
     .catch((erro)=>{

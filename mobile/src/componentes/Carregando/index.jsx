@@ -1,6 +1,6 @@
 import { View, ActivityIndicator } from 'react-native';
-import { THEME } from '../../tema';
 import { styles } from './styles';
+import { THEME } from '../../tema';
 
 export function Carregando() {
   return (
