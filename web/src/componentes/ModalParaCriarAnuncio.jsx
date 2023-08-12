@@ -88,7 +88,7 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
     const endereco = `/jogos/${jogoId}/anuncios`;
     const abortista = new AbortController();
     const dados = {
-      method: "POST",
+      method: "PUT",
       headers: {"Content-Type": "application/json"},
       body: anuncio,
       signal: abortista.signal

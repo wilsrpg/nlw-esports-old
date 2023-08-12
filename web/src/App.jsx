@@ -17,8 +17,15 @@ export default function App() {
   const [jogoProModalDeAnuncios, definirJogoProModalDeAnuncios] = useState('');
 
   useEffect(()=>{
-    //if(!carregarJogos) return;
-    if(exibindoModalParaCriarAnuncio && !recarregarJogos || jogoProModalDeAnuncios) return;
+
+    //return abortista.abort();
+  }, [])
+
+  useEffect(()=>{
+    //if (!carregarJogos)
+      //return;
+    if (exibindoModalParaCriarAnuncio && !recarregarJogos || jogoProModalDeAnuncios)
+      return;
     //console.log("carregando...");
     const endereco = `/jogos`;
     const abortista = new AbortController();
@@ -85,7 +92,7 @@ export default function App() {
             funcFechar={()=>definirExibindoModalParaCriarAnuncio(false)}
           />
         }
-        
+
         {jogoProModalDeAnuncios &&
           <ModalDeJogoSelecionado
             jogo={jogoProModalDeAnuncios}

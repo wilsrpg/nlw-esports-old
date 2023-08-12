@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const servidor = express();
 servidor.use(express.json());
@@ -11,8 +12,10 @@ const prisma = new PrismaClient(
 	//{log:['query']}
 );
 
-servidor.get('/jogos', async (req, resp) => {
-	const jogos = await prisma.jogo.findMany({
+const bcryptSaltRounds = 10;
+
+servidor.get('/jogos', async (req, resp)=>{
+	const jogos = await prisma.jogos.findMany({
 		include: {
 			_count: {
 				select: {
@@ -25,16 +28,17 @@ servidor.get('/jogos', async (req, resp) => {
 	return resp.json(jogos);
 })
 
-servidor.get('/anuncios', async (req, resp) => {
-	const anuncios = await prisma.anuncio.findMany();
+servidor.get('/anuncios', async (req, resp)=>{
+	const anuncios = await prisma.anuncios.findMany();
 	console.log("GET anuncios, qtde="+anuncios.length+", ip="+req.ip);
 	return resp.json(anuncios);
 })
 
-servidor.post('/jogos/:id/anuncios', async (req, resp) => {
+servidor.put('/jogos/:id/anuncios', async (req, resp)=>{
 	const jogoId = req.params.id;
 	const body = req.body;
-	const anuncio = await prisma.anuncio.create({
+	console.log("PUT anuncio, usuário="+body.nomeDoUsuario+", ip="+req.ip);
+	const anuncio = await prisma.anuncios.create({
 		data: {
 			jogoId: jogoId,
 			nomeDoUsuario: body.nomeDoUsuario,
@@ -46,7 +50,6 @@ servidor.post('/jogos/:id/anuncios', async (req, resp) => {
 			usaChatDeVoz: body.usaChatDeVoz
 		}
 	});
-	console.log("POST anuncio, usuário="+body.nomeDoUsuario+", ip="+req.ip);
 	return resp.status(201).json(anuncio);
 })
 
@@ -55,9 +58,9 @@ function converterHoraStringParaMinutos(horaString:string) {
 	return horas*60 + minutos;
 }
 
-servidor.get('/jogos/:id/anuncios', async (req, resp) => {
+servidor.get('/jogos/:id/anuncios', async (req, resp)=>{
 	const jogoId = req.params.id;
-	const anuncios = await prisma.anuncio.findMany({
+	const anuncios = await prisma.anuncios.findMany({
 		select: {
 			id: true,
 			nomeDoUsuario: true,
@@ -71,7 +74,7 @@ servidor.get('/jogos/:id/anuncios', async (req, resp) => {
 		orderBy: {dataDeCriacao: 'desc'}
 	});
 	console.log("GET jogo/anuncios, qtde="+anuncios.length+", ip="+req.ip);
-	return resp.json(anuncios.map((anuncio)=>{
+	return resp.json(anuncios.map(anuncio=>{
 		return {...anuncio,
 			diasQueJoga: anuncio.diasQueJoga.split(','),
 			deHora: converterMinutosParaHoraString(anuncio.deHora),
@@ -86,9 +89,9 @@ function converterMinutosParaHoraString(minutos:number) {
 	return String(hora).padStart(2,'0') + ":" + String(minuto).padStart(2,'0');
 }
 
-servidor.get('/anuncios/:id/discord', async (req, resp) => {
+servidor.get('/anuncios/:id/discord', async (req, resp)=>{
 	const anuncioId = req.params.id;
-	const anuncio = await prisma.anuncio.findUniqueOrThrow({
+	const anuncio = await prisma.anuncios.findUniqueOrThrow({
 		select: {discord: true},
 		where: {id: anuncioId}
 	});

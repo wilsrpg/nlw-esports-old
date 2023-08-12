@@ -10,15 +10,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Jogo {
-  id        String    @id @default(uuid())
+model Jogos {
+  id        String     @id @default(uuid())
   nome      String
   url       String
   urlImagem String
-  anuncios  Anuncio[]
+  anuncios  Anuncios[]
 }
 
-model Anuncio {
+model Anuncios {
   id                String   @id @default(uuid())
   jogoId            String
   nomeDoUsuario     String
@@ -30,5 +30,12 @@ model Anuncio {
   usaChatDeVoz      Boolean
   dataDeCriacao     DateTime @default(now())
 
-  jogo Jogo @relation(fields: [jogoId], references: [id])
+  jogo Jogos @relation(fields: [jogoId], references: [id])
+}
+
+model Usuarios {
+  id            Int      @id
+  nome          String   @unique
+  senhaHash     String
+  dataDeCriacao DateTime @default(now())
 }
