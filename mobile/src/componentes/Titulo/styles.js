@@ -18,4 +18,3 @@ export const styles = StyleSheet.create({
       fontSize: THEME.FONT_SIZE.MD
     }
   });
-  

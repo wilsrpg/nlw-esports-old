@@ -20,7 +20,7 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
   const [publicando, definirPublicando] = useState(false);
 
   useEffect(()=>{
-    document.body.onkeydown = (e)=>{fechar(e)};
+    document.body.onkeydown = e=>{fechar(e)};
     const endereco = `/jogos`;
     const abortista = new AbortController();
     const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
@@ -36,34 +36,38 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
       definirErroAoObterDados(true);
       console.log(erro);
     });
+
+    //return abortista.abort();
   }, [])
 
   function fechar(e) {
-    if(e.repeat) return;
-    if(e.key == "Escape")
+    if (e.repeat)
+      return;
+    if (e.key == "Escape")
       funcFechar();
   }
 
   async function publicarAnuncio(e) {
-    if(publicando) return;
+    if (publicando)
+      return;
     e.preventDefault();
-    if(document.getElementById("jogo").value == "nenhum"){
+    if (document.getElementById("jogo").value == "nenhum") {
       document.getElementById("jogo").style.backgroundColor = "red";
       document.getElementById("jogo").focus();
       return;
     }
-    if(!dias.some((dia)=>dia.marcado)){
+    if (!dias.some(dia=>dia.marcado)) {
       document.getElementById("dias").style.borderColor = "red";
       return;
     }
-    if(document.getElementById("tempo de jogo").value < 0){
+    if (document.getElementById("tempo de jogo").value < 0) {
       document.getElementById("tempo de jogo").focus();
       return;
     }
     const dados = Object.fromEntries(new FormData(e.target));
     const diasNum = [];
     dias.map((dia,id)=>{
-      if(dia.marcado)
+      if (dia.marcado)
         diasNum.push(id);
     });
     const novoAnuncio = JSON.stringify({
@@ -84,7 +88,7 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
     const endereco = `/jogos/${jogoId}/anuncios`;
     const abortista = new AbortController();
     const dados = {
-      method: "POST", 
+      method: "POST",
       headers: {"Content-Type": "application/json"},
       body: anuncio,
       signal: abortista.signal
@@ -92,15 +96,15 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
     const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, dados);
     const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, dados);
     Promise.any([naMinhaCasa,naCasaDeWisney])
-    .then((resp)=>{
+    .then(resp=>{
       abortista.abort();
-      if(resp.ok) {
+      if (resp.ok) {
         funcRecarregarJogos();
         alert("Anúncio publicado com sucesso!");
-      } else 
+      } else
         alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.");
     })
-    .catch((erro)=>{
+    .catch(erro=>{
       console.log(erro);
       alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.");
     })
@@ -109,15 +113,15 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
 
   return (
     <div className="modalAnuncioFora" onClick={funcFechar}>
-      <div className="modalAnuncio" onClick={(e)=>e.stopPropagation()}>
+      <div className="modalAnuncio" onClick={e=>e.stopPropagation()}>
 
         <img className='botaoCopiar botaoFechar' src={iconeFechar} onClick={funcFechar}/>
         <h2>Publique seu anúncio</h2>
         <form className='flex flexColumn' onSubmit={publicarAnuncio}>
-          
+
           <label>Jogo</label>
           <select disabled={!jogos} id="jogo" name="jogoId" className='flex'
-            onFocus={(e)=>e.target.style.backgroundColor='white'}
+            onFocus={e=>e.target.style.backgroundColor='white'}
           >
             <option value="nenhum">
               {!jogos ?
@@ -183,7 +187,7 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
           </div>
 
           <div className='chatDeVoz'>
-            <input id="voz" name="usaChatDeVoz" type="checkbox" onChange={(e)=>definirUsaChatDeVoz(e.target.checked)}/>
+            <input id="voz" name="usaChatDeVoz" type="checkbox" onChange={e=>definirUsaChatDeVoz(e.target.checked)}/>
             <label htmlFor="voz">Costumo usar o chat de voz</label>
           </div>
 

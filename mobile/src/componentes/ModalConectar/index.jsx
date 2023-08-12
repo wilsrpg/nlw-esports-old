@@ -10,7 +10,7 @@ import { Titulo } from '../Titulo';
 export function ModalConectar({discord, funcFechar}) {
   const [copiando, definirCopiando] = useState(false);
 
-  async function copiar(){
+  async function copiar() {
     await setStringAsync(discord);
     Alert.alert('Discord copiado.', 'Nome de Discord do usuário copiado para área de transferência. Agora é só entrar em contato através do Discord.');
     definirCopiando(false);
@@ -24,7 +24,7 @@ export function ModalConectar({discord, funcFechar}) {
       visible={discord.length > 0}
     >
       <View style={styles.container} onTouchStart={funcFechar}>
-        <View style={styles.conteudo} onTouchStart={(e)=>{e.stopPropagation()}}>
+        <View style={styles.conteudo} onTouchStart={e=>{e.stopPropagation()}}>
           <TouchableOpacity
             onPress={funcFechar}
             style={styles.botaoFechar}

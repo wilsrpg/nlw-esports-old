@@ -70,7 +70,7 @@ export function TelaDoJogo() {
             titulo={jogo.nome}
             subtitulo="Conecte-se e comece a jogar!"
           />
-          
+
           {erroAoObterDados ?
             <Text style={styles.textoConteudoVazio}>
               Erro ao obter dados dos anúncios do servidor.

@@ -71,7 +71,7 @@ export function TelaDeCriacaoDeAnuncio() {
 
   function escolherHorarioDe() {
     let horaString = horaDe;
-    if(horaString == '--:--')
+    if (horaString == '--:--')
       horaString = '00:00';
     const hora = new Date(2000,0,1);
     hora.setHours(parseInt(horaString.slice(0,2)), parseInt(horaString.slice(3)));
@@ -79,7 +79,7 @@ export function TelaDeCriacaoDeAnuncio() {
   }
   function escolherHorarioAte() {
     let horaString = horaAte;
-    if(horaString == '--:--')
+    if (horaString == '--:--')
       horaString = '00:00';
     const hora = new Date(2000,0,1);
     hora.setHours(parseInt(horaString.slice(0,2)), parseInt(horaString.slice(3)));
@@ -93,46 +93,47 @@ export function TelaDeCriacaoDeAnuncio() {
   }
 
   function publicarAnuncio() {
-    if(publicando) return;
-    if(erroAoObterDados){
+    if (publicando)
+      return;
+    if (erroAoObterDados) {
       Alert.alert("Erro ao obter dados dos jogos do servidor.");
       return;
-    } else if(!jogos){
+    } else if (!jogos) {
       Alert.alert("Aguarde o retorno dos dados dos jogos do servidor.");
       return;
     }
-    if(!jogoId){
+    if (!jogoId) {
       Alert.alert("Escolha um jogo.");
       return;
     }
-    if(!nome){
+    if (!nome) {
       Alert.alert("Digite um nome.");
       return;
     }
-    if(!discord.match('.*\\S#\\d{4}$')){
+    if (!discord.match('.*\\S#\\d{4}$')) {
       Alert.alert("Digite um discord válido.");
       return;
     }
-    if(!tempoDeJogo){
+    if (!tempoDeJogo) {
       Alert.alert("Digite o tempo de jogo.");
       return;
     }
-    if(!dias.some((dia)=>dia.marcado)){
+    if (!dias.some(dia=>dia.marcado)) {
       Alert.alert("Selecione pelo menos um dia.");
       return;
     }
-    if(horaDe == '--:--' || horaAte == '--:--'){
+    if (horaDe == '--:--' || horaAte == '--:--') {
       Alert.alert("Digite os horários em que está disponível.");
       return;
     }
-    if(horaDe == horaAte){
+    if (horaDe == horaAte) {
       Alert.alert("O horário de início não pode ser igual ao horário de término.");
       return;
     }
 
     const diasNum = [];
     dias.map((dia,id)=>{
-      if(dia.marcado)
+      if (dia.marcado)
         diasNum.push(id);
     });
     const novoAnuncio = JSON.stringify({
@@ -153,7 +154,7 @@ export function TelaDeCriacaoDeAnuncio() {
     const endereco = `/jogos/${jogoId}/anuncios`;
     const abortista = new AbortController();
     const dados = {
-      method: "POST", 
+      method: "POST",
       headers: {"Content-Type": "application/json"},
       body: anuncio,
       signal: abortista.signal
@@ -166,7 +167,7 @@ export function TelaDeCriacaoDeAnuncio() {
       Alert.alert("Anúncio publicado com sucesso!");
       definirRecarregarJogos(true);
     })
-    .catch((erro)=>{
+    .catch(erro=>{
       console.log(erro);
       Alert.alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.\n"+erro);
     })
@@ -181,7 +182,7 @@ export function TelaDeCriacaoDeAnuncio() {
         <ScrollView contentContainerStyle={styles.scrollConteudo}>
           <Text style={styles.titulo}>Publique seu anúncio</Text>
           <View style={styles.formulario}>
-            
+
             <Text style={styles.rotulo}>Jogo</Text>
             <Picker
               style={[styles.campo, !jogos && styles.desabilitado]}

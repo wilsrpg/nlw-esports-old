@@ -21,14 +21,14 @@ export function TelaInicial() {
   //const recarregarJogosAoVoltarRef = useRef(true);
   const [jogos, definirJogos] = useState();
   //console.log(recarregarJogosAoVoltarRef.current);
-  
+
   /*useFocusEffect(useCallback(()=>{}));
 
 
   useEffect(()=>{
-    //if(rota.params && rota.params.recarregarAoVoltar){
-    //if(recarregarJogos){
-    if(recarregarJogosAoVoltarRef.current){
+    //if (rota.params && rota.params.recarregarAoVoltar) {
+    //if (recarregarJogos) {
+    if (recarregarJogosAoVoltarRef.current) {
       definirCarregarJogos(true);
       //rota.params.recarregarAoVoltar = false;
       //definirRecarregarJogos(false);
@@ -41,7 +41,8 @@ export function TelaInicial() {
   //useEffect(()=>{
   //useFocusEffect(useCallback(()=>{
   useFocusEffect(useCallback(()=>{
-    //if(!carregarJogos) return;
+    //if (!carregarJogos)
+      //return;
     //console.log("carregando...");
     const endereco = `/jogos`;
     const abortista = new AbortController();
@@ -55,7 +56,7 @@ export function TelaInicial() {
       definirJogos(dados);
     })
     .catch(erro=>{
-      if(!jogos)
+      if (!jogos)
         definirErroAoObterDados(true);
       console.log(erro);
     });

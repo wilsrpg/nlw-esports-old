@@ -7,4 +7,3 @@ export const styles = StyleSheet.create({
       backgroundColor: THEME.COLORS.BACKGROUND_800
     },
   });
-  

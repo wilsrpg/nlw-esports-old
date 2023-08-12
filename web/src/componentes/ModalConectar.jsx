@@ -5,18 +5,19 @@ import iconeCopiar from '../imagens/icons8-restore-down-26.png'
 
 export default function ModalConectar({discord, funcFechar}) {
   useEffect(()=>{
-    document.body.onkeydown = (e)=>{fechar(e)};
+    document.body.onkeydown = e=>{fechar(e)};
   }, [])
 
   function fechar(e) {
-    if(e.repeat) return;
-    if(e.key == "Escape")
+    if (e.repeat)
+      return;
+    if (e.key == "Escape")
       funcFechar();
   }
 
   return (
     <div className="modalAnuncioFora" onClick={funcFechar}>
-      <div className="modalAnuncio" onClick={(e)=>e.stopPropagation()}>
+      <div className="modalAnuncio" onClick={e=>e.stopPropagation()}>
 
         <img className='botaoCopiar botaoFechar' src={iconeFechar} onClick={funcFechar}/>
         <div className='modalConectarInterior'>

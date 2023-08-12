@@ -1,4 +1,4 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack"; 
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { TelaInicial } from "../telas/TelaInicial";
 import { TelaDoJogo } from "../telas/TelaDoJogo";
 import { TelaDeCriacaoDeAnuncio } from "../telas/TelaDeCriacaoDeAnuncio";
