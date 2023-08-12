@@ -150,6 +150,14 @@ servidor.get('/jogos', async (req, resp)=>{
 	return resp.json(jogos);
 })
 
+servidor.get('/jogos/:id', async (req, resp)=>{
+	const id = req.params.id;
+	const db = await abrirBanco;
+	const jogo = await db.get(`SELECT * FROM Jogos WHERE id = '${id}';`);
+	console.log("GET jogo="+jogo.nome+", ip="+req.ip);
+	return resp.json(jogo);
+})
+
 servidor.get('/anuncios', async (req, resp)=>{
 	const db = await abrirBanco;
 	const anuncios = await db.all(
@@ -259,3 +267,127 @@ function converterMinutosParaHoraString(minutos) {
 	const minuto = minutos%60;
 	return String(hora).padStart(2,'0') + ":" + String(minuto).padStart(2,'0');
 }
+
+servidor.put('/registrar', async (req, resp)=>{
+	try {
+		const body = req.body;
+		console.log("PUT registrar, usuário="+body.nomeDoUsuario+", ip="+req.ip);
+		//console.log("sql="+`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+		const db = await abrirBanco;
+		//const usuarioJaExiste = await db.get(`SELECT nome FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+		const usuarioJaExiste = await db.get(`SELECT nome FROM Usuarios WHERE nome = (?);`,[body.nomeDoUsuario]);
+		//console.log("já existe="+usuarioJaExiste);
+		if (usuarioJaExiste)
+			return resp.status(409).json({erro: 'Este nome de usuário não está disponível.'});
+		const senhaHash = await bcrypt.hash(body.senha, bcryptSaltRounds);
+		//console.log("senhaHash="+senhaHash);
+		//await db.run(`INSERT INTO Usuarios (id, nome, senhaHash, dataDeCriacao) VALUES (?,?,?,?);`,
+			//[uuidv4(), body.nomeDoUsuario, senhaHash, Date.now()],
+		await db.run(`INSERT INTO Usuarios (nome, senhaHash, dataDeCriacao) VALUES (?,?,?);`,
+			[body.nomeDoUsuario, senhaHash, Date.now()],
+			function(erro) {
+				console.log('quando isso é executado??');
+				if (erro) {
+					console.log('erro:');
+					console.log(erro);
+					return console.log(erro);
+				}
+				console.log(`A row has been inserted with rowid ${this.lastID}`);
+				return this.lastID;
+			}
+		);
+		//const usuarioRegistrado = await db.get(
+		//	`SELECT id,nome,dataDeCriacao FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`
+		//);
+		//console.log(usuarioRegistrado);
+		//return resp.status(201).json({usuario: usuarioRegistrado});
+		return resp.status(201).json({nome: body.nomeDoUsuario});
+	}
+	catch (erro) {
+		console.log("entrou no catch");
+		console.log(erro);
+		return resp.status(500).json({erro});
+	}
+})
+
+servidor.post('/entrar', async (req, resp)=>{
+	try {
+		const body = req.body;
+		console.log("POST entrar, usuário="+body.nomeDoUsuario+", ip="+req.ip);
+		//console.log("sql="+`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+		const db = await abrirBanco;
+		const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = (?);`,[body.nomeDoUsuario]);
+		//console.log("existe="+usuarioExiste);
+		if (!usuarioExiste)
+			return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
+		//const senhaHash = await db.get(`SELECT senhaHash FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+		const senhaCorreta = await bcrypt.compare(body.senha, usuarioExiste.senhaHash);
+		if (!senhaCorreta)
+			return resp.status(401).json({erro: 'Senha incorreta.'});
+		return resp.status(201).json({nome: usuarioExiste.nome});
+		//se for manter sessão:
+		//const token = {id: usuarioExiste.id, nome: usuarioExiste.nome, token: uuidv4()};
+		//await db.run(`INSERT INTO UsuariosLogados (id, nome, token) VALUES (?,?,?);`,
+		//	[token.id, token.nome, token.token],
+		//	function(erro) {
+		//		console.log('quando isso é executado??');
+		//		if (erro) {
+		//			console.log('erro:');
+		//			console.log(erro);
+		//			return console.log(erro);
+		//		}
+		//		console.log(`A row has been inserted with rowid ${this.lastID}`);
+		//		return this.lastID;
+		//	}
+		//);
+		//return resp.status(201).json(token);
+	}
+	catch (erro) {
+		console.log("entrou no catch");
+		console.log(erro);
+		return resp.status(500).json({erro});
+	}
+})
+
+//se for manter sessão:
+/*servidor.post('/sair', async (req, resp)=>{
+	try{
+	//const body = req.body;
+	//console.log("POST sair, usuário="+body.nomeDoUsuario+", ip="+req.ip);
+	//const db = await abrirBanco;
+	//const usuarioExiste = await db.get(`SELECT id,nome FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+	//if (!usuarioExiste)
+	//	return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
+	return resp.status(204).json(???);
+	}
+	catch (erro) {
+		console.log("entrou no catch");
+		console.log(erro);
+		return resp.status(500).json({erro});
+	}
+})*/
+
+servidor.post('/alterarsenha', async (req, resp)=>{
+	try {
+		const body = req.body;
+		console.log("POST alterarsenha, usuário="+body.nomeDoUsuario+", ip="+req.ip);
+		const db = await abrirBanco;
+		const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+		if (!usuarioExiste)
+			return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
+		const senhaCorreta = await bcrypt.compare(body.senha, usuarioExiste.senhaHash);
+		if (!senhaCorreta)
+			return resp.status(401).json({erro: 'Senha incorreta.'});
+		const novaSenhaHash = await bcrypt.hash(body.novaSenha, bcryptSaltRounds);
+		//await db.run(`INSERT INTO Usuarios (id, nome, senhaHash, dataDeCriacao) VALUES (?,?,?,?);`,
+			//[uuidv4(), body.nomeDoUsuario, senhaHash, Date.now()],
+		await db.run(`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE nome = '${body.nomeDoUsuario}';`);
+		return resp.status(200).json({ok: 'Senha alterada com sucesso.'});
+	}
+	catch (erro) {
+		console.log("entrou no catch");
+		console.log(erro);
+		return resp.status(500).json({erro});
+	}
+})

@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function CartaoDeJogo({jogo, funcDefinirJogoProModal}) {
   return (
-    <div className='cartaoJogo' onClick={()=>funcDefinirJogoProModal(jogo)}>
+    <div className='cartaoJogo' onClick={funcDefinirJogoProModal ? ()=>funcDefinirJogoProModal(jogo) : undefined}>
       <img className='imagemDoJogo' src={jogo.urlImagem} alt={`Imagem do jogo ${jogo.nome}`}/>
       <div className='game-desc-gradient'>
         <strong>{jogo.nome}</strong>
