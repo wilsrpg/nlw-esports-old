@@ -7,7 +7,6 @@ import carregando from '../imagens/loading.svg'
 export default function BarraDeMenu() {
   const urlNaMinhaCasa = ""+import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const urlNaCasaDeWisney = ""+import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
-  const abortista = new AbortController();
   const contexto2 = useContext(contexto);
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
@@ -17,7 +16,6 @@ export default function BarraDeMenu() {
     definirMensagem('');
     //definirAguardando(false);
 
-    //return abortista.abort();
   }, [contexto2.usuarioLogado])
 
   function validarEntrada(e) {
@@ -40,6 +38,7 @@ export default function BarraDeMenu() {
 
   function tentarEntrar(nomeDoUsuario, senha) {
     const endereco = `/entrar`;
+    const abortista = new AbortController();
     const dados = {
       method: "POST",
       headers: {"Content-Type": "application/json"},

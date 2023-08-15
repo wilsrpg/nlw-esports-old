@@ -3,6 +3,7 @@ import carregando from '../imagens/loading.svg'
 import iconeFechar from '../imagens/x.svg'
 
 export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) {
+  let componenteExiste = true;
   const urlNaMinhaCasa = import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const urlNaCasaDeWisney = import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
@@ -29,15 +30,18 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
     .then(resp=>resp.json())
     .then(dados=>{
       abortista.abort();
-      definirErroAoObterDados(false);
-      definirJogos(dados);
+      if (componenteExiste) {
+        definirErroAoObterDados(false);
+        definirJogos(dados);
+      }
     })
     .catch(erro=>{
-      definirErroAoObterDados(true);
       console.log(erro);
+      if (componenteExiste)
+        definirErroAoObterDados(true);
     });
 
-    //return abortista.abort();
+    return ()=>componenteExiste = false;
   }, [])
 
   function fechar(e) {
@@ -108,7 +112,10 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
       console.log(erro);
       alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.");
     })
-    .finally(()=>definirPublicando(false));
+    .finally(()=>{
+      if (componenteExiste)
+        definirPublicando(false);
+    });
   }
 
   return (

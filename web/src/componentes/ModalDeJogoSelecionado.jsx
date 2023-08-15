@@ -5,6 +5,7 @@ import ModalConectar from './ModalConectar';
 import iconeFechar from '../imagens/x.svg'
 
 export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
+  let componenteExiste = true;
   const urlNaMinhaCasa = import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const urlNaCasaDeWisney = import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
@@ -20,15 +21,18 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
     .then(resp=>resp.json())
     .then(dados=>{
       abortista.abort();
-      definirErroAoObterDados(false);
-      definirAnuncios(dados);
+      if (componenteExiste) {
+        definirErroAoObterDados(false);
+        definirAnuncios(dados);
+      }
     })
     .catch(erro=>{
-      definirErroAoObterDados(true);
       console.log(erro);
+      if (componenteExiste)
+        definirErroAoObterDados(true);
     });
 
-    //return abortista.abort();
+    return ()=>componenteExiste = false;
   }, [])
 
   useEffect(()=>{
@@ -52,12 +56,15 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
     .then(resp=>resp.json())
     .then(dados=>{
       abortista.abort();
-      definirErroAoObterDados(false);
-      definirDiscord(dados.discord);
+      if (componenteExiste) {
+        definirErroAoObterDados(false);
+        definirDiscord(dados.discord);
+      }
     })
     .catch(erro=>{
-      definirErroAoObterDados(true);
       console.log(erro);
+      if (componenteExiste)
+        definirErroAoObterDados(true);
     });
   }
 

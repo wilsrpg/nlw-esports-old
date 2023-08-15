@@ -5,9 +5,9 @@ import '../App.css'
 import carregando from '../imagens/loading.svg'
 
 export default function Registrar() {
+  let componenteExiste = true;
   const urlNaMinhaCasa = ""+import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const urlNaCasaDeWisney = ""+import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
-  const abortista = new AbortController();
   const contexto2 = useContext(contexto);
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
@@ -17,11 +17,12 @@ export default function Registrar() {
     if (contexto2.usuarioLogado)
       historico.push('/conta');
 
-    //return abortista.abort();
+    return ()=>componenteExiste = false;
   }, [])
 
   function tentarRegistrar(nomeDoUsuario, senha) {
     const endereco = `/registrar`;
+    const abortista = new AbortController();
     const dados = {
       method: "PUT",
       headers: {"Content-Type": "application/json"},
@@ -44,8 +45,10 @@ export default function Registrar() {
     })
     .catch(erro=>{
       console.log(erro);
-      definirMensagem(''+erro);
-      definirAguardando(false);
+      if (componenteExiste) {
+        definirMensagem(''+erro);
+        definirAguardando(false);
+      }
     });
     //.finally(()=>definirAguardando(false));
   }

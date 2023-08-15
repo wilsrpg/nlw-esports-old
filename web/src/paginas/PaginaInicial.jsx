@@ -8,6 +8,7 @@ import ModalParaCriarAnuncio from '../componentes/ModalParaCriarAnuncio';
 import ModalDeJogoSelecionado from '../componentes/ModalDeJogoSelecionado'
 
 export default function App() {
+  let componenteExiste = true;
   const urlNaMinhaCasa = ""+import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const urlNaCasaDeWisney = ""+import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
@@ -16,10 +17,10 @@ export default function App() {
   const [exibindoModalParaCriarAnuncio, definirExibindoModalParaCriarAnuncio] = useState(false);
   const [jogoProModalDeAnuncios, definirJogoProModalDeAnuncios] = useState('');
 
-  //useEffect(()=>{
+  useEffect(()=>{
 
-  //  //return abortista.abort();
-  //}, [])
+    return ()=>componenteExiste = false;
+  }, [])
 
   useEffect(()=>{
     //if (!carregarJogos)
@@ -35,14 +36,20 @@ export default function App() {
     .then(resp=>resp.json())
     .then(dados=>{
       abortista.abort();
-      definirErroAoObterDados(false);
-      definirJogos(dados);
+      if (componenteExiste) {
+        definirErroAoObterDados(false);
+        definirJogos(dados);
+      }
     })
     .catch(erro=>{
-      definirErroAoObterDados(true);
       console.log(erro);
+      if (componenteExiste)
+        definirErroAoObterDados(true);
     })
-    .finally(()=>definirRecarregarJogos(false));
+    .finally(()=>{
+      if (componenteExiste)
+        definirRecarregarJogos(false);
+    });
   //}, [carregarJogos])
   }, [exibindoModalParaCriarAnuncio,recarregarJogos,jogoProModalDeAnuncios])
 

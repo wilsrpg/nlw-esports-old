@@ -5,10 +5,9 @@ import carregando from '../imagens/loading.svg'
 import ModalConectar from '../componentes/ModalConectar';
 
 export default function Anuncios() {
+  let componenteExiste = true;
   const urlNaMinhaCasa = import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const urlNaCasaDeWisney = import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
-  const abortistaJogos = new AbortController();
-  const abortistaAnuncios = new AbortController();
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const {jogoId} = useParams();
   const [jogos, definirJogos] = useState();
@@ -18,68 +17,80 @@ export default function Anuncios() {
 
   useEffect(()=>{
 
-    //return abortista.abort();
+    return ()=>componenteExiste = false;
   }, [])
 
   useEffect(()=>{
     let endereco;
+    const abortista = new AbortController();
     if(jogoId)
       endereco = `/jogos/${jogoId}`;
     else
       endereco = `/jogos`
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortistaJogos.signal});
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortistaJogos.signal});
+    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
+    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
     Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(resp=>resp.json())
     .then(dados=>{
-      abortistaJogos.abort();
-      definirErroAoObterDados(false);
-      if(jogoId)
-        definirJogos([dados]);
-      else
-        definirJogos(dados);
+      abortista.abort();
+      if (componenteExiste) {
+        definirErroAoObterDados(false);
+        if(jogoId)
+          definirJogos([dados]);
+        else
+          definirJogos(dados);
+      }
     })
     .catch(erro=>{
-      definirErroAoObterDados(true);
       console.log(erro);
+      if (componenteExiste)
+        definirErroAoObterDados(true);
     });
   }, [jogoId])
 
   useEffect(()=>{
     let endereco;
+    const abortista = new AbortController();
     if(jogoId)
       endereco = `/jogos/${jogoId}/anuncios`;
     else
       endereco = `/anuncios`
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortistaAnuncios.signal});
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortistaAnuncios.signal});
+    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
+    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
     Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(resp=>resp.json())
     .then(dados=>{
-      abortistaAnuncios.abort();
-      definirErroAoObterDados(false);
-      definirAnuncios(dados);
+      abortista.abort();
+      if (componenteExiste) {
+        definirErroAoObterDados(false);
+        definirAnuncios(dados);
+      }
     })
     .catch(erro=>{
-      definirErroAoObterDados(true);
       console.log(erro);
+      if (componenteExiste)
+        definirErroAoObterDados(true);
     });
   }, [jogoId])
 
   function obterDiscord(anuncioId) {
     const endereco = `/anuncios/${anuncioId}/discord`;
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortistaAnuncios.signal});
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortistaAnuncios.signal});
+    const abortista = new AbortController();
+    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
+    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
     Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(resp=>resp.json())
     .then(dados=>{
-      abortistaAnuncios.abort();
-      definirErroAoObterDados(false);
-      definirDiscord(dados.discord);
+      abortista.abort();
+      if (componenteExiste) {
+        definirErroAoObterDados(false);
+        definirDiscord(dados.discord);
+      }
     })
     .catch(erro=>{
-      definirErroAoObterDados(true);
       console.log(erro);
+      if (componenteExiste)
+        definirErroAoObterDados(true);
     });
   }
 

@@ -5,9 +5,9 @@ import '../App.css'
 import carregando from '../imagens/loading.svg'
 
 export default function Configuracoes() {
+  let componenteExiste = true;
   const urlNaMinhaCasa = ""+import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const urlNaCasaDeWisney = ""+import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
-  const abortista = new AbortController();
   const contexto2 = useContext(contexto);
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
@@ -18,11 +18,12 @@ export default function Configuracoes() {
     if (!contexto2.usuarioLogado)
       historico.push('/entrar');
 
-    //return abortista.abort();
+    return ()=>componenteExiste = false;
   }, [])
 
   function tentarAlterarSenha(senha,novaSenha) {
     const endereco = `/alterarsenha`;
+    const abortista = new AbortController();
     const dados = {
       method: "POST",
       headers: {"Content-Type": "application/json"},
@@ -37,16 +38,20 @@ export default function Configuracoes() {
       abortista.abort();
       if (resp.erro)
         throw resp.erro;
-      else {
+      else if (componenteExiste) {
         definirErroAoValidar(false);
         definirMensagem('Senha alterada com sucesso.');
       }
     })
     .catch(erro=>{
       console.log(erro);
-      definirMensagem(''+erro);
+      if (componenteExiste)
+        definirMensagem(''+erro);
     })
-    .finally(()=>definirAguardando(false));
+    .finally(()=>{
+      if (componenteExiste)
+        definirAguardando(false);
+    });
   }
 
   function validarAlteracaoDeSenha(e) {
