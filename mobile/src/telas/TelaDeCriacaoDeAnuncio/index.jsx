@@ -107,15 +107,19 @@ export function TelaDeCriacaoDeAnuncio() {
       return;
     }
     if (!nome) {
-      Alert.alert("Digite um nome.");
+      Alert.alert("Digite seu nome.");
       return;
     }
-    if (!discord.match('.*\\S#\\d{4}$')) {
-      Alert.alert("Digite um discord válido.");
+    //if (!discord.match('.*\\S#\\d{4}$')) {
+    //  Alert.alert("Digite um discord válido.");
+    //  return;
+    //}
+    if (!discord) {
+      Alert.alert("Digite seu discord.");
       return;
     }
     if (!tempoDeJogo) {
-      Alert.alert("Digite o tempo de jogo.");
+      Alert.alert("Digite seu tempo de jogo.");
       return;
     }
     if (!dias.some(dia=>dia.marcado)) {
@@ -206,7 +210,7 @@ export function TelaDeCriacaoDeAnuncio() {
             <Text style={styles.rotulo}>Discord</Text>
             <TextInput
               style={styles.campo}
-              placeholder="Nome de Usuário#1234"
+              //placeholder="Nome de Usuário#1234"
               value={discord}
               onChangeText={definirDiscord}
               onBlur={()=>removerExcessoDeEspacos(discord,definirDiscord)}

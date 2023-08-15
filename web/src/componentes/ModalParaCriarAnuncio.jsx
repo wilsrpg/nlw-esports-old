@@ -149,7 +149,8 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
 
             <div className='flex flexColumn'>
               <label htmlFor="discord">Discord</label>
-              <input id="discord" name="discord" placeholder='Nome de Usuário#0000' pattern='.*[\S][#][\d]{4}' required/>
+              {/*<input id="discord" name="discord" placeholder='Nome de Usuário#0000' pattern='.*[\S][#][\d]{4}' required/>*/}
+              <input id="discord" name="discord" required/>
             </div>
 
             <div className='flex flexColumn'>
