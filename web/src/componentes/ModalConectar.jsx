@@ -1,11 +1,14 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import iconeFechar from '../imagens/x.svg'
 import iconeSucesso from '../imagens/icons8-check.svg'
 import iconeCopiar from '../imagens/icons8-restore-down-26.png'
+import iconeCopiado from '../imagens/icons8-checked.svg'
 
 export default function ModalConectar({discord, funcFechar}) {
+  const [copiou, definirCopiou] = useState(false);
+
   useEffect(()=>{
-    document.body.onkeydown = e=>{fechar(e)};
+    document.body.onkeydown = e=>fechar(e);
   }, [])
 
   function fechar(e) {
@@ -13,6 +16,11 @@ export default function ModalConectar({discord, funcFechar}) {
       return;
     if (e.key == "Escape")
       funcFechar();
+  }
+
+  function copiar() {
+    navigator.clipboard.writeText(discord);
+    definirCopiou(true);
   }
 
   return (
@@ -30,9 +38,12 @@ export default function ModalConectar({discord, funcFechar}) {
             <strong>Adicione no Discord:</strong>
           <div className='discord'>
             <strong>{discord}</strong>
-            {window.isSecureContext &&
-              <img src={iconeCopiar} className='botaoCopiar' onClick={()=>navigator.clipboard.writeText(discord)}/>
-            }
+            {window.isSecureContext && (
+              !copiou ? 
+                <img src={iconeCopiar} className='botaoCopiar' onClick={copiar}/>
+              :
+                <img src={iconeCopiado} className='botaoCopiado' onClick={()=>definirCopiou(false)}/>
+            )}
           </div>
           </div>
         </div>
