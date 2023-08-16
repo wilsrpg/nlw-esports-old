@@ -47,58 +47,58 @@ export default function App() {
   }, [exibindoModalParaCriarAnuncio,recarregarJogos,jogoProModalDeAnuncios])
 
   return (
-    <div className='tudo'>
+    <div className='conteudo'>
       <img src={logo}/>
-        <h1>Seu <span className="nlw-gradient">duo</span> está aqui.</h1>
+      <h1>Seu <span className="nlw-gradient">duo</span> está aqui.</h1>
 
-        <div className='jogos'>
-          {!jogos ?
-            (!erroAoObterDados ?
-              <img className='carregando' src={carregando}/>
-            :
-              <p>Erro ao obter dados dos jogos do servidor.</p>
-            )
+      <div className='jogos'>
+        {!jogos ?
+          (!erroAoObterDados ?
+            <img className='carregando' src={carregando}/>
           :
-            (jogos.length == 0 ?
-              <p>Nenhum jogo cadastrado.</p>
-            :
-              jogos.map((jogo,id)=>
-                <CartaoDeJogo
-                  key={id}
-                  jogo={jogo}
-                  funcDefinirJogoProModal={definirJogoProModalDeAnuncios}
-                />
-              )
+            <p>Erro ao obter dados dos jogos do servidor.</p>
+          )
+        :
+          (jogos.length == 0 ?
+            <p>Nenhum jogo cadastrado.</p>
+          :
+            jogos.map((jogo,id)=>
+              <CartaoDeJogo
+                key={id}
+                jogo={jogo}
+                funcDefinirJogoProModal={definirJogoProModalDeAnuncios}
+              />
             )
-          }
-        </div>
+          )
+        }
+      </div>
 
-        <div className='caixaAtras nlw-gradient'>
-          <div className='caixaFrente'>
-            <div>
-              <strong>Não encontrou seu duo?</strong>
-              <p>Publique um anúncio para encontrar novos players!</p>
-            </div>
-            <button className='botao-publicar roxinho' onClick={()=>definirExibindoModalParaCriarAnuncio(true)}>
-              <img className='lupa' src={lupa}/>
-              <span>Publicar anúncio</span>
-            </button>
+      <div className='caixaAtras nlw-gradient'>
+        <div className='caixaFrente'>
+          <div>
+            <strong>Não encontrou seu duo?</strong>
+            <p>Publique um anúncio para encontrar novos players!</p>
           </div>
+          <button className='botao-publicar roxinho' onClick={()=>definirExibindoModalParaCriarAnuncio(true)}>
+            <img className='lupa' src={lupa}/>
+            <span>Publicar anúncio</span>
+          </button>
         </div>
+      </div>
 
-        {exibindoModalParaCriarAnuncio &&
-          <ModalParaCriarAnuncio
-            funcRecarregarJogos={()=>definirRecarregarJogos(true)}
-            funcFechar={()=>definirExibindoModalParaCriarAnuncio(false)}
-          />
-        }
+      {exibindoModalParaCriarAnuncio &&
+        <ModalParaCriarAnuncio
+          funcRecarregarJogos={()=>definirRecarregarJogos(true)}
+          funcFechar={()=>definirExibindoModalParaCriarAnuncio(false)}
+        />
+      }
 
-        {jogoProModalDeAnuncios &&
-          <ModalDeJogoSelecionado
-            jogo={jogoProModalDeAnuncios}
-            funcFechar={()=>definirJogoProModalDeAnuncios('')}
-          />
-        }
+      {jogoProModalDeAnuncios &&
+        <ModalDeJogoSelecionado
+          jogo={jogoProModalDeAnuncios}
+          funcFechar={()=>definirJogoProModalDeAnuncios('')}
+        />
+      }
     </div>
   )
 }

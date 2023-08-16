@@ -89,7 +89,7 @@ export default function Configuracoes() {
   }
 
   return (
-    <div className='tudo'>
+    <div className='conteudo'>
       <h2>Configurações</h2>
       <strong>Alterar senha</strong>
       <div>

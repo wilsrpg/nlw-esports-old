@@ -72,7 +72,7 @@ export default function Entrar() {
   }
 
   return (
-    <div className='tudo'>
+    <div className='conteudo'>
       <h2>Entrar</h2>
       <div>
         <form onSubmit={e=>validarEntrada(e)}>

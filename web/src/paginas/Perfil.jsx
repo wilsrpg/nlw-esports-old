@@ -8,7 +8,7 @@ export default function Perfil() {
   const {nome} = useParams();
 
   return (
-    <div className='tudo'>
+    <div className='conteudo'>
       <h2>Perfil</h2>
       {contexto2.usuarioLogado == nome ?
         <strong>Visualizando seu perfil.</strong>

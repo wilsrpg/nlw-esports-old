@@ -89,7 +89,7 @@ export default function Registrar() {
   }
 
   return (
-    <div className='tudo'>
+    <div className='conteudo'>
       <h2>Criar nova conta</h2>
       <div>
         <form onSubmit={e=>validarRegistro(e)}>

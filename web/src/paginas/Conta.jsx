@@ -13,7 +13,7 @@ export default function Conta() {
   }, [])
 
   return (
-    <div className='tudo'>
+    <div className='conteudo'>
       <h2>Conta</h2>
       <strong>Bem-vindo, <span className='nomeDoUsuario'>{contexto2.usuarioLogado}</span>.</strong>
     </div>

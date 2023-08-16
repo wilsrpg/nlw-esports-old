@@ -3,7 +3,7 @@ import '../App.css'
 
 export default function PaginaNaoEncontrada() {
   return (
-    <div className='tudo'>
+    <div className='conteudo'>
       <h2>Página Não Encontrada</h2>
     </div>
   )
