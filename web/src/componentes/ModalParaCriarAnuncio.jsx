@@ -21,7 +21,7 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
   const [publicando, definirPublicando] = useState(false);
 
   useEffect(()=>{
-    document.body.onkeydown = e=>{fechar(e)};
+    document.body.onkeydown = e=>fechar(e);
     const endereco = `/jogos`;
     const abortista = new AbortController();
     const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});

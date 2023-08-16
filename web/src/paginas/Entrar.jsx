@@ -76,7 +76,7 @@ export default function Entrar() {
       <h2>Entrar</h2>
       <div>
         <form onSubmit={e=>validarEntrada(e)}>
-          <div style={{display: 'grid', grid: 'auto/auto auto', justifyContent: 'start'}}>
+          <div style={{display: 'grid', grid: 'auto/auto auto', justifyContent: 'start', gap: '0.5rem', margin: '0.5rem 0'}}>
             <label htmlFor='nomeDoUsuario' style={{color: 'white'}}>Usuário:</label>
             <input id='nomeDoUsuario' name='nomeDoUsuario' onChange={()=>definirMensagem('')} style={{margin: '0 0.5rem'}}/>
             <label htmlFor='senha' style={{color: 'white'}}>Senha:</label>

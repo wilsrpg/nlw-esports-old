@@ -54,6 +54,7 @@ export default function App() {
   }, [exibindoModalParaCriarAnuncio,recarregarJogos,jogoProModalDeAnuncios])
 
   return (
+    <>
     <div className='conteudo'>
       <img src={logo}/>
       <h1>Seu <span className="nlw-gradient">duo</span> está aqui.</h1>
@@ -92,20 +93,21 @@ export default function App() {
           </button>
         </div>
       </div>
-
-      {exibindoModalParaCriarAnuncio &&
-        <ModalParaCriarAnuncio
-          funcRecarregarJogos={()=>definirRecarregarJogos(true)}
-          funcFechar={()=>definirExibindoModalParaCriarAnuncio(false)}
-        />
-      }
-
-      {jogoProModalDeAnuncios &&
-        <ModalDeJogoSelecionado
-          jogo={jogoProModalDeAnuncios}
-          funcFechar={()=>definirJogoProModalDeAnuncios('')}
-        />
-      }
     </div>
+
+    {exibindoModalParaCriarAnuncio &&
+      <ModalParaCriarAnuncio
+        funcRecarregarJogos={()=>definirRecarregarJogos(true)}
+        funcFechar={()=>definirExibindoModalParaCriarAnuncio(false)}
+      />
+    }
+
+    {jogoProModalDeAnuncios &&
+      <ModalDeJogoSelecionado
+        jogo={jogoProModalDeAnuncios}
+        funcFechar={()=>definirJogoProModalDeAnuncios('')}
+      />
+    }
+    </>
   )
 }

@@ -37,7 +37,7 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
 
   useEffect(()=>{
     if (!discord)
-      document.body.onkeydown = e=>{fechar(e)};
+      document.body.onkeydown = e=>fechar(e);
   }, [discord])
 
   function fechar(e) {
