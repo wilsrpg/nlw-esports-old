@@ -41,11 +41,11 @@ h1 {
   margin: 3rem;
 }
 
-.nlw-gradient {
+.gradienteNlwGay {
   background: linear-gradient(to right, #9572fc, #43e7ad 35%, #e1d55d);
 }
 
-span.nlw-gradient {
+span.gradienteNlwGay {
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -94,7 +94,7 @@ span.nlw-gradient {
   justify-self: center;
 }
 
-.game-desc-gradient {
+.gradientePretoEmbaixo {
   background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.9) 67%);
   width: 100%;
   position: absolute;
@@ -138,7 +138,7 @@ p {
   }
 }
 
-.botao-publicar {
+.botaoPublicar {
   display: flex;
   align-items: center;
   gap: 1rem;

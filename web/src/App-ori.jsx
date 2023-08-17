@@ -42,7 +42,7 @@ export default function App() {
   return (
     <div className='conteudo'>
       <img src={logo}/>
-      <h1>Seu <span className="nlw-gradient">duo</span> está aqui.</h1>
+      <h1>Seu <span className="gradienteNlwGay">duo</span> está aqui.</h1>
 
       <div className='jogos'>
         {!jogos ?
@@ -66,13 +66,13 @@ export default function App() {
         }
       </div>
 
-      <div className='caixaAtras nlw-gradient'>
+      <div className='caixaAtras gradienteNlwGay'>
         <div className='caixaFrente'>
           <div>
             <strong>Não encontrou seu duo?</strong>
             <p>Publique um anúncio para encontrar novos players!</p>
           </div>
-          <button className='botao-publicar roxinho' onClick={()=>definirExibindoModalParaCriarAnuncio(true)}>
+          <button className='botaoPublicar roxinho' onClick={()=>definirExibindoModalParaCriarAnuncio(true)}>
             <img className='lupa' src={lupa}/>
             <span>Publicar anúncio</span>
           </button>
