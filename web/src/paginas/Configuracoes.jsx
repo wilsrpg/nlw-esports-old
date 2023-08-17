@@ -45,8 +45,13 @@ export default function Configuracoes() {
     })
     .catch(erro=>{
       console.log(erro);
+      let msgErro=''+erro;
+      if (msgErro == 'AggregateError: No Promise in Promise.any was resolved') {
+        msgErro = 'Não foi possível se comunicar com o servidor.';
+        console.log(msgErro);
+      }
       if (componenteExiste)
-        definirMensagem(''+erro);
+        definirMensagem(msgErro);
     })
     .finally(()=>{
       if (componenteExiste)
@@ -100,17 +105,17 @@ export default function Configuracoes() {
             <label htmlFor='senhaAtual'
             >Senha atual:</label>
             <input id='senhaAtual' name='senhaAtual' type='password' onChange={()=>definirMensagem('')}
-              style={{margin: '0 0.5rem'}}
+              style={{margin: '0 0.5rem', height: 'fit-content'}}
             />
             <label htmlFor='novaSenha'
             >Nova senha:</label>
             <input id='novaSenha' name='novaSenha' type='password' onChange={()=>definirMensagem('')}
-              style={{margin: '0 0.5rem'}}
+              style={{margin: '0 0.5rem', height: 'fit-content'}}
             />
             <label htmlFor='confirmarNovaSenha'
             >Repita a nova senha:</label>
             <input id='confirmarNovaSenha' name='confirmarNovaSenha' type='password' onChange={()=>definirMensagem('')}
-              style={{margin: '0 0.5rem'}}
+              style={{margin: '0 0.5rem', height: 'fit-content'}}
             />
           </div>
           <button className='botao' type='submit'>

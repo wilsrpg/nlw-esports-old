@@ -28,6 +28,8 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
     })
     .catch(erro=>{
       console.log(erro);
+      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
+        console.log('Não foi possível se comunicar com o servidor.');
       if (componenteExiste)
         definirErroAoObterDados(true);
     });
@@ -63,6 +65,8 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
     })
     .catch(erro=>{
       console.log(erro);
+      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
+        console.log('Não foi possível se comunicar com o servidor.');
       if (componenteExiste)
         definirErroAoObterDados(true);
     });

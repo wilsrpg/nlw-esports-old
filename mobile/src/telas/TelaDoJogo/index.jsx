@@ -33,8 +33,10 @@ export function TelaDoJogo() {
       definirAnuncios(dados);
     })
     .catch(erro=>{
-      definirErroAoObterDados(true);
       console.log(erro);
+      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
+        console.log('Não foi possível se comunicar com o servidor.');
+      definirErroAoObterDados(true);
     });
   }, [])
 
@@ -51,8 +53,10 @@ export function TelaDoJogo() {
       definirDiscord(dados.discord);
     })
     .catch(erro=>{
-      definirErroAoObterDados(true);
       console.log(erro);
+      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
+        console.log('Não foi possível se comunicar com o servidor.');
+      definirErroAoObterDados(true);
     });
   }
 

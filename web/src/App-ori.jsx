@@ -16,17 +16,9 @@ export default function App() {
   const [exibindoModalParaCriarAnuncio, definirExibindoModalParaCriarAnuncio] = useState(false);
   const [jogoProModalDeAnuncios, definirJogoProModalDeAnuncios] = useState('');
 
-  //useEffect(()=>{
-
-  //  //return abortista.abort();
-  //}, [])
-
   useEffect(()=>{
-    //if (!carregarJogos)
-      //return;
     if (exibindoModalParaCriarAnuncio && !recarregarJogos || jogoProModalDeAnuncios)
       return;
-    //console.log("carregando...");
     const endereco = `/jogos`;
     const abortista = new AbortController();
     const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
@@ -39,11 +31,12 @@ export default function App() {
       definirJogos(dados);
     })
     .catch(erro=>{
-      definirErroAoObterDados(true);
       console.log(erro);
+      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
+        console.log('Não foi possível se comunicar com o servidor.');
+      definirErroAoObterDados(true);
     })
     .finally(()=>definirRecarregarJogos(false));
-  //}, [carregarJogos])
   }, [exibindoModalParaCriarAnuncio,recarregarJogos,jogoProModalDeAnuncios])
 
   return (

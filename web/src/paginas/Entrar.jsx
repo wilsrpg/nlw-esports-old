@@ -45,8 +45,13 @@ export default function Entrar() {
     })
     .catch(erro=>{
       console.log(erro);
+      let msgErro=''+erro;
+      if (msgErro == 'AggregateError: No Promise in Promise.any was resolved') {
+        msgErro = 'Não foi possível se comunicar com o servidor.';
+        console.log(msgErro);
+      }
       if (componenteExiste) {
-        definirMensagem(''+erro);
+        definirMensagem(msgErro);
         definirAguardando(false);
       }
     });

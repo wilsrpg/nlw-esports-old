@@ -14,7 +14,6 @@ export function TelaDeCriacaoDeAnuncio() {
   const urlNaMinhaCasa = ""+IP_NA_MINHA_CASA+":"+PORTA_DO_SERVIDOR;
   const urlNaCasaDeWisney = ""+IP_NA_CASA_DE_WISNEY+":"+PORTA_DO_SERVIDOR;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
-  const [recarregarJogos, definirRecarregarJogos] = useState(false);
   const [jogos, definirJogos] = useState();
   const [jogoId, definirJogoId] = useState('');
   const [nome, definirNome] = useState('');
@@ -48,8 +47,10 @@ export function TelaDeCriacaoDeAnuncio() {
       definirJogos(dados);
     })
     .catch(erro=>{
-      definirErroAoObterDados(true);
       console.log(erro);
+      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
+        console.log('Não foi possível se comunicar com o servidor.');
+      definirErroAoObterDados(true);
     });
   }, [])
 
@@ -169,11 +170,15 @@ export function TelaDeCriacaoDeAnuncio() {
     Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(()=>{
       Alert.alert("Anúncio publicado com sucesso!");
-      definirRecarregarJogos(true);
     })
     .catch(erro=>{
       console.log(erro);
-      Alert.alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.\n"+erro);
+      let msgErro=''+erro;
+      if (msgErro == 'AggregateError: No Promise in Promise.any was resolved') {
+        msgErro = 'Não foi possível se comunicar com o servidor.';
+        console.log(msgErro);
+      }
+      Alert.alert("Erro ao publicar anúncio:\n"+msgErro);
     })
     .finally(()=>definirPublicando(false));
   }
@@ -181,7 +186,6 @@ export function TelaDeCriacaoDeAnuncio() {
   return (
     <ImagemDeFundo>
       <SafeAreaView style={styles.container}>
-        {/*<Cabecalho recarregarAoVoltar={recarregarJogos}/>*/}
         <Cabecalho/>
         <ScrollView contentContainerStyle={styles.scrollConteudo}>
           <Text style={styles.titulo}>Publique seu anúncio</Text>
@@ -230,19 +234,19 @@ export function TelaDeCriacaoDeAnuncio() {
                 <Text style={styles.rotulo}>Dias disponíveis</Text>
                 <View style={styles.horizontal}>
                   {dias.map((dia,id)=>
-                      <TouchableOpacity
-                        key={id}
-                        style={[styles.dia, dia.marcado && styles.diaMarcado]}
-                        onPress={()=>{
-                          definirDias([
-                            ...dias.slice(0,id),
-                            {...dia, marcado: !dia.marcado},
-                            ...dias.slice(id+1)
-                          ]);
-                        }}
-                      >
-                        <Text style={dia.marcado && styles.diaMarcado}>{dia.abrev}</Text>
-                      </TouchableOpacity>
+                    <TouchableOpacity
+                      key={id}
+                      style={[styles.dia, dia.marcado && styles.diaMarcado]}
+                      onPress={()=>{
+                        definirDias([
+                          ...dias.slice(0,id),
+                          {...dia, marcado: !dia.marcado},
+                          ...dias.slice(id+1)
+                        ]);
+                      }}
+                    >
+                      <Text style={dia.marcado && styles.diaMarcado}>{dia.abrev}</Text>
+                    </TouchableOpacity>
                   )}
                 </View>
               </View>

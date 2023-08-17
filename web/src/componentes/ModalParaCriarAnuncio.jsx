@@ -37,6 +37,8 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
     })
     .catch(erro=>{
       console.log(erro);
+      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
+        console.log('Não foi possível se comunicar com o servidor.');
       if (componenteExiste)
         definirErroAoObterDados(true);
     });
@@ -110,6 +112,8 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
     })
     .catch(erro=>{
       console.log(erro);
+      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
+        console.log('Não foi possível se comunicar com o servidor.');
       alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.");
     })
     .finally(()=>{

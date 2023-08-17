@@ -13,7 +13,6 @@ export default function Anuncios() {
   const [jogos, definirJogos] = useState();
   const [anuncios, definirAnuncios] = useState();
   const [discord, definirDiscord] = useState('');
-  //const [usuarioLogado, definirUsuarioLogado] = useState(sessionStorage.getItem("usuarioLogado"));
 
   useEffect(()=>{
 
@@ -43,6 +42,8 @@ export default function Anuncios() {
     })
     .catch(erro=>{
       console.log(erro);
+      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
+        console.log('Não foi possível se comunicar com o servidor.');
       if (componenteExiste)
         definirErroAoObterDados(true);
     });
@@ -68,6 +69,8 @@ export default function Anuncios() {
     })
     .catch(erro=>{
       console.log(erro);
+      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
+        console.log('Não foi possível se comunicar com o servidor.');
       if (componenteExiste)
         definirErroAoObterDados(true);
     });
@@ -89,6 +92,8 @@ export default function Anuncios() {
     })
     .catch(erro=>{
       console.log(erro);
+      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
+        console.log('Não foi possível se comunicar com o servidor.');
       if (componenteExiste)
         definirErroAoObterDados(true);
     });

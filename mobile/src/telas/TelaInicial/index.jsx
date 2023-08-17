@@ -1,5 +1,5 @@
 import { FlatList, Image, ScrollView, Text, TouchableOpacity } from 'react-native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SimpleLineIcons } from '@expo/vector-icons';
@@ -16,34 +16,9 @@ export function TelaInicial() {
   const urlNaCasaDeWisney = ""+IP_NA_CASA_DE_WISNEY+":"+PORTA_DO_SERVIDOR;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const navegador = useNavigation();
-  //const [carregarJogos, definirCarregarJogos] = useState(true);
-  //const [recarregarJogos, definirRecarregarJogos] = useState(false);
-  //const recarregarJogosAoVoltarRef = useRef(true);
   const [jogos, definirJogos] = useState();
-  //console.log(recarregarJogosAoVoltarRef.current);
 
-  /*useFocusEffect(useCallback(()=>{}));
-
-
-  useEffect(()=>{
-    //if (rota.params && rota.params.recarregarAoVoltar) {
-    //if (recarregarJogos) {
-    if (recarregarJogosAoVoltarRef.current) {
-      definirCarregarJogos(true);
-      //rota.params.recarregarAoVoltar = false;
-      //definirRecarregarJogos(false);
-      //recarregarJogosAoVoltarRef.current = false;
-    }
-    recarregarJogosAoVoltarRef.current = !recarregarJogosAoVoltarRef.current;
-    console.log("dentro:"+recarregarJogosAoVoltarRef.current);
-  })*/
-
-  //useEffect(()=>{
-  //useFocusEffect(useCallback(()=>{
   useFocusEffect(useCallback(()=>{
-    //if (!carregarJogos)
-      //return;
-    //console.log("carregando...");
     const endereco = `/jogos`;
     const abortista = new AbortController();
     const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
@@ -56,13 +31,13 @@ export function TelaInicial() {
       definirJogos(dados);
     })
     .catch(erro=>{
+      console.log(erro);
+      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
+        console.log('Não foi possível se comunicar com o servidor.');
       if (!jogos)
         definirErroAoObterDados(true);
-      console.log(erro);
     });
-    //.finally(()=>definirCarregarJogos(false));
   }, []))
-  //}, [carregarJogos])
 
   return (
     <ImagemDeFundo>
