@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation, Link } from 'react-router-dom';
 import { contexto } from '../App';
 import '../App.css'
 import LinksDoMenu from './LinksDoMenu';
@@ -18,6 +18,7 @@ export default function BarraDeMenu() {
   const [larguraDaTela, definirLarguraDaTela] = useState(window.innerWidth);
   const [exibindoMenuSuspenso, definirExibindoMenuSuspenso] = useState(false);
   const [exibindoLoginSuspenso, definirExibindoLoginSuspenso] = useState(false);
+  const paginaAtual = useLocation();
 
   useEffect(()=>{
     window.onresize = ()=>definirLarguraDaTela(window.innerWidth);
@@ -29,14 +30,19 @@ export default function BarraDeMenu() {
   }, [])
 
   useEffect(()=>{
-    if(larguraDaTela > larguraDeColapso)
-      fecharMenus()
+    if(larguraDaTela > larguraDeColapso && (exibindoMenuSuspenso || exibindoLoginSuspenso))
+      fecharMenus();
   }, [larguraDaTela])
 
   useEffect(()=>{
-    definirMensagem('');
-    //definirAguardando(false);
-  }, [contexto2.usuarioLogado])
+    //definirMensagem('');
+    fecharMenus();
+  }, [paginaAtual])
+
+  //useEffect(()=>{
+  //  definirMensagem('');
+  //  //definirAguardando(false);
+  //}, [contexto2.usuarioLogado])
 
   function fecharMenu(e) {
     if (e.repeat)
@@ -46,6 +52,7 @@ export default function BarraDeMenu() {
   }
 
   function fecharMenus() {
+    definirMensagem('');
     definirExibindoMenuSuspenso(false);
     definirExibindoLoginSuspenso(false);
   }
@@ -94,18 +101,18 @@ export default function BarraDeMenu() {
       }
     })
     .catch(erro=>{
-      //console.log('catch');
       console.log(erro);
-      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
+      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved') {
+        console.log('Não foi possível se comunicar com o servidor.');
         definirMensagem('Não foi possível se comunicar com o servidor.');
-      else
+      } else
         definirMensagem(''+erro);
-      //definirAguardando(false);
     })
     .finally(()=>definirAguardando(false));
   }
 
   function sair() {
+    definirExibindoLoginSuspenso(false);
     sessionStorage.removeItem("usuarioLogado");
     contexto2.definirUsuarioLogado();
     historico.push('/entrar');
@@ -131,7 +138,6 @@ export default function BarraDeMenu() {
       }
     })
     .catch(erro=>{
-      //console.log('catch');
       console.log(erro);
       definirMensagem(''+erro);
     });*/
@@ -143,7 +149,7 @@ export default function BarraDeMenu() {
     definirExibindoMenuSuspenso(!exibindoMenuSuspenso);
   }
 
-  function exibirLogin(e) {
+  function exibirMenuDeUsuario(e) {
     e.stopPropagation();
     definirExibindoMenuSuspenso(false);
     definirExibindoLoginSuspenso(!exibindoLoginSuspenso);
@@ -153,25 +159,19 @@ export default function BarraDeMenu() {
     <>
     <header className='cabecalho'>
       <div className='barraSuperior'>
-      <nav>
-        {larguraDaTela <= larguraDeColapso ?
-          <img className='botaoMenu'src={iconeMenu} onClick={e=>exibirMenu(e)}/>
-        :
-          <LinksDoMenu/>
-        }
-      </nav>
+        <nav>
+          {larguraDaTela <= larguraDeColapso ?
+            <img className='botaoMenu'src={iconeMenu} onClick={e=>exibirMenu(e)}/>
+          :
+            <LinksDoMenu/>
+          }
+        </nav>
 
-      {contexto2.usuarioLogado ?
-        <div className='flex areaDoUsuario'>
-          <span className='nomeDoUsuario'>{contexto2.usuarioLogado}</span>
-          <button onClick={sair}>
-            Sair
-          </button>
-        </div>
-      :
-        <>
-        {larguraDaTela <= larguraDeColapso ?
-          <img className='botaoMenu'src={iconeLogin} onClick={e=>exibirLogin(e)}/>
+        {larguraDaTela <= larguraDeColapso || contexto2.usuarioLogado ?
+          <div className='flex areaDoUsuario'>
+            {contexto2.usuarioLogado && <span className='nomeDoUsuario'>{contexto2.usuarioLogado}</span>}
+            <img className='botaoMenu'src={iconeLogin} onClick={e=>exibirMenuDeUsuario(e)}/>
+          </div>
         :
           <div>
             <form className='flex areaDoUsuario' onSubmit={e=>validarEntrada(e)}>
@@ -180,40 +180,67 @@ export default function BarraDeMenu() {
               <button className='botao' type='submit'>
                 {aguardando ? <img className='carregando' src={carregando}/> : 'Entrar'}
               </button>
+              <button>
+                <Link to='/registrar'>
+                  Registrar-se
+                </Link>
+              </button>
             </form>
             <p className='mensagemDeErro'>{mensagem}</p>
           </div>
         }
-        </>
-      }
       </div>
-    {exibindoMenuSuspenso &&
-    <div className='gambiarra'>
-      <div className='invisivel'>
-      </div>
-      <div className='menuSuspenso'>
-        <LinksDoMenu/>
-      </div>
-    </div>
-    }
-    {exibindoLoginSuspenso &&
-    <div className='gambiarra direita'>
-      <div className='invisivel'>
-      </div>
-      <div className='menuSuspenso' onClick={e=>e.stopPropagation()}>
-        <div>
-        <form className='flex flexColumn' onSubmit={e=>validarEntrada(e)}>
-          <input id='nomeDoUsuarioCabecalho' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')}/>
-          <input id='senhaCabecalho' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')}/>
-          <button className='botao' type='submit'>
-            {aguardando ? <img className='carregando' src={carregando}/> : 'Entrar'}
-          </button>
-        </form>
-        <p className='mensagemDeErro'>{mensagem}</p>
+
+      {exibindoMenuSuspenso &&
+        <div className='gambiarra'>
+          <div className='invisivel'>
+          </div>
+          <div className='menuSuspenso' onClick={e=>e.stopPropagation()}>
+            <LinksDoMenu/>
+          </div>
         </div>
-      </div>
-    </div>
-    }
+      }
+
+      {exibindoLoginSuspenso &&
+        <div className='gambiarra direita'>
+          <div className='invisivel'>
+          </div>
+          <div className='menuSuspenso' onClick={e=>e.stopPropagation()}>
+            {contexto2.usuarioLogado ?
+              <>
+              <Link to='/conta'>
+                Conta
+              </Link>
+              <Link to={`/usuario/${contexto2.usuarioLogado}`}>
+                Meu perfil
+              </Link>
+              <Link to='/configuracoes'>
+                Configurações
+              </Link>
+              <a className='ponteiro' onClick={sair}>
+                Sair
+              </a>
+              </>
+            :
+              <div>
+                <form className='flex flexColumn' onSubmit={e=>validarEntrada(e)}>
+                  <input id='nomeDoUsuarioCabecalho' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')}/>
+                  <input id='senhaCabecalho' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')}/>
+                  <div className='flex'><button className='botao' type='submit'>
+                    {aguardando ? <img className='carregando' src={carregando}/> : 'Entrar'}
+                  </button>
+                  <button>
+                    <Link to='/registrar'>
+                      Registrar-se
+                    </Link>
+                  </button></div>
+                </form>
+                <p className='mensagemDeErro'>{mensagem}</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
     </header>
   </>
   )
