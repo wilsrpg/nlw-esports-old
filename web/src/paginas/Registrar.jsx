@@ -97,17 +97,12 @@ export default function Registrar() {
     <div className='conteudo'>
       <h2>Criar nova conta</h2>
       <div>
-        <form onSubmit={e=>validarRegistro(e)}>
-          <div style={{display: 'grid', grid: 'auto/auto auto', justifyContent: 'start'}}>
-            <label htmlFor='nomeDoUsuario' style={{color: 'white'}}>Nome de usuário:</label>
-            <input id='nomeDoUsuario' name='nomeDoUsuario' onChange={()=>definirMensagem('')} style={{margin: '0 0.5rem'}}/>
-            <label htmlFor='senha' style={{color: 'white'}}>Digite a senha:</label>
-            <input id='senha' name='senha' type='password' onChange={()=>definirMensagem('')} style={{margin: '0 0.5rem'}}/>
-            <label htmlFor='confirmarSenha' style={{color: 'white'}}>Repita a senha:</label>
-            <input id='confirmarSenha' name='confirmarSenha' onChange={()=>definirMensagem('')} type='password' style={{margin: '0 0.5rem'}}/>
-          </div>
-          <button type='submit'>
-            {aguardando ? <img className='carregando' src={carregando}/> : 'Salvar'}
+        <form className='flex flexColumn' onSubmit={e=>validarRegistro(e)}>
+          <input id='nomeDoUsuario' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')}/>
+          <input id='senha' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')}/>
+          <input id='confirmarSenha' name='confirmarSenha' onChange={()=>definirMensagem('')} type='password' placeholder='Repita a senha'/>
+          <button className='botao' type='submit'>
+            {aguardando ? <img className='carregando' src={carregando}/> : 'Registrar'}
           </button>
         </form>
         <p className='mensagemDeErro'>{mensagem}</p>

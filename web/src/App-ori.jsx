@@ -72,7 +72,7 @@ export default function App() {
             <strong>Não encontrou seu duo?</strong>
             <p>Publique um anúncio para encontrar novos players!</p>
           </div>
-          <button className='botaoPublicar roxinho' onClick={()=>definirExibindoModalParaCriarAnuncio(true)}>
+          <button className='botaoAbrirModalPraPublicar roxinho' onClick={()=>definirExibindoModalParaCriarAnuncio(true)}>
             <img className='lupa' src={lupa}/>
             <span>Publicar anúncio</span>
           </button>

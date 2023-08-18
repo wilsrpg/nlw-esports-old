@@ -98,26 +98,10 @@ export default function Configuracoes() {
       <h2>Configurações</h2>
       <strong>Alterar senha</strong>
       <div>
-        <form onSubmit={e=>validarAlteracaoDeSenha(e)}>
-          <div
-          style={{display: 'grid', grid: 'auto/auto auto', justifyContent: 'start'}}
-          >
-            <label htmlFor='senhaAtual'
-            >Senha atual:</label>
-            <input id='senhaAtual' name='senhaAtual' type='password' onChange={()=>definirMensagem('')}
-              style={{margin: '0 0.5rem', height: 'fit-content'}}
-            />
-            <label htmlFor='novaSenha'
-            >Nova senha:</label>
-            <input id='novaSenha' name='novaSenha' type='password' onChange={()=>definirMensagem('')}
-              style={{margin: '0 0.5rem', height: 'fit-content'}}
-            />
-            <label htmlFor='confirmarNovaSenha'
-            >Repita a nova senha:</label>
-            <input id='confirmarNovaSenha' name='confirmarNovaSenha' type='password' onChange={()=>definirMensagem('')}
-              style={{margin: '0 0.5rem', height: 'fit-content'}}
-            />
-          </div>
+        <form className='flex flexColumn' onSubmit={e=>validarAlteracaoDeSenha(e)}>
+          <input id='senhaAtual' name='senhaAtual' type='password' placeholder='Senha atual' onChange={()=>definirMensagem('')}/>
+          <input id='novaSenha' name='novaSenha' type='password' placeholder='Nova senha' onChange={()=>definirMensagem('')}/>
+          <input id='confirmarNovaSenha' name='confirmarNovaSenha' type='password' placeholder='Repita a nova senha' onChange={()=>definirMensagem('')}/>
           <button className='botao' type='submit'>
             {aguardando ? <img className='carregando' src={carregando}/> : 'Salvar'}
           </button>

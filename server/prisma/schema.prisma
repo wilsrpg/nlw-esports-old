@@ -34,7 +34,7 @@ model Anuncios {
 }
 
 model Usuarios {
-  id            Int      @id
+  id            Int      @id @default(autoincrement())
   nome          String   @unique
   senhaHash     String
   dataDeCriacao DateTime @default(now())

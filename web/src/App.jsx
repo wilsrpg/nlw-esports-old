@@ -22,37 +22,37 @@ export default function App() {
       <BrowserRouter>
         <BarraSuperior/>
         <Switch>
-          <Route exact path="/"> {/*ok*/}
+          <Route exact path="/">
             <PaginaInicial/>
           </Route>
-          <Route path="/registrar"> {/*ok*/}
+          <Route path="/registrar">
             <Registrar/>
           </Route>
-          <Route path="/entrar"> {/*ok*/}
+          <Route path="/entrar">
             <Entrar/>
           </Route>
-          <Route path="/conta"> {/*ok*/}
+          <Route path="/conta">
             <Conta/>
           </Route>
-          <Route path="/configuracoes"> {/*ok*/}
+          <Route path="/configuracoes">
             <Configuracoes/>
           </Route>
           <Route path="/usuario/:nome">
             <Perfil />
           </Route>
-          <Route path="/usuario/:nome/anuncios">
+          <Route path="/usuario/:nome/anuncios"> {/*falta*/}
             <Anuncios />
           </Route>
-          <Route path="/jogo/:nome">
+          <Route path="/jogos/:nome"> {/*falta*/}
             <Jogos />
           </Route>
-          <Route path="/jogos"> {/*ok*/}
+          <Route path="/jogos">
             <Jogos/>
           </Route>
-          <Route path="/anuncios/:jogoId"> {/*ok*/}
+          <Route path="/anuncios/:jogoId">
             <Anuncios/>
           </Route>
-          <Route path="/anuncios"> {/*ok*/}
+          <Route path="/anuncios">
             <Anuncios/>
           </Route>
           <Route>

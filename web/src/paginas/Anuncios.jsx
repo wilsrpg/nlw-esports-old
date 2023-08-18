@@ -101,13 +101,7 @@ export default function Anuncios() {
 
   return (
     <>
-    {!jogos || !anuncios ?
-      (!erroAoObterDados ?
-        <img className='carregando' src={carregando}/>
-      :
-        <p>Erro ao obter dados dos anúncios do servidor.</p>
-      )
-    :
+    {jogos && anuncios &&
       (anuncios.length == 0 ?
         <p>Nenhum anúncio publicado.</p>
       :
@@ -115,6 +109,13 @@ export default function Anuncios() {
       )
     }
     <div className='jogosPagina'>
+      {(!jogos || !anuncios) &&
+        (!erroAoObterDados ?
+          <img className='carregando' src={carregando}/>
+        :
+          <p>Erro ao obter dados dos anúncios do servidor.</p>
+        )
+      }
       {jogos && anuncios &&
         anuncios.map((anuncio,i)=>
           <CartaoDeAnuncio
