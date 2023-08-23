@@ -40,11 +40,11 @@ servidor.get('/jogos', async (req, resp)=>{
 	}
 })
 
-servidor.get('/jogos/:id', async (req, resp)=>{
+servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
 	try {
-		const jogoId = req.params.id;
+		const jogoNomeUrl = req.params.jogoNomeUrl;
 		const jogo = await prisma.jogos.findUniqueOrThrow({
-			where: {id: jogoId}
+			where: {nomeUrl: jogoNomeUrl}
 		});
 		console.log("GET jogo="+jogo.nome+", ip="+req.ip);
 		return resp.json(jogo);
@@ -86,9 +86,13 @@ servidor.get('/anuncios', async (req, resp)=>{
 	}
 })
 
-servidor.get('/jogos/:id/anuncios', async (req, resp)=>{
+servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 	try {
-		const jogoId = req.params.id;
+		const jogoNomeUrl = req.params.jogoNomeUrl;
+		const jogo = await prisma.jogos.findUniqueOrThrow({
+			select: {id: true},
+			where: {nomeUrl: jogoNomeUrl}
+		});
 		const anuncios = await prisma.anuncios.findMany({
 			select: {
 				id: true,
@@ -97,9 +101,10 @@ servidor.get('/jogos/:id/anuncios', async (req, resp)=>{
 				diasQueJoga: true,
 				deHora: true,
 				ateHora: true,
-				usaChatDeVoz: true
+				usaChatDeVoz: true,
+				dataDeCriacao: true
 			},
-			where: {jogoId: jogoId},
+			where: {jogoId: jogo.id},
 			orderBy: {dataDeCriacao: 'desc'}
 		});
 		console.log("GET jogo/anuncios, qtde="+anuncios.length+", ip="+req.ip);

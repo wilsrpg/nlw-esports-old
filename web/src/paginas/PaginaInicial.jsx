@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import '../App.css'
+import React, { useContext, useEffect, useState } from 'react'
 import logo from '../imagens/NLW-eSports-Logo.svg'
 import carregando from '../imagens/loading.svg'
 import CartaoDeJogo from '../componentes/CartaoDeJogo'
 import lupa from '../imagens/magnifying-glass-plus-reverse.svg'
 import ModalParaCriarAnuncio from '../componentes/ModalParaCriarAnuncio';
 import ModalDeJogoSelecionado from '../componentes/ModalDeJogoSelecionado'
+import { contexto } from '../App'
 
 export default function App() {
   let componenteExiste = true;
-  const urlNaMinhaCasa = ""+import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
-  const urlNaCasaDeWisney = ""+import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
+  const contexto2 = useContext(contexto);
+  const urlNaMinhaCasa = contexto2.hostCasa;
+  const urlNaCasaDeWisney = contexto2.hostWisney;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [recarregarJogos, definirRecarregarJogos] = useState(false);
   const [jogos, definirJogos] = useState();

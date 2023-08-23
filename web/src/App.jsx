@@ -1,5 +1,6 @@
 import React, { createContext, useState } from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import './App.css'
 import BarraSuperior from './componentes/BarraSuperior'
 //import Rodape from './componentes/Rodape'
 import PaginaInicial from './paginas/PaginaInicial'
@@ -15,10 +16,12 @@ import Entrar from './paginas/Entrar'
 export const contexto = createContext();
 
 export default function App() {
+  const hostCasa = 'http://192.168.1.33:3333';
+  const hostWisney = 'http://192.168.0.193:3333';
   const [usuarioLogado, definirUsuarioLogado] = useState(sessionStorage.getItem("usuarioLogado"));
 
   return (
-    <contexto.Provider value={{usuarioLogado, definirUsuarioLogado}}>
+    <contexto.Provider value={{usuarioLogado, definirUsuarioLogado, hostCasa, hostWisney}}>
       <BrowserRouter>
         <BarraSuperior/>
         <Switch>
@@ -37,10 +40,10 @@ export default function App() {
           <Route path="/configuracoes">
             <Configuracoes/>
           </Route>
-          <Route path="/usuario/:nome">
+          <Route path="/usuarios/:nome">
             <Perfil />
           </Route>
-          <Route path="/usuario/:nome/anuncios"> {/*falta*/}
+          <Route path="/usuarios/:nome/anuncios"> {/*falta*/}
             <Anuncios />
           </Route>
           <Route path="/jogos/:nome"> {/*falta*/}
@@ -49,7 +52,7 @@ export default function App() {
           <Route path="/jogos">
             <Jogos/>
           </Route>
-          <Route path="/anuncios/:jogoId">
+          <Route path="/anuncios/:jogoNomeUrl">
             <Anuncios/>
           </Route>
           <Route path="/anuncios">

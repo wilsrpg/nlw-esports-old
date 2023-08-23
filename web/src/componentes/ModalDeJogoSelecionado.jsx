@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import CartaoDeAnuncio from './CartaoDeAnuncio';
 import carregando from '../imagens/loading.svg'
 import ModalConectar from './ModalConectar';
 import iconeFechar from '../imagens/x.svg'
+import { contexto } from '../App';
 
 export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
   let componenteExiste = true;
-  const urlNaMinhaCasa = import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
-  const urlNaCasaDeWisney = import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
+  const contexto2 = useContext(contexto);
+  const urlNaMinhaCasa = contexto2.hostCasa;
+  const urlNaCasaDeWisney = contexto2.hostWisney;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [anuncios, definirAnuncios] = useState();
   const [discord, definirDiscord] = useState('');
 
   useEffect(()=>{
-    const endereco = `/jogos/${jogo.id}/anuncios`;
+    const endereco = `/jogos/${jogo.nomeUrl}/anuncios`;
     const abortista = new AbortController();
     const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
     const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});

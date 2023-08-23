@@ -1,14 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom';
 import { contexto } from '../App';
-import '../App.css'
 import carregando from '../imagens/loading.svg'
 
 export default function Registrar() {
   let componenteExiste = true;
-  const urlNaMinhaCasa = ""+import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
-  const urlNaCasaDeWisney = ""+import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const contexto2 = useContext(contexto);
+  const urlNaMinhaCasa = contexto2.hostCasa;
+  const urlNaCasaDeWisney = contexto2.hostWisney;
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
   const historico = useHistory();
@@ -55,7 +54,6 @@ export default function Registrar() {
         definirAguardando(false);
       }
     });
-    //.finally(()=>definirAguardando(false));
   }
 
   function validarRegistro(e) {
@@ -66,11 +64,6 @@ export default function Registrar() {
       definirMensagem('Digite seu nome de usuário.');
       return;
     }
-    //if (cadastroDeUsuarios.some(usuario=>usuario.nome == dados.nomeDoUsuario)) {
-    //  document.getElementById("nomeDoUsuario").focus();
-    //  definirMensagem('Este nome de usuário não está disponível.');
-    //  return;
-    //}
     if (!dados.senha) {
       document.getElementById("senha").focus();
       definirMensagem('Digite sua senha.');
@@ -82,15 +75,12 @@ export default function Registrar() {
       return;
     }
     if (dados.senha != dados.confirmarSenha) {
-      //document.getElementById("confirmarSenha").focus();
       definirMensagem('As senhas digitadas não são iguais.');
       return;
     }
     definirMensagem('');
     definirAguardando(true);
     tentarRegistrar(dados.nomeDoUsuario,dados.senha);
-    //definirRegistrando(false);
-    //definirCadastroDeUsuarios([...cadastroDeUsuarios, {nome: dados.nomeDoUsuario, senha: dados.senha}]);
   }
 
   return (
@@ -101,7 +91,7 @@ export default function Registrar() {
           <input id='nomeDoUsuario' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')}/>
           <input id='senha' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')}/>
           <input id='confirmarSenha' name='confirmarSenha' onChange={()=>definirMensagem('')} type='password' placeholder='Repita a senha'/>
-          <button className='botao' type='submit'>
+          <button className='alturaBase' type='submit'>
             {aguardando ? <img className='carregando' src={carregando}/> : 'Registrar'}
           </button>
         </form>

@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
+import { contexto } from '../App';
 import carregando from '../imagens/loading.svg'
 import iconeFechar from '../imagens/x.svg'
 
 export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) {
   let componenteExiste = true;
-  const urlNaMinhaCasa = import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
-  const urlNaCasaDeWisney = import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
+  const contexto2 = useContext(contexto);
+  const urlNaMinhaCasa = contexto2.hostCasa;
+  const urlNaCasaDeWisney = contexto2.hostWisney;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [jogos, definirJogos] = useState();
   const [dias, definirDias] = useState([
@@ -58,12 +60,21 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
       return;
     e.preventDefault();
     if (document.getElementById("jogo").value == "nenhum") {
-      document.getElementById("jogo").style.backgroundColor = "red";
+      //document.getElementById("jogo").style.backgroundColor = "red";
+      document.getElementById("jogo").style.animation = "chamarAtencao 500ms";
       document.getElementById("jogo").focus();
+      setTimeout(() => {
+        document.getElementById("jogo").style.animation = "";
+      }, 500);
       return;
     }
     if (!dias.some(dia=>dia.marcado)) {
-      document.getElementById("dias").style.borderColor = "red";
+      document.getElementById("dias").style.animation = "chamarAtencao 1000ms";
+      //dias.map(dia=>document.getElementById(dia.dia).style.animation = "chamarAtencaoDias 0.5s")
+      setTimeout(() => {
+        document.getElementById("dias").style.animation = "";
+        //dias.map(dia=>document.getElementById(dia.dia).style.animation = "")
+      }, 1000);
       return;
     }
     if (document.getElementById("tempo de jogo").value < 0) {
@@ -131,12 +142,12 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
         <form className='flex flexColumn' onSubmit={publicarAnuncio}>
 
           <label>Jogo</label>
-          <select disabled={!jogos} id="jogo" name="jogoId" className='flex'
-            onFocus={e=>e.target.style.backgroundColor='white'}
+          <select disabled={!jogos} id="jogo" name="jogoId"
+            onFocus={e=>e.target.style.backgroundColor=''}
           >
             <option value="nenhum">
               {!jogos ?
-                (!erroAoObterDados ? "Buscando jogos..." : "Erro ao obter dados dos anúncios do servidor.")
+                (!erroAoObterDados ? "Buscando jogos..." : "Erro ao obter dados dos jogos do servidor.")
               :
                 "Selecione um jogo"
               }
@@ -159,12 +170,12 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
 
             <div className='flex flexColumn'>
               <label htmlFor="tempo de jogo">Joga há quantos anos?</label>
-              <input id="tempo de jogo" name="tempoDeJogo" type="tel" maxLength="2" pattern='\d' required/>
+              <input id="tempo de jogo" name="tempoDeJogo" type="tel" maxLength="2" pattern='\d*' required/>
             </div>
 
             <div className='flex flexColumn'>
               <label>Dias disponíveis</label>
-              <div id='dias' className='flex'>
+              <div id='dias' className='flex dias'>
                 {dias.map((dia,id)=>
                   <input
                     key={id}

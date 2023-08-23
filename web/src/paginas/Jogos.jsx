@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
-import '../App.css'
+import { contexto } from '../App';
 import CartaoDeJogo from '../componentes/CartaoDeJogo';
 import carregando from '../imagens/loading.svg'
 
 export default function Jogos() {
   let componenteExiste = true;
-  const urlNaMinhaCasa = ""+import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
-  const urlNaCasaDeWisney = ""+import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
+  const contexto2 = useContext(contexto);
+  const urlNaMinhaCasa = contexto2.hostCasa;
+  const urlNaCasaDeWisney = contexto2.hostWisney;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [jogos, definirJogos] = useState();
 
@@ -49,7 +50,7 @@ export default function Jogos() {
           <p>Nenhum jogo cadastrado.</p>
         :
           jogos.map((jogo,i)=>
-            <Link key={i} to={`/anuncios/${jogo.id}`}>
+            <Link key={i} to={`/anuncios/${jogo.nomeUrl}`}>
               <CartaoDeJogo jogo={jogo}/>
             </Link>
           )

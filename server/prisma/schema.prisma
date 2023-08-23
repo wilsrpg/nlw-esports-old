@@ -13,7 +13,7 @@ datasource db {
 model Jogos {
   id        String     @id @default(uuid())
   nome      String
-  url       String
+  nomeUrl   String     @unique
   urlImagem String
   anuncios  Anuncios[]
 }

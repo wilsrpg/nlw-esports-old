@@ -1,7 +1,6 @@
 import React, { useContext } from 'react'
 import { useParams } from 'react-router-dom';
 import { contexto } from '../App';
-import '../App.css'
 
 export default function Perfil() {
   const contexto2 = useContext(contexto);

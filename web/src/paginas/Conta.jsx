@@ -1,7 +1,6 @@
 import React, { useContext, useEffect } from 'react'
 import { useHistory } from 'react-router-dom';
 import { contexto } from '../App';
-import '../App.css'
 
 export default function Conta() {
   const contexto2 = useContext(contexto);

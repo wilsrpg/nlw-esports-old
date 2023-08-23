@@ -1,14 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom';
 import { contexto } from '../App';
-import '../App.css'
 import carregando from '../imagens/loading.svg'
 
 export default function Configuracoes() {
   let componenteExiste = true;
-  const urlNaMinhaCasa = ""+import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
-  const urlNaCasaDeWisney = ""+import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const contexto2 = useContext(contexto);
+  const urlNaMinhaCasa = contexto2.hostCasa;
+  const urlNaCasaDeWisney = contexto2.hostWisney;
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
   const [erroAoValidar, definirErroAoValidar] = useState(false);
@@ -102,7 +101,7 @@ export default function Configuracoes() {
           <input id='senhaAtual' name='senhaAtual' type='password' placeholder='Senha atual' onChange={()=>definirMensagem('')}/>
           <input id='novaSenha' name='novaSenha' type='password' placeholder='Nova senha' onChange={()=>definirMensagem('')}/>
           <input id='confirmarNovaSenha' name='confirmarNovaSenha' type='password' placeholder='Repita a nova senha' onChange={()=>definirMensagem('')}/>
-          <button className='botao' type='submit'>
+          <button className='alturaBase' type='submit'>
             {aguardando ? <img className='carregando' src={carregando}/> : 'Salvar'}
           </button>
         </form>

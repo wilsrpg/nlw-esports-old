@@ -4,9 +4,9 @@ import { contexto } from '../App';
 import carregando from '../imagens/loading.svg'
 
 export default function FormularioDeEntrada({funcFecharMenu, horizontal}) {
-  const urlNaMinhaCasa = ""+import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
-  const urlNaCasaDeWisney = ""+import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const contexto2 = useContext(contexto);
+  const urlNaMinhaCasa = contexto2.hostCasa;
+  const urlNaCasaDeWisney = contexto2.hostWisney;
   const historico = useHistory();
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
@@ -70,7 +70,7 @@ export default function FormularioDeEntrada({funcFecharMenu, horizontal}) {
         <input id='nomeDoUsuarioCabecalho' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')}/>
         <input id='senhaCabecalho' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')}/>
         <div className={horizontal ? 'flex' : 'formularioDeEntradaSuspenso'}>
-          <button className='botao botaoEntrar' type='submit'>
+          <button className='botaoEntrar alturaBase' type='submit'>
             {aguardando ? <img className='carregando' src={carregando}/> : 'Entrar'}
           </button>
           <Link to='/registrar'>

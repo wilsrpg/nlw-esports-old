@@ -1,15 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useHistory, useLocation, Link } from 'react-router-dom';
 import { contexto } from '../App';
-import '../App.css'
 import iconeMenu from '../imagens/icons8-menu.svg'
 import iconeUsuario from '../imagens/user-circle-svgrepo-com.svg'
 import FormularioDeEntrada from './FormularioDeEntrada';
 
 export default function BarraSuperior() {
-  //const urlNaMinhaCasa = ""+import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
-  //const urlNaCasaDeWisney = ""+import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
   const contexto2 = useContext(contexto);
+  //const urlNaMinhaCasa = contexto2.hostCasa;
+  //const urlNaCasaDeWisney = contexto2.hostWisney;
   //const [aguardando, definirAguardando] = useState(false);
   //const [mensagem, definirMensagem] = useState('');
   const paginaAtual = useLocation();
@@ -42,63 +41,9 @@ export default function BarraSuperior() {
   }
 
   async function fecharMenus() {
-    //definirMensagem('');
     definirExibindoMenuDaPaginaSuspenso(false);
     definirExibindoMenuDoUsuarioSuspenso(false);
   }
-
-  //function validarEntrada(e) {
-  //  e.preventDefault();
-  //  const dados = Object.fromEntries(new FormData(e.target));
-  //  if (!dados.nomeDoUsuario) {
-  //    document.getElementById("nomeDoUsuarioCabecalho").focus();
-  //    definirMensagem('Digite seu nome de usuário.');
-  //    return;
-  //  }
-  //  if (!dados.senha) {
-  //    document.getElementById("senhaCabecalho").focus();
-  //    definirMensagem('Digite sua senha.');
-  //    return;
-  //  }
-  //  definirMensagem('');
-  //  definirAguardando(true);
-  //  tentarEntrar(dados.nomeDoUsuario,dados.senha);
-  //}
-
-  //function tentarEntrar(nomeDoUsuario, senha) {
-  //  const endereco = `/entrar`;
-  //  const abortista = new AbortController();
-  //  const dados = {
-  //    method: "POST",
-  //    headers: {"Content-Type": "application/json"},
-  //    body: JSON.stringify({nomeDoUsuario, senha}),
-  //    signal: abortista.signal
-  //  };
-  //  const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, dados);
-  //  const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, dados);
-  //  Promise.any([naCasaDeWisney,naMinhaCasa])
-  //  .then(resp=>resp.json())
-  //  .then(resp=>{
-  //    abortista.abort();
-  //    if (resp.erro)
-  //      throw resp.erro;
-  //    else {
-  //      definirExibindoMenuDoUsuarioSuspenso(false);
-  //      sessionStorage.setItem("usuarioLogado", resp.nome);
-  //      contexto2.definirUsuarioLogado(resp.nome);
-  //      historico.push('/conta');
-  //    }
-  //  })
-  //  .catch(erro=>{
-  //    console.log(erro);
-  //    if (''+erro == 'AggregateError: No Promise in Promise.any was resolved') {
-  //      console.log('Não foi possível se comunicar com o servidor.');
-  //      definirMensagem('Não foi possível se comunicar com o servidor.');
-  //    } else
-  //      definirMensagem(''+erro);
-  //  })
-  //  .finally(()=>definirAguardando(false));
-  //}
 
   function sair() {
     definirExibindoMenuDoUsuarioSuspenso(false);
@@ -165,13 +110,13 @@ export default function BarraSuperior() {
       <Link to='/conta'>
         Conta
       </Link>
-      <Link to={`/usuario/${contexto2.usuarioLogado}`}>
+      <Link to={`/usuarios/${contexto2.usuarioLogado}`}>
         Meu perfil
       </Link>
       <Link to='/configuracoes'>
         Configurações
       </Link>
-      <a className='ponteiro' onClick={sair}>
+      <a onClick={sair}>
         Sair
       </a>
       </>
@@ -197,23 +142,6 @@ export default function BarraSuperior() {
           </div>
         :
           <FormularioDeEntrada funcFecharMenu={()=>definirExibindoMenuDoUsuarioSuspenso(false)} horizontal/>
-          //<div>
-          //  <form className='flex' onSubmit={e=>validarEntrada(e)}>
-          //    <input id='nomeDoUsuarioCabecalho' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')}/>
-          //    <input id='senhaCabecalho' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')}/>
-          //    <div className='flex'>
-          //      <button className='botao' type='submit'>
-          //        {aguardando ? <img className='carregando' src={carregando}/> : 'Entrar'}
-          //      </button>
-          //      <button>
-          //        <Link to='/registrar'>
-          //          Registrar-se
-          //        </Link>
-          //      </button>
-          //    </div>
-          //  </form>
-          //  <p className='mensagemDeErro'>{mensagem}</p>
-          //</div>
         }
       </div>
 
@@ -236,23 +164,6 @@ export default function BarraSuperior() {
               <OpcoesDoMenuDoUsuario/>
             :
               <FormularioDeEntrada funcFecharMenu={()=>definirExibindoMenuDoUsuarioSuspenso(false)}/>
-              //<div>
-              //  <form className='flex flexColumn' onSubmit={e=>validarEntrada(e)}>
-              //    <input id='nomeDoUsuarioCabecalho' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')}/>
-              //    <input id='senhaCabecalho' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')}/>
-              //    <div className='formularioDeEntradaSuspenso'>
-              //      <button className='botao' type='submit'>
-              //        {aguardando ? <img className='carregando' src={carregando}/> : 'Entrar'}
-              //      </button>
-              //      <button>
-              //        <Link to='/registrar'>
-              //          Registrar-se
-              //        </Link>
-              //      </button>
-              //    </div>
-              //  </form>
-              //  <p className='mensagemDeErro'>{mensagem}</p>
-              //</div>
             }
           </div>
         </div>

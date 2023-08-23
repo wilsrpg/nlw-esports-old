@@ -8,8 +8,8 @@ import ModalParaCriarAnuncio from './componentes/ModalParaCriarAnuncio';
 import ModalDeJogoSelecionado from './componentes/ModalDeJogoSelecionado'
 
 export default function App() {
-  const urlNaMinhaCasa = ""+import.meta.env.VITE_IP_NA_MINHA_CASA+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
-  const urlNaCasaDeWisney = ""+import.meta.env.VITE_IP_NA_CASA_DE_WISNEY+":"+import.meta.env.VITE_PORTA_DO_SERVIDOR;
+  const urlNaMinhaCasa = 'http://192.168.1.33:3000';
+  const urlNaCasaDeWisney = 'http://192.168.0.193:3000';
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [recarregarJogos, definirRecarregarJogos] = useState(false);
   const [jogos, definirJogos] = useState();
