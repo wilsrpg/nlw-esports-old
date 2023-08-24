@@ -28,6 +28,10 @@ export default function FormularioDePesquisa({filtros}) {
   //console.log(params);
 
   useEffect(()=>{
+    return ()=>componenteExiste = false;
+  }, [])
+
+  useEffect(()=>{
     //if (!contexto2)
     //  return;
     //urlNaMinhaCasa = contexto2.hostCasa;
@@ -60,7 +64,8 @@ export default function FormularioDePesquisa({filtros}) {
       if (componenteExiste)
         definirErroAoObterDados(true);
     });
-  //}, [jogoNomeUrl])
+
+    return ()=>componenteExiste = false;
   }, [])
 
   useEffect(()=>{
@@ -73,12 +78,15 @@ export default function FormularioDePesquisa({filtros}) {
       document.getElementById('nome').value = filtros.nome;
     //if (filtros.discord)
     //  document.getElementById('discord').value = filtros.discord;
-    if (filtros.opcoesTempo && (filtros.tempoDeJogoAnos || filtros.tempoDeJogoMeses || filtros.tempoDeJogoAnos2 || filtros.tempoDeJogoMeses2)) {
-      document.getElementById('opcoesTempo').value = filtros.opcoesTempo;
-      if (filtros.opcoesTempo == 'entre' && componenteExiste)
-        definirOpcoesTempoEntre(true);
-    } else if (componenteExiste)
-      definirOpcoesTempo('');
+    if (componenteExiste) {
+      if (filtros.opcoesTempo && (filtros.tempoDeJogoAnos || filtros.tempoDeJogoMeses
+                                  || filtros.tempoDeJogoAnos2 || filtros.tempoDeJogoMeses2)) {
+        document.getElementById('opcoesTempo').value = filtros.opcoesTempo;
+        if (filtros.opcoesTempo == 'entre')
+          definirOpcoesTempoEntre(true);
+      } else
+        definirOpcoesTempo('');
+    }
     if (filtros.tempoDeJogoAnos)
       document.getElementById('tempoDeJogoAnos').value = filtros.tempoDeJogoAnos;
     if (filtros.tempoDeJogoMeses)
@@ -100,12 +108,12 @@ export default function FormularioDePesquisa({filtros}) {
     }
     if (filtros.usaChatDeVoz)
       document.getElementById('usaChatDeVoz').value = filtros.usaChatDeVoz;
-    //if (filtros.resultadosPorPagina)
-    //  document.getElementById('resultadosPorPagina').value = filtros.resultadosPorPagina;
-    //if (filtros.emOrdem)
-    //  document.getElementById('emOrdem').value = filtros.emOrdem;
-    //if (filtros.ordenarPor)
-    //  document.getElementById('ordenarPor').value = filtros.ordenarPor;
+    if (filtros.resultadosPorPagina)
+      document.getElementById('resultadosPorPagina').value = filtros.resultadosPorPagina;
+    if (filtros.emOrdem)
+      document.getElementById('emOrdem').value = filtros.emOrdem;
+    if (filtros.ordenarPor)
+      document.getElementById('ordenarPor').value = filtros.ordenarPor;
   }, [filtros])
 
   useEffect(()=>{
@@ -173,7 +181,7 @@ export default function FormularioDePesquisa({filtros}) {
         document.getElementById('de'+i).value = filtros['de'+i];
         document.getElementById('ate'+i).value = filtros['ate'+i];
       }
-      //if (componenteExiste)
+      if (componenteExiste)
         definirAplicandoDisponilibidade(false);
     }
   }, [aplicandoDisponilibidade])
@@ -254,21 +262,25 @@ export default function FormularioDePesquisa({filtros}) {
 
     if (!dados.usaChatDeVoz)
       delete dados.usaChatDeVoz;
-    //if (!dados.resultadosPorPagina || dados.resultadosPorPagina == 10 || dados.resultadosPorPagina == 0)
-    //  delete dados.resultadosPorPagina;
-    //if (!dados.emOrdem)
-    //  delete dados.emOrdem;
-    //if (!dados.ordenarPor)
-    //  delete dados.ordenarPor;
-    if (document.getElementById('resultadosPorPagina').value != 10)
-      dados.resultadosPorPagina = document.getElementById('resultadosPorPagina').value;
-    if (document.getElementById('ordenarPor').value)
-      dados.ordenarPor = document.getElementById('ordenarPor').value;
-    if (document.getElementById('emOrdem').value)
-      dados.emOrdem = document.getElementById('emOrdem').value;
+    if (!dados.resultadosPorPagina || dados.resultadosPorPagina == 10 || dados.resultadosPorPagina == 0)
+      delete dados.resultadosPorPagina;
+    if (!dados.emOrdem)
+      delete dados.emOrdem;
+    if (!dados.ordenarPor)
+      delete dados.ordenarPor;
+    //if (document.getElementById('resultadosPorPagina').value != 10)
+    //  dados.resultadosPorPagina = document.getElementById('resultadosPorPagina').value;
+    //if (document.getElementById('ordenarPor').value)
+    //  dados.ordenarPor = document.getElementById('ordenarPor').value;
+    //if (document.getElementById('emOrdem').value)
+    //  dados.emOrdem = document.getElementById('emOrdem').value;
+    
     //console.log('dados enviados:');
     //console.log(dados);
-    historico.push('/anuncios?'+new URLSearchParams(dados));
+    //console.log(urlAtual.pathname+urlAtual.search);
+    let destino = '/anuncios?'+new URLSearchParams(dados);
+    if (destino != urlAtual.pathname+urlAtual.search)
+      historico.push('/anuncios?'+new URLSearchParams(dados));
     //funcDefinirFiltros(dados);
     //if (componenteExiste)
     //  definirAguardando(false);
@@ -406,7 +418,7 @@ export default function FormularioDePesquisa({filtros}) {
             </select>
           </div>
 
-          {/*<div className='flex flexColumn'>
+          <div className='flex flexColumn'>
             <label htmlFor="resultadosPorPagina">Resultados por página</label>
             <input id="resultadosPorPagina" name="resultadosPorPagina" type="tel" maxLength="3" pattern='\d*' defaultValue='10'/>
           </div>
@@ -416,19 +428,20 @@ export default function FormularioDePesquisa({filtros}) {
               <label>Ordenar por</label>
               <select id="ordenarPor" name="ordenarPor">
                 <option value="">Data de publicação</option>
-                <option value="jogo">Jogo</option>
+                <option value="nomeDoJogo">Nome do jogo</option>
                 <option value="nomeDoUsuario">Nome do jogador</option>
-                <option value="tempoDeJogo">Tempo de jogo</option>
-                <option value="diaQueJoga">Dia que joga</option>
-                <option value="horaQueJoga">Hora que joga</option>
-                <option value="chatDeVoz">Chat de voz</option>
+                <option value="tempoDeJogoEmAnos">Tempo de jogo</option>
+                <option value="diasQueJoga">Dia que joga</option>
+                <option value="deHora">Hora que começa</option>
+                <option value="ateHora">Hora que termina</option>
+                <option value="usaChatDeVoz">Chat de voz</option>
               </select>
             </div>
             <select id="emOrdem" name="emOrdem">
               <option value="">Em ordem decrescente</option>
               <option value="crescente">Em ordem crescente</option>
             </select>
-          </div>*/}
+          </div>
 
         </div>
 

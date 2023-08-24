@@ -50,7 +50,7 @@ export default function Jogos() {
           <p>Nenhum jogo cadastrado.</p>
         :
           jogos.map((jogo,i)=>
-            <Link key={i} to={`/anuncios/${jogo.nomeUrl}`}>
+            <Link key={i} to={`/anuncios/?jogo=${jogo.nomeUrl}`}>
               <CartaoDeJogo jogo={jogo}/>
             </Link>
           )

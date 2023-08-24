@@ -161,7 +161,7 @@ servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
 
 servidor.post('/anuncios', async (req, resp)=>{
 	const body = req.body;
-	console.log("POST anuncios, ip="+req.ip+", body:");
+	//console.log("POST anuncios, ip="+req.ip+", body:");
 	if (!body.jogo) body.jogo = '%';
 	let naoContem = false;
 	if (!body.nome) body.nome = '%';
@@ -197,7 +197,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 	else if (body.usaChatDeVoz == 'sim') body.usaChatDeVoz = 1;
 	else if (body.usaChatDeVoz == 'não') body.usaChatDeVoz = 0;
 
-	console.log(body);
+	//console.log(body);
 
 	//const {id: jogoId} = await db.get(`SELECT id FROM Jogos WHERE nomeUrl = (?);`, [body.jogo]);
 	//console.log(jogoId);
@@ -219,8 +219,8 @@ servidor.post('/anuncios', async (req, resp)=>{
 		//virandoNoite: virandoNoite,
 		usaChatDeVoz: body.usaChatDeVoz
 	}
-	console.log('body convertido:');
-	console.log(b2);
+	//console.log('body convertido:');
+	//console.log(b2);
 
 	const db = await abrirBanco;
 	let anuncios = await db.all(
@@ -238,12 +238,12 @@ servidor.post('/anuncios', async (req, resp)=>{
 		[body.jogo, body.nome, tempoDeJogoEmAnos, body.usaChatDeVoz]
 	);
 
-	console.log("ants do filtro d tempoDeJogoEntre, qtde= "+anuncios.length);
+	//console.log("ants do filtro d tempoDeJogoEntre, qtde= "+anuncios.length);
 
 	if (entre)
 		anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmAnos <= tempoDeJogoEmAnos2);
 	
-	console.log("dps do filtro d tempoDeJogoEntre e ants do d disponibilidade, qtde= "+anuncios.length);
+	//console.log("dps do filtro d tempoDeJogoEntre e ants do d disponibilidade, qtde= "+anuncios.length);
 		
 	let diasQueJoga;
   const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
@@ -255,8 +255,8 @@ servidor.post('/anuncios', async (req, resp)=>{
 
 	if (body.qtdeFiltrosDisponibilidade) {
 		for (let i = 0; i < body.qtdeFiltrosDisponibilidade; i++) {
-			console.log('ants do filtro '+i);
-			console.log(anuncios);
+			//console.log('ants do filtro '+i);
+			//console.log(anuncios);
 			
       let id = i == 0 ? '' : i+1;
 			if (body['quando'+id] == 'qualquerDia')
@@ -275,7 +275,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 					}
 				});
 
-			console.log('diasQueJoga'+id+'= '+diasQueJoga);
+			//console.log('diasQueJoga'+id+'= '+diasQueJoga);
 
 			if (body['de'+id])
 				deHora = converterHoraStringParaMinutos(body['de'+id]);
@@ -290,7 +290,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 			if (body.opcoesDisponibilidade)
 				disponivelEmTodos = true;
 	
-			console.log('deHora~ateHora= '+deHora+'~'+ateHora);
+			//console.log('deHora~ateHora= '+deHora+'~'+ateHora);
 
 			//if(!disponivelEmTodos) {
 			//	;
@@ -305,13 +305,13 @@ servidor.post('/anuncios', async (req, resp)=>{
 				//if (duracaoBusca < 0) duracaoBusca += 1440;
 				let duracaoAnuncio = (1440 + anuncio.ateHora - anuncio.deHora) % 1440;
 				//if (duracaoAnuncio < 0) duracaoAnuncio += 1440;
-				console.log('duração busca/anúncio= '+duracaoBusca+'/'+duracaoAnuncio);
+				//console.log('duração busca/anúncio= '+duracaoBusca+'/'+duracaoAnuncio);
 				let diferençaInicio = (1440 - anuncio.deHora + deHora) % 1440;
 				//duracaoAnuncio = anuncio.deHora > deHora ? anuncio.deHora + duracaoAnuncio - 1440 - deHora : duracaoAnuncio;
 				//console.log('duração anúncio2= '+duracaoAnuncio+', condições:');
 
-				console.log('tá nos dias que joga='+anuncio.diasQueJoga.match(diasQueJoga) ? true : false);
-				console.log('tá no período q joga='+duracaoAnuncio - diferençaInicio >= duracaoBusca);
+				//console.log('tá nos dias que joga='+anuncio.diasQueJoga.match(diasQueJoga) ? true : false);
+				//console.log('tá no período q joga='+duracaoAnuncio - diferençaInicio >= duracaoBusca);
 
 				let passou = anuncio.diasQueJoga.match(diasQueJoga) && duracaoAnuncio - diferençaInicio >= duracaoBusca;
 				if (!disponivelEmTodos){
@@ -321,14 +321,14 @@ servidor.post('/anuncios', async (req, resp)=>{
 				}
 				return passou;
 			});
-			console.log('dps do filtro '+i);
-			console.log(anuncios);
+			//console.log('dps do filtro '+i);
+			//console.log(anuncios);
 			
 		}
 		if (!disponivelEmTodos)
 			anuncios = anunciosOu.sort((a,b)=>b.dataDeCriacao - a.dataDeCriacao);
 	}
-	console.log("dps do filtro d disponibilidade, qtde="+anuncios.length);
+	//console.log("dps do filtro d disponibilidade, qtde="+anuncios.length);
 
 	//console.log(anuncios);
 	console.log("POST anuncios, qtde="+anuncios.length+", ip="+req.ip);

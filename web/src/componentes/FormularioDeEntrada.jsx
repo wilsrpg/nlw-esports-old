@@ -1,9 +1,10 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Link, useHistory } from 'react-router-dom';
 import { contexto } from '../App';
 import carregando from '../imagens/loading.svg'
 
 export default function FormularioDeEntrada({funcFecharMenu, horizontal}) {
+  //let componenteExiste = true;
   const contexto2 = useContext(contexto);
   const urlNaMinhaCasa = contexto2.hostCasa;
   const urlNaCasaDeWisney = contexto2.hostWisney;
@@ -11,21 +12,29 @@ export default function FormularioDeEntrada({funcFecharMenu, horizontal}) {
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
 
+  //useEffect(()=>{
+  //  return ()=>componenteExiste = false;
+  //}, [])
+
   function validarEntrada(e) {
     e.preventDefault();
     const dados = Object.fromEntries(new FormData(e.target));
     if (!dados.nomeDoUsuario) {
       document.getElementById("nomeDoUsuarioCabecalho").focus();
-      definirMensagem('Digite seu nome de usuário.');
+      //if (componenteExiste)
+        definirMensagem('Digite seu nome de usuário.');
       return;
     }
     if (!dados.senha) {
       document.getElementById("senhaCabecalho").focus();
-      definirMensagem('Digite sua senha.');
+      //if (componenteExiste)
+        definirMensagem('Digite sua senha.');
       return;
     }
-    definirMensagem('');
-    definirAguardando(true);
+    //if (componenteExiste) {
+      definirMensagem('');
+      definirAguardando(true);
+    //}
     tentarEntrar(dados.nomeDoUsuario,dados.senha);
   }
 
@@ -49,7 +58,8 @@ export default function FormularioDeEntrada({funcFecharMenu, horizontal}) {
       else {
         funcFecharMenu();
         sessionStorage.setItem("usuarioLogado", resp.nome);
-        contexto2.definirUsuarioLogado(resp.nome);
+        //if (componenteExiste)
+          contexto2.definirUsuarioLogado(resp.nome);
         historico.push('/conta');
       }
     })
@@ -57,11 +67,15 @@ export default function FormularioDeEntrada({funcFecharMenu, horizontal}) {
       console.log(erro);
       if (''+erro == 'AggregateError: No Promise in Promise.any was resolved') {
         console.log('Não foi possível se comunicar com o servidor.');
-        definirMensagem('Não foi possível se comunicar com o servidor.');
-      } else
+        //if (componenteExiste)
+          definirMensagem('Não foi possível se comunicar com o servidor.');
+      } else //if (componenteExiste)
         definirMensagem(''+erro);
-    })
-    .finally(()=>definirAguardando(false));
+    //})
+    //.finally(()=>{
+      //if (componenteExiste)
+      //  definirAguardando(false);
+    });
   }
 
   return (

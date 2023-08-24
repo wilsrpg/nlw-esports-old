@@ -14,32 +14,20 @@ export default function ResultadosDaPesquisa({filtros}) {
   const [paginas, definirPaginas] = useState(['']);
   const [paginaAtual, definirPaginaAtual] = useState(1);
   const [anuncios, definirAnuncios] = useState();
-  const [resultadosPorPagina, definirResultadosPorPagina] = useState(10);
+  const [resultadosPorPagina, definirResultadosPorPagina] = useState();
   const [ordenarPor, definirOrdenarPor] = useState('');
-  //const [emOrdem, definirEmOrdem] = useState('');
-  //let resultadosPorPagina = 10;
+  const [emOrdem, definirEmOrdem] = useState('');
   const [anunciosPorPagina, definirAnunciosPorPagina] = useState();
   const [discord, definirDiscord] = useState('');
   const urlAtual = useLocation();
-  //console.log('carregou');
-  //console.log(filtros);
 
   useEffect(()=>{
-    if (filtros) {
-      if (filtros.resultadosPorPagina)
-        definirResultadosPorPagina(filtros.resultadosPorPagina);
-      else
-        definirResultadosPorPagina(10);
-      if (filtros && filtros.ordenarPor)
-        definirOrdenarPor(filtros.ordenarPor);
-      if (filtros && filtros.emOrdem)
-        document.getElementById('emOrdem').value = filtros.emOrdem;
-    }
-    //if (!filtros)
-    //  return;
+    return ()=>componenteExiste = false;
+  }, [])
+
+  useEffect(()=>{
     //urlNaMinhaCasa = contexto2.hostCasa;
     //urlNaCasaDeWisney = contexto2.hostWisney;
-    //console.log('ef filtros');
     let endereco;
     const abortista = new AbortController();
     //if (jogoNomeUrl)
@@ -63,6 +51,15 @@ export default function ResultadosDaPesquisa({filtros}) {
       if (componenteExiste) {
         definirErroAoObterDados(false);
         definirAnuncios(dados);
+        
+        if (filtros.resultadosPorPagina) definirResultadosPorPagina(filtros.resultadosPorPagina);
+        else definirResultadosPorPagina(10);
+
+        if (filtros.ordenarPor) definirOrdenarPor(filtros.ordenarPor);
+        else definirOrdenarPor('');
+
+        if (filtros.emOrdem) definirEmOrdem(filtros.emOrdem);
+        else definirEmOrdem('');
       }
     })
     .catch(erro=>{
@@ -72,28 +69,27 @@ export default function ResultadosDaPesquisa({filtros}) {
       if (componenteExiste)
         definirErroAoObterDados(true);
     });
-  }, [filtros,urlAtual])
+  }, [urlAtual,filtros])
 
   useEffect(()=>{
     if (!anuncios)
       return;
-    //console.log('reorganizando anúncios');
-    //console.log(anuncios);
-    document.getElementById('resultadosPorPagina').value = resultadosPorPagina;
+    document.getElementById('resultadosPorPagina2').value = resultadosPorPagina;
     const arr = [];
     for (let i = 0; i < anuncios.length / resultadosPorPagina; i++)
       arr.push('');
-    definirPaginas(arr);
-    definirPaginaAtual(1);
+    if (componenteExiste) {
+      definirPaginas(arr);
+      definirPaginaAtual(1);
+    }
   }, [anuncios,resultadosPorPagina])
 
   useEffect(()=>{
     if (!anuncios)
       return;
-    //console.log('mudando página');
-    //console.log(anuncios);
-    definirAnunciosPorPagina(anuncios.slice((paginaAtual-1)*resultadosPorPagina,paginaAtual*resultadosPorPagina));
-  }, [anuncios,paginas,paginaAtual])
+    if (componenteExiste)
+      definirAnunciosPorPagina(anuncios.slice((paginaAtual-1)*resultadosPorPagina,paginaAtual*resultadosPorPagina));
+  }, [paginas,paginaAtual])
 
   useEffect(()=>{
     if (!anuncios)
@@ -102,11 +98,8 @@ export default function ResultadosDaPesquisa({filtros}) {
     let ordem = 1;
     if (!criterio)
       criterio = 'dataDeCriacao';
-    if(!document.getElementById('emOrdem').value)
+    if(!emOrdem)
       ordem = -1;
-    //console.log(typeof anuncios[0][ordem]);
-    //if (ordem == )
-    //  ordem = '';
     const a = [...anuncios.sort((a,b)=>{
       let x = a[criterio];
       let y = b[criterio];
@@ -118,19 +111,9 @@ export default function ResultadosDaPesquisa({filtros}) {
       if (x > y) return 1*ordem;
       return 0;
     })];
-    //console.log(a[0]);
-    //console.log(a[a.length-1]);
-    //console.log('novo array:');
-    //console.log(a);
-    definirAnuncios(a);
-  }, [ordenarPor])
-
-  //useEffect(()=>{
-  //  if (!anuncios)
-  //    return;
-    
-  //  definirAnuncios(anuncios.reverse());
-  //}, [anuncios,emOrdem])
+    if (componenteExiste)
+      definirAnuncios(a);
+  }, [ordenarPor,emOrdem])
 
   function obterDiscord(anuncioId) {
     const endereco = `/anuncios/${anuncioId}/discord`;
@@ -160,99 +143,106 @@ export default function ResultadosDaPesquisa({filtros}) {
 
   return (
     <div className='resultadosDaPesquisa'>
-      <div className='flex flexColumn opcoesDePagina'>
-        <div className='flex'>
-          {/*<form className='flex' onSubmit={e=>{
-            e.preventDefault();
-            let n = document.getElementById('resultadosPorPagina').value;
-            if (n > 0)
-              definirResultadosPorPagina(n);
-          }}>*/}
-            <label htmlFor="resultadosPorPagina">Resultados por página</label>
-            <input  id="resultadosPorPagina" name="resultadosPorPagina" type="tel" maxLength="3" size='1' pattern='\d+' required //value={resultadosPorPagina}
-              onBlur={e=>{
-                let n = e.target.value;
-                if (n > 0)
-                  definirResultadosPorPagina(n);
-                else
-                  e.target.value = resultadosPorPagina;
-              }}
-              onKeyDown={e=>{
-                if (e.repeat)
-                  return;
-                if (e.key == 'Enter') {
+      <div className='flex cabecalho'>
+        <div>
+          {anuncios && (anuncios.length == 0 ?
+            <h2>Nenhum anúncio encontrado.</h2>
+          :
+            <h2>{anuncios.length} anúncio{anuncios.length > 1 ? 's' : ''} encontrado{anuncios.length > 1 ? 's' : ''}.</h2>
+          )}
+          {anunciosPorPagina && paginas && paginas.length > 1 &&
+            <p>
+              {
+                'Exibindo '
+                +(anunciosPorPagina.length > 1 ? 'do '+((paginaAtual-1)*resultadosPorPagina + 1)+'º ao ' : '')
+                +((paginaAtual-1)*resultadosPorPagina + anunciosPorPagina.length)+'º resultado:'
+              }
+            </p>
+          }
+        </div>
+        <div className='flex flexColumn opcoesDePagina'>
+          <div className='flex'>
+            {/*<form className='flex' onSubmit={e=>{
+              e.preventDefault();
+              let n = document.getElementById('resultadosPorPagina').value;
+              if (n > 0)
+                definirResultadosPorPagina(n);
+            }}>*/}
+              <label htmlFor="resultadosPorPagina2">Resultados por página</label>
+              <input  id="resultadosPorPagina2" //name="resultadosPorPagina2"
+                type="tel" maxLength="3" size='1' pattern='\d+' required
+                defaultValue={resultadosPorPagina}
+                onBlur={e=>{
                   let n = e.target.value;
-                  if (n > 0)
+                  if (n > 0 && componenteExiste)
                     definirResultadosPorPagina(n);
                   else
                     e.target.value = resultadosPorPagina;
-                }
-              }}
-            />
-          {/*</form>*/}
+                }}
+                onKeyDown={e=>{
+                  if (e.repeat)
+                    return;
+                  if (e.key == 'Enter') {
+                    let n = e.target.value;
+                    if (n > 0 && componenteExiste)
+                      definirResultadosPorPagina(n);
+                    else
+                      e.target.value = resultadosPorPagina;
+                  }
+                }}
+              />
+            {/*</form>*/}
 
-          <div className='flex paginas'>
-            <label className={paginaAtual > 1 ? 'linkDePagina' : ''}
-              onClick={paginaAtual > 1 ? ()=>{definirPaginaAtual(1)} : undefined}
-            >
-              «
-            </label>
-            <label className={paginaAtual > 1 ? 'linkDePagina' : ''}
-              onClick={paginaAtual > 1 ? ()=>{definirPaginaAtual(paginaAtual-1)} : undefined}
-            >
-              ‹
-            </label>
-            {paginas.map((p,i)=>
-              <label key={i} className={i+1 == paginaAtual ? 'paginaAtual' : 'linkDePagina'}
-                onClick={paginaAtual != i+1 ? ()=>definirPaginaAtual(i+1) : undefined}
+            <div className='flex paginas'>
+              <label className={paginaAtual > 1 ? 'linkDePagina' : ''}
+                onClick={paginaAtual > 1 ? ()=>{definirPaginaAtual(1)} : undefined}
               >
-                {i+1}
+                «
               </label>
-            )}
-            <label className={paginaAtual < paginas.length ? 'linkDePagina' : ''}
-              onClick={paginaAtual < paginas.length ? ()=>{definirPaginaAtual(paginaAtual+1)} : undefined}
-            >
-              ›
-            </label>
-            <label className={paginaAtual < paginas.length ? 'linkDePagina' : ''}
-              onClick={paginaAtual < paginas.length ? ()=>{definirPaginaAtual(paginas.length)} : undefined}
-            >
-              »
-            </label>
+              <label className={paginaAtual > 1 ? 'linkDePagina' : ''}
+                onClick={paginaAtual > 1 ? ()=>{definirPaginaAtual(paginaAtual-1)} : undefined}
+              >
+                ‹
+              </label>
+              {paginas.map((p,i)=>
+                <label key={i} className={i+1 == paginaAtual ? 'paginaAtual' : 'linkDePagina'}
+                  onClick={paginaAtual != i+1 ? ()=>definirPaginaAtual(i+1) : undefined}
+                >
+                  {i+1}
+                </label>
+              )}
+              <label className={paginaAtual < paginas.length ? 'linkDePagina' : ''}
+                onClick={paginaAtual < paginas.length ? ()=>{definirPaginaAtual(paginaAtual+1)} : undefined}
+              >
+                ›
+              </label>
+              <label className={paginaAtual < paginas.length ? 'linkDePagina' : ''}
+                onClick={paginaAtual < paginas.length ? ()=>{definirPaginaAtual(paginas.length)} : undefined}
+              >
+                »
+              </label>
+            </div>
           </div>
-        </div>
-        <div className='flex'>
-          <label>Ordenar por</label>
-          <select id="ordenarPor" name="ordenarPor" onChange={e=>definirOrdenarPor(e.target.value)}>
-            <option value="">Data de publicação</option>
-            <option value="nomeDoJogo">Nome do jogo</option>
-            <option value="nomeDoUsuario">Nome do jogador</option>
-            <option value="tempoDeJogoEmAnos">Tempo de jogo</option>
-            <option value="diasQueJoga">Dia que joga</option>
-            <option value="deHora">Hora que começa</option>
-            <option value="ateHora">Hora que termina</option>
-            <option value="usaChatDeVoz">Chat de voz</option>
-          </select>
-          <select id="emOrdem" name="emOrdem"
-            onChange={e=>{
-              if (e.target.value)
-                definirAnuncios([...anuncios.reverse()])
-            }}
-          >
-            <option value="">Decrescente</option>
-            <option value="crescente">Crescente</option>
-          </select>
+          <div className='flex'>
+            <label>Ordenar por</label>
+            <select value={ordenarPor} onChange={e=>definirOrdenarPor(e.target.value)}>
+              <option value="">Data de publicação</option>
+              <option value="nomeDoJogo">Nome do jogo</option>
+              <option value="nomeDoUsuario">Nome do jogador</option>
+              <option value="tempoDeJogoEmAnos">Tempo de jogo</option>
+              <option value="diasQueJoga">Dia que joga</option>
+              <option value="deHora">Hora que começa</option>
+              <option value="ateHora">Hora que termina</option>
+              <option value="usaChatDeVoz">Chat de voz</option>
+            </select>
+            <select value={emOrdem} onChange={e=>definirEmOrdem(e.target.value)}>
+              <option value="">Decrescente</option>
+              <option value="crescente">Crescente</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <h2>Resultados</h2>
-      {anuncios &&
-        (anuncios.length == 0 ?
-          <p>Nenhum anúncio encontrado.</p>
-        :
-          <p>{anuncios.length} anúncio{anuncios.length > 1 ? 's' : ''} encontrado{anuncios.length > 1 ? 's' : ''}.</p>
-        )
-      }
     <div className='jogosPagina'>
       {!anuncios &&
         (!erroAoObterDados ?
