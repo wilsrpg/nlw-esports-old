@@ -7,10 +7,6 @@ import FormularioDeEntrada from './FormularioDeEntrada';
 
 export default function BarraSuperior() {
   const contexto2 = useContext(contexto);
-  //const urlNaMinhaCasa = contexto2.hostCasa;
-  //const urlNaCasaDeWisney = contexto2.hostWisney;
-  //const [aguardando, definirAguardando] = useState(false);
-  //const [mensagem, definirMensagem] = useState('');
   const paginaAtual = useLocation();
   const historico = useHistory();
   const larguraDeColapso = 768;
@@ -48,21 +44,17 @@ export default function BarraSuperior() {
   function sair() {
     definirExibindoMenuDoUsuarioSuspenso(false);
     sessionStorage.removeItem("usuarioLogado");
+    sessionStorage.removeItem("idDoUsuarioLogado");
     contexto2.definirUsuarioLogado();
     historico.push('/entrar');
-    /*const endereco = `/sair`;
-    const dados = {
+    /*const dados = {
       method: "POST",
       //headers: {"Content-Type": "application/json"},
       //body: JSON.stringify({nomeDoUsuario}),
-      signal: abortista.signal
     };
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, dados);
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, dados);
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/sair`, dados)
     .then(resp=>resp.json())
     .then((resp)=>{
-      abortista.abort();
       if (resp.erro)
         definirMensagem(resp.erro);
       else {
@@ -110,8 +102,14 @@ export default function BarraSuperior() {
       <Link to='/conta'>
         Conta
       </Link>
-      <Link to={`/usuarios/${contexto2.usuarioLogado}`}>
+      {/*<Link to={`/usuarios/${contexto2.usuarioLogado}`}>
         Meu perfil
+      </Link>*/}
+      {/*<Link to='/amigos'>
+        Amigos
+      </Link>*/}
+      <Link to='/meusanuncios'>
+        Meus anúncios
       </Link>
       <Link to='/configuracoes'>
         Configurações
@@ -137,7 +135,7 @@ export default function BarraSuperior() {
 
         {telaEstreita || contexto2.usuarioLogado ?
           <div className='flex'>
-            {contexto2.usuarioLogado && <span className='nomeDoUsuario'>{contexto2.usuarioLogado}</span>}
+            {contexto2.usuarioLogado && <span className='nomeDoUsuario'>{contexto2.usuarioLogado.nome}</span>}
             <img className='botaoCopiar' src={iconeUsuario} onClick={e=>exibirMenuDoUsuario(e)}/>
           </div>
         :

@@ -9,11 +9,9 @@ import { Titulo } from '../../componentes/Titulo';
 import { Carregando } from '../../componentes/Carregando';
 import { CartaoDeAnuncio } from '../../componentes/CartaoDeAnuncio';
 import { ModalConectar } from '../../componentes/ModalConectar';
-import { IP_NA_MINHA_CASA, IP_NA_CASA_DE_WISNEY, PORTA_DO_SERVIDOR } from '@env'
+import { SERVIDOR } from '../../../../enderecoDoServidor';
 
 export function TelaDoJogo() {
-  const urlNaMinhaCasa = ""+IP_NA_MINHA_CASA+":"+PORTA_DO_SERVIDOR;
-  const urlNaCasaDeWisney = ""+IP_NA_CASA_DE_WISNEY+":"+PORTA_DO_SERVIDOR;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const rota = useRoute();
   const jogo = rota.params;
@@ -21,41 +19,27 @@ export function TelaDoJogo() {
   const [discord, definirDiscord] = useState('');
 
   useEffect(()=>{
-    const endereco = `/jogos/${jogo.id}/anuncios`;
-    const abortista = new AbortController();
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/jogos/${jogo.nomeUrl}/anuncios`)
     .then(resp=>resp.json())
     .then(dados=>{
-      abortista.abort();
       definirErroAoObterDados(false);
       definirAnuncios(dados);
     })
     .catch(erro=>{
       console.log(erro);
-      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
-        console.log('Não foi possível se comunicar com o servidor.');
       definirErroAoObterDados(true);
     });
   }, [])
 
   async function obterDiscord(anuncioId) {
-    const endereco = `/anuncios/${anuncioId}/discord`;
-    const abortista = new AbortController();
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/anuncios/${anuncioId}/discord`)
     .then(resp=>resp.json())
     .then(dados=>{
-      abortista.abort();
       definirErroAoObterDados(false);
       definirDiscord(dados.discord);
     })
     .catch(erro=>{
       console.log(erro);
-      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
-        console.log('Não foi possível se comunicar com o servidor.');
       definirErroAoObterDados(true);
     });
   }

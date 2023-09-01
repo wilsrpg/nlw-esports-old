@@ -1,15 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { contexto } from '../App';
+import React, { useEffect, useState } from 'react'
 import CartaoDeAnuncio from './CartaoDeAnuncio';
 import carregando from '../imagens/loading.svg'
 import ModalConectar from './ModalConectar';
 import { useLocation } from 'react-router-dom';
+import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function ResultadosDaPesquisa({filtros}) {
   let componenteExiste = true;
-  const contexto2 = useContext(contexto);
-  const urlNaMinhaCasa = contexto2.hostCasa;
-  const urlNaCasaDeWisney = contexto2.hostWisney;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [paginas, definirPaginas] = useState(['']);
   const [paginaAtual, definirPaginaAtual] = useState(1);
@@ -20,34 +17,23 @@ export default function ResultadosDaPesquisa({filtros}) {
   const [anunciosPorPagina, definirAnunciosPorPagina] = useState();
   const [discord, definirDiscord] = useState('');
   const urlAtual = useLocation();
+  const [excluindoAnuncio, definirExcluindoAnuncio] = useState(false);
 
   useEffect(()=>{
     return ()=>componenteExiste = false;
   }, [])
 
   useEffect(()=>{
-    //urlNaMinhaCasa = contexto2.hostCasa;
-    //urlNaCasaDeWisney = contexto2.hostWisney;
-    let endereco;
-    const abortista = new AbortController();
-    //if (jogoNomeUrl)
-    //  endereco = `/jogos/${jogoNomeUrl}/anuncios`;
-    //else
-      endereco = `/anuncios`;
     const dados = {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(filtros),
-      signal: abortista.signal
     };
     //console.log(filtros);
     //console.log(dados.body);
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, dados);
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, dados);
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/anuncios`, dados)
     .then(resp=>resp.json())
     .then(dados=>{
-      abortista.abort();
       if (componenteExiste) {
         definirErroAoObterDados(false);
         definirAnuncios(dados);
@@ -64,8 +50,6 @@ export default function ResultadosDaPesquisa({filtros}) {
     })
     .catch(erro=>{
       console.log(erro);
-      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
-        console.log('Não foi possível se comunicar com o servidor.');
       if (componenteExiste)
         definirErroAoObterDados(true);
     });
@@ -116,14 +100,9 @@ export default function ResultadosDaPesquisa({filtros}) {
   }, [ordenarPor,emOrdem])
 
   function obterDiscord(anuncioId) {
-    const endereco = `/anuncios/${anuncioId}/discord`;
-    const abortista = new AbortController();
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/anuncios/${anuncioId}/discord`)
     .then(resp=>resp.json())
     .then(dados=>{
-      abortista.abort();
       if (componenteExiste) {
         //definirErroAoObterDados(false);
         definirDiscord(dados.discord);
@@ -131,19 +110,15 @@ export default function ResultadosDaPesquisa({filtros}) {
     })
     .catch(erro=>{
       console.log(erro);
-      const msgErro = ''+erro;
-      if (msgErro == 'AggregateError: No Promise in Promise.any was resolved')
-        console.log('Não foi possível se comunicar com o servidor.');
       //if (componenteExiste)
       //  definirErroAoObterDados(true);
-      alert(msgErro == 'AggregateError: No Promise in Promise.any was resolved'
-        ? 'Não foi possível se comunicar com o servidor.' : msgErro);
+      alert(erro);
     });
   }
 
   return (
-    <div className='resultadosDaPesquisa'>
-      <div className='flex cabecalho'>
+    <div className='resultadosDaPesquisa flex flexColumn'>
+      <div className='flex cabecalho fundoSemitransparente'>
         <div>
           {anuncios && (anuncios.length == 0 ?
             <h2>Nenhum anúncio encontrado.</h2>
@@ -160,17 +135,11 @@ export default function ResultadosDaPesquisa({filtros}) {
             </p>
           }
         </div>
-        <div className='flex flexColumn opcoesDePagina'>
-          <div className='flex'>
-            {/*<form className='flex' onSubmit={e=>{
-              e.preventDefault();
-              let n = document.getElementById('resultadosPorPagina').value;
-              if (n > 0)
-                definirResultadosPorPagina(n);
-            }}>*/}
+        <div className='flex flexColumn'>
+          <div className='flex flexWrap opcoesDePagina'>
+            <div className='flex'>
               <label htmlFor="resultadosPorPagina2">Resultados por página</label>
-              <input  id="resultadosPorPagina2" //name="resultadosPorPagina2"
-                type="tel" maxLength="3" size='1' pattern='\d+' required
+              <input  id="resultadosPorPagina2" type="tel" maxLength="3" size='1' pattern='\d+' required
                 defaultValue={resultadosPorPagina}
                 onBlur={e=>{
                   let n = e.target.value;
@@ -191,9 +160,9 @@ export default function ResultadosDaPesquisa({filtros}) {
                   }
                 }}
               />
-            {/*</form>*/}
+            </div>
 
-            <div className='flex paginas'>
+            <div className='flex flexWrap'>
               <label className={paginaAtual > 1 ? 'linkDePagina' : ''}
                 onClick={paginaAtual > 1 ? ()=>{definirPaginaAtual(1)} : undefined}
               >
@@ -223,7 +192,8 @@ export default function ResultadosDaPesquisa({filtros}) {
               </label>
             </div>
           </div>
-          <div className='flex'>
+
+          <div className='flex flexWrap opcoesDePagina'>
             <label>Ordenar por</label>
             <select value={ordenarPor} onChange={e=>definirOrdenarPor(e.target.value)}>
               <option value="">Data de publicação</option>
@@ -255,22 +225,17 @@ export default function ResultadosDaPesquisa({filtros}) {
         anunciosPorPagina.map((anuncio,i)=>
           <CartaoDeAnuncio
             key={i}
-            //jogo={(()=>{
-            //  let jogoIndice;
-            //  //console.log(anuncio);
-            //  //console.log(anuncio.jogoId);
-            //  //console.log('||');
-            //  jogos.some((jogo,j)=>{
-            //    //console.log(jogo.id);
-            //    if (jogo.id == anuncio.jogoId)
-            //      jogoIndice = j;
-            //  })
-            //  //console.log(jogos[jogoIndice]);
-            //  return jogos[jogoIndice];
-            //})()}
             nomeDoJogo={anuncio.nomeDoJogo}
             anuncio={anuncio}
             funcConectar={()=>obterDiscord(anuncio.id)}
+            funcExcluir={()=>{
+              if (componenteExiste)
+                //definirAnuncioPraExcluir(anuncio.id);
+                //definirIdDoAnuncioPraExcluir(anuncio.id);
+                definirAnuncios(anuncios.filter(an=>an.id != anuncio.id));
+            }}
+            excluindo={excluindoAnuncio}
+            definirExcluindo={definirExcluindoAnuncio}
           />
         )
       }

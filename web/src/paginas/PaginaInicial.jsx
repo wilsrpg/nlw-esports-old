@@ -5,13 +5,13 @@ import CartaoDeJogo from '../componentes/CartaoDeJogo'
 import lupa from '../imagens/magnifying-glass-plus-reverse.svg'
 import ModalParaCriarAnuncio from '../componentes/ModalParaCriarAnuncio';
 import ModalDeJogoSelecionado from '../componentes/ModalDeJogoSelecionado'
+import { SERVIDOR } from '../../../enderecoDoServidor';
 import { contexto } from '../App'
+import { Link } from 'react-router-dom'
 
 export default function App() {
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
-  const urlNaMinhaCasa = contexto2.hostCasa;
-  const urlNaCasaDeWisney = contexto2.hostWisney;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [recarregarJogos, definirRecarregarJogos] = useState(false);
   const [jogos, definirJogos] = useState();
@@ -24,19 +24,11 @@ export default function App() {
   }, [])
 
   useEffect(()=>{
-    //if (!carregarJogos)
-      //return;
     if (exibindoModalParaCriarAnuncio && !recarregarJogos || jogoProModalDeAnuncios)
       return;
-    //console.log("carregando...");
-    const endereco = `/jogos`;
-    const abortista = new AbortController();
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/jogos`)
     .then(resp=>resp.json())
     .then(dados=>{
-      abortista.abort();
       if (componenteExiste) {
         definirErroAoObterDados(false);
         definirJogos(dados);
@@ -44,8 +36,6 @@ export default function App() {
     })
     .catch(erro=>{
       console.log(erro);
-      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
-        console.log('Não foi possível se comunicar com o servidor.');
       if (componenteExiste)
         definirErroAoObterDados(true);
     })
@@ -53,7 +43,6 @@ export default function App() {
       if (componenteExiste)
         definirRecarregarJogos(false);
     });
-  //}, [carregarJogos])
   }, [exibindoModalParaCriarAnuncio,recarregarJogos,jogoProModalDeAnuncios])
 
   return (
@@ -73,12 +62,15 @@ export default function App() {
           (jogos.length == 0 ?
             <p>Nenhum jogo cadastrado.</p>
           :
-            jogos.map((jogo,id)=>
-              <CartaoDeJogo
-                key={id}
-                jogo={jogo}
-                funcDefinirJogoProModal={definirJogoProModalDeAnuncios}
-              />
+            jogos.map((jogo,i)=>
+              <Link key={i} to={`/anuncios/?jogo=${jogo.nomeUrl}`}>
+                <CartaoDeJogo jogo={jogo}/>
+              </Link>
+              //<CartaoDeJogo
+              //  key={i}
+              //  jogo={jogo}
+              //  funcDefinirJogoProModal={definirJogoProModalDeAnuncios}
+              ///>
             )
           )
         }
@@ -90,10 +82,16 @@ export default function App() {
             <strong>Não encontrou seu duo?</strong>
             <p>Publique um anúncio para encontrar novos players!</p>
           </div>
-          <button className='botaoAbrirModalPraPublicar roxinho' onClick={()=>definirExibindoModalParaCriarAnuncio(true)}>
+          <Link to={contexto2.usuarioLogado ? '/novoanuncio' : '/entrar'}
+            className={`botaoAbrirModalPraPublicar botao ${contexto2.usuarioLogado ? 'semShrink' : ''}`}
+          >
+          {/*<button className='botaoAbrirModalPraPublicar'
+            onClick={()=>definirExibindoModalParaCriarAnuncio(true)}
+          >*/}
             <img className='lupa' src={lupa}/>
-            <span>Publicar anúncio</span>
-          </button>
+            <span>{contexto2.usuarioLogado ? 'Publicar anúncio' : 'Entre para publicar um anúncio'}</span>
+          {/*</button>*/}
+          </Link>
         </div>
       </div>
     </div>

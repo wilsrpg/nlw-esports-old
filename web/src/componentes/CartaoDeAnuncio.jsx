@@ -1,10 +1,115 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
+import { SERVIDOR } from '../../../enderecoDoServidor';
+import { contexto } from '../App';
+import iconeLixeira from '../imagens/icons8-trash vermelha.svg'
+import carregando from '../imagens/loading.svg'
+//import { useLocation } from 'react-router-dom';
 
-export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar}) {
+export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, funcExcluir, excluindo, definirExcluindo}) {
+  //let compMontado = useRef(true);
+  //let componenteExiste = hook;
+  let componenteExiste = true;
+  const contexto2 = useContext(contexto);
   const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+  const [aguardando, definirAguardando] = useState(false);
+  //const [excluindo, definirExcluindo] = useState(false);
+  //const [excluindoAnuncio, definirExcluindoAnuncio] = useState(false);
+  //const urlAtual = useLocation();
+  //const [preparandoExclusao, definirPreparandoExclusao] = useState(false);
+
+  useEffect(()=>{
+    //console.log(urlAtual.pathname);
+    return ()=>componenteExiste = false;
+  }, [])
+
+  //useEffect(()=>{
+  //  return ()=>componenteExiste = false;
+  //}, [])
+
+  //useEffect(()=>{
+  //  if (componenteExiste && preparandoExclusao){
+  //    //funcExcluir();
+  //    definirAguardandoExcluir(true);
+  //    //alert('Anúncio excluído.');
+  //  }
+  //}, [preparandoExclusao])
+
+  //useEffect(()=>{
+  //  if (componenteExiste && excluindoAnuncio){
+  //    funcExcluir();
+  //    definirAguardandoExcluir(false);
+  //    //alert('Anúncio excluído.');
+  //  }
+  //}, [excluindoAnuncio])
+
+  async function validarExclusaoDoAnuncio() {
+    //definirAguardandoExcluir(true);
+    document.getElementById(anuncio.id).style.borderColor = 'red';
+    if (!confirm('Confirma exclusão do anúncio?')) {
+      if (document.getElementById(anuncio.id))
+        document.getElementById(anuncio.id).style.borderColor = '';
+        //if (componenteExiste)
+        //  definirAguardandoExcluir(false);
+      return;
+    }
+    if (componenteExiste) {
+      definirExcluindo(true);
+      definirAguardando(true);
+    }
+    excluirAnuncio();
+  }
+
+  async function excluirAnuncio() {
+    const dados = {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({idDoAnuncio: anuncio.id}),
+    };
+    fetch(SERVIDOR+`/excluiranuncio`, dados)
+    .then(resp=>resp.json())
+    .then(resp=>{
+      if (resp.erro)
+        throw resp.erro;
+      //if (componenteExiste)
+      //definirAnuncioPraExcluir();
+      if (document.getElementById(anuncio.id))
+        document.getElementById(anuncio.id).style.borderColor = '';
+      if (componenteExiste)
+      //  definirExcluindoAnuncio(true);
+        funcExcluir();
+      alert('Anúncio excluído.');
+    })
+    .catch(erro=>{
+      console.log(erro);
+      alert(''+erro);
+    })
+    .finally(()=>{
+      if (componenteExiste) {
+        definirExcluindo(false);
+        definirAguardando(false);
+      }
+    });
+  }
+
+  //async function definirAnuncioPraExcluir() {
+  //  //console.log(urlAtual.pathname);
+  //  //console.log('hook='+hook);
+  //  if (componenteExiste) {
+  //    definirExcluindoAnuncio(true);
+  //    //definirAguardandoExcluir(false);
+  //    //funcExcluir();
+  //    //alert('Anúncio excluído.');
+  //  }
+  //}
 
   return (
-    <div className='cartaoAnuncio'>
+    <div id={anuncio.id} className='cartaoAnuncio'>
+      {contexto2.usuarioLogado && contexto2.usuarioLogado.nome == anuncio.nomeDoUsuario &&
+        <img className='botaoCopiar botaoFechar'
+          src={aguardando ? carregando : iconeLixeira}
+          onClick={excluindo ? undefined : validarExclusaoDoAnuncio}
+        />
+      }
       {nomeDoJogo &&
         <>
         <p>Jogo</p>

@@ -9,7 +9,7 @@ export default function Perfil() {
   return (
     <div className='conteudo'>
       <h2>Perfil</h2>
-      {contexto2.usuarioLogado == nome ?
+      {contexto2.usuarioLogado.nome == nome ?
         <strong>Visualizando seu perfil.</strong>
       :
         <strong>Visualizando perfil de <span className='nomeDoUsuario'>{nome}</span>.</strong>

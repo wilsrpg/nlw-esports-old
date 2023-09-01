@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react'
-import { useHistory } from 'react-router-dom';
+import { useHistory, Link } from 'react-router-dom';
 import { contexto } from '../App';
 
 export default function Conta() {
@@ -14,7 +14,7 @@ export default function Conta() {
   return (
     <div className='conteudo'>
       <h2>Conta</h2>
-      <strong>Bem-vindo, <span className='nomeDoUsuario'>{contexto2.usuarioLogado}</span>.</strong>
+      <strong>Bem-vindo, <span className='nomeDoUsuario'>{contexto2.usuarioLogado.nome}</span>.</strong>
     </div>
   )
 }

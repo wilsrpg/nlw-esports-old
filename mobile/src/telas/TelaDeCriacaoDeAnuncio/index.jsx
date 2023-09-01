@@ -8,11 +8,9 @@ import { styles } from './styles';
 import { THEME } from '../../tema';
 import { ImagemDeFundo } from '../../componentes/ImagemDeFundo';
 import { Cabecalho } from '../../componentes/Cabecalho';
-import { IP_NA_MINHA_CASA, IP_NA_CASA_DE_WISNEY, PORTA_DO_SERVIDOR } from '@env'
+import { SERVIDOR } from '../../../../enderecoDoServidor';
 
 export function TelaDeCriacaoDeAnuncio() {
-  const urlNaMinhaCasa = ""+IP_NA_MINHA_CASA+":"+PORTA_DO_SERVIDOR;
-  const urlNaCasaDeWisney = ""+IP_NA_CASA_DE_WISNEY+":"+PORTA_DO_SERVIDOR;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [jogos, definirJogos] = useState();
   const [jogoId, definirJogoId] = useState('');
@@ -35,21 +33,14 @@ export function TelaDeCriacaoDeAnuncio() {
   const [publicando, definirPublicando] = useState(false);
 
   useEffect(()=>{
-    const endereco = `/jogos`;
-    const abortista = new AbortController();
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/jogos`)
     .then(resp=>resp.json())
     .then(dados=>{
-      abortista.abort();
       definirErroAoObterDados(false);
       definirJogos(dados);
     })
     .catch(erro=>{
       console.log(erro);
-      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
-        console.log('Não foi possível se comunicar com o servidor.');
       definirErroAoObterDados(true);
     });
   }, [])
@@ -156,29 +147,18 @@ export function TelaDeCriacaoDeAnuncio() {
   }
 
   function tentarPublicar(jogoId, anuncio) {
-    const endereco = `/jogos/${jogoId}/anuncios`;
-    const abortista = new AbortController();
     const dados = {
       method: "PUT",
       headers: {"Content-Type": "application/json"},
       body: anuncio,
-      signal: abortista.signal
     };
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, dados);
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, dados);
-    Promise.any([naCasaDeWisney,naMinhaCasa])
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/jogos/${jogoId}/anuncios`, dados)
     .then(()=>{
       Alert.alert("Anúncio publicado com sucesso!");
     })
     .catch(erro=>{
       console.log(erro);
-      let msgErro=''+erro;
-      if (msgErro == 'AggregateError: No Promise in Promise.any was resolved') {
-        msgErro = 'Não foi possível se comunicar com o servidor.';
-        console.log(msgErro);
-      }
-      Alert.alert("Erro ao publicar anúncio:\n"+msgErro);
+      Alert.alert("Erro ao publicar anúncio:\n"+erro);
     })
     .finally(()=>definirPublicando(false));
   }

@@ -1,28 +1,20 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import CartaoDeAnuncio from './CartaoDeAnuncio';
 import carregando from '../imagens/loading.svg'
 import ModalConectar from './ModalConectar';
 import iconeFechar from '../imagens/x.svg'
-import { contexto } from '../App';
+import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
   let componenteExiste = true;
-  const contexto2 = useContext(contexto);
-  const urlNaMinhaCasa = contexto2.hostCasa;
-  const urlNaCasaDeWisney = contexto2.hostWisney;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [anuncios, definirAnuncios] = useState();
   const [discord, definirDiscord] = useState('');
 
   useEffect(()=>{
-    const endereco = `/jogos/${jogo.nomeUrl}/anuncios`;
-    const abortista = new AbortController();
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/jogos/${jogo.nomeUrl}/anuncios`)
     .then(resp=>resp.json())
     .then(dados=>{
-      abortista.abort();
       if (componenteExiste) {
         definirErroAoObterDados(false);
         definirAnuncios(dados);
@@ -30,8 +22,6 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
     })
     .catch(erro=>{
       console.log(erro);
-      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
-        console.log('Não foi possível se comunicar com o servidor.');
       if (componenteExiste)
         definirErroAoObterDados(true);
     });
@@ -52,14 +42,9 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
   }
 
   function obterDiscord(anuncioId) {
-    const endereco = `/anuncios/${anuncioId}/discord`;
-    const abortista = new AbortController();
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/anuncios/${anuncioId}/discord`)
     .then(resp=>resp.json())
     .then(dados=>{
-      abortista.abort();
       if (componenteExiste) {
         definirErroAoObterDados(false);
         definirDiscord(dados.discord);
@@ -67,8 +52,6 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
     })
     .catch(erro=>{
       console.log(erro);
-      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
-        console.log('Não foi possível se comunicar com o servidor.');
       if (componenteExiste)
         definirErroAoObterDados(true);
     });

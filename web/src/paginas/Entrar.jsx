@@ -2,12 +2,11 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom';
 import { contexto } from '../App';
 import carregando from '../imagens/loading.svg'
+import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function Entrar() {
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
-  const urlNaMinhaCasa = contexto2.hostCasa;
-  const urlNaCasaDeWisney = contexto2.hostWisney;
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
   const historico = useHistory();
@@ -20,37 +19,27 @@ export default function Entrar() {
   }, [])
 
   function tentarEntrar(nomeDoUsuario, senha) {
-    const endereco = `/entrar`;
-    const abortista = new AbortController();
     const dados = {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({nomeDoUsuario, senha}),
-      signal: abortista.signal
     };
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, dados);
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, dados);
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/entrar`, dados)
     .then(resp=>resp.json())
     .then(resp=>{
-      abortista.abort();
       if (resp.erro)
         throw resp.erro;
       else {
+        sessionStorage.setItem("idDoUsuarioLogado", resp.id);
         sessionStorage.setItem("usuarioLogado", resp.nome);
-        contexto2.definirUsuarioLogado(resp.nome);
+        contexto2.definirUsuarioLogado(resp);
         historico.push('/conta');
       }
     })
     .catch(erro=>{
       console.log(erro);
-      let msgErro=''+erro;
-      if (msgErro == 'AggregateError: No Promise in Promise.any was resolved') {
-        msgErro = 'Não foi possível se comunicar com o servidor.';
-        console.log(msgErro);
-      }
       if (componenteExiste) {
-        definirMensagem(msgErro);
+        definirMensagem(''+erro);
         definirAguardando(false);
       }
     });

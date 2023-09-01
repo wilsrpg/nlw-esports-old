@@ -2,7 +2,7 @@ import React, { createContext, useState } from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import './App.css'
 import BarraSuperior from './componentes/BarraSuperior'
-//import Rodape from './componentes/Rodape'
+//import BarraInferior from './componentes/BarraInferior'
 import PaginaInicial from './paginas/PaginaInicial'
 import Jogos from './paginas/Jogos'
 import Anuncios from './paginas/Anuncios'
@@ -12,16 +12,29 @@ import Configuracoes from './paginas/Configuracoes'
 import Registrar from './paginas/Registrar'
 import PaginaNaoEncontrada from './paginas/PaginaNaoEncontrada'
 import Entrar from './paginas/Entrar'
+import NovoAnuncio from './paginas/NovoAnuncio'
+import MeusAnuncios from './paginas/MeusAnuncios'
+
+/*falta:
+-na página inicial, mostrar só os 5 jogos com anúncios mais recentes
+-na publicação, atrelar id do usuário ao anúncio
+-na publicação, poder colocar várias disponibilidades
+-cadastrar jogo?
+-separar nome do usuário do nome no jogo
+-no servidor, trocar jogos/anúncios por jogos2/anúncios2 e fazer as adaptações
+-
+*/
 
 export const contexto = createContext();
 
 export default function App() {
-  const hostCasa = 'http://192.168.1.33:3333';
-  const hostWisney = 'http://192.168.0.193:3333';
-  const [usuarioLogado, definirUsuarioLogado] = useState(sessionStorage.getItem("usuarioLogado"));
+  const [usuarioLogado, definirUsuarioLogado] = useState({
+    id: sessionStorage.getItem("IdDoUsuarioLogado"),
+    nome: sessionStorage.getItem("usuarioLogado")
+  });
 
   return (
-    <contexto.Provider value={{usuarioLogado, definirUsuarioLogado, hostCasa, hostWisney}}>
+    <contexto.Provider value={{usuarioLogado, definirUsuarioLogado}}>
       <BrowserRouter>
         <BarraSuperior/>
         <Switch>
@@ -37,32 +50,38 @@ export default function App() {
           <Route path="/conta">
             <Conta/>
           </Route>
+          {/*<Route path="/usuarios/:nome">
+            <Perfil />
+          </Route>*/}
+          {/*<Route path="/amigos">
+            <Amigos/>
+          </Route>*/}
+          <Route path="/meusanuncios">
+            <MeusAnuncios/>
+          </Route>
           <Route path="/configuracoes">
             <Configuracoes/>
           </Route>
-          <Route path="/usuarios/:nome">
-            <Perfil />
-          </Route>
-          <Route path="/usuarios/:nome/anuncios"> {/*falta*/}
+          {/*<Route path="/usuarios/:nome/anuncios">
             <Anuncios />
-          </Route>
-          <Route path="/jogos/:nome"> {/*falta*/}
+          </Route>*/}
+          {/*<Route path="/jogos/:nome"> //página de informações do jogo
             <Jogos />
-          </Route>
+          </Route>*/}
           <Route path="/jogos">
             <Jogos/>
           </Route>
-          <Route path="/anuncios/:jogoNomeUrl">
-            <Anuncios/>
-          </Route>
           <Route path="/anuncios">
             <Anuncios/>
+          </Route>
+          <Route path="/novoanuncio">
+            <NovoAnuncio/>
           </Route>
           <Route>
             <PaginaNaoEncontrada/>
           </Route>
         </Switch>
-        {/*<Rodape/>*/}
+        {/*<BarraInferior/>*/}
       </BrowserRouter>
     </contexto.Provider>
   )

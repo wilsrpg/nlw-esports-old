@@ -14,7 +14,7 @@ export default function App() {
         backgroundColor='transparent'
         translucent
       />
-      {!carregouFontes ? <Carregando/> : <Rotas/>}
+        {!carregouFontes ? <Carregando/> : <Rotas/>}
     </ImagemDeFundo>
   );
 }

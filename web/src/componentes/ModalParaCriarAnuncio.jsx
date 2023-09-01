@@ -1,13 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { contexto } from '../App';
+import React, { useEffect, useState } from 'react'
 import carregando from '../imagens/loading.svg'
 import iconeFechar from '../imagens/x.svg'
+import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) {
   let componenteExiste = true;
-  const contexto2 = useContext(contexto);
-  const urlNaMinhaCasa = contexto2.hostCasa;
-  const urlNaCasaDeWisney = contexto2.hostWisney;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [jogos, definirJogos] = useState();
   const [dias, definirDias] = useState([
@@ -24,14 +21,9 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
 
   useEffect(()=>{
     document.body.onkeydown = e=>fechar(e);
-    const endereco = `/jogos`;
-    const abortista = new AbortController();
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, {signal: abortista.signal});
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/jogos`)
     .then(resp=>resp.json())
     .then(dados=>{
-      abortista.abort();
       if (componenteExiste) {
         definirErroAoObterDados(false);
         definirJogos(dados);
@@ -39,8 +31,6 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
     })
     .catch(erro=>{
       console.log(erro);
-      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
-        console.log('Não foi possível se comunicar com o servidor.');
       if (componenteExiste)
         definirErroAoObterDados(true);
     });
@@ -102,19 +92,13 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
   }
 
   function tentarPublicar(jogoId, anuncio) {
-    const endereco = `/jogos/${jogoId}/anuncios`;
-    const abortista = new AbortController();
     const dados = {
       method: "PUT",
       headers: {"Content-Type": "application/json"},
       body: anuncio,
-      signal: abortista.signal
     };
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, dados);
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, dados);
-    Promise.any([naMinhaCasa,naCasaDeWisney])
+    fetch(SERVIDOR+`/jogos/${jogoId}/anuncios`, dados)
     .then(resp=>{
-      abortista.abort();
       if (resp.ok) {
         funcRecarregarJogos();
         alert("Anúncio publicado com sucesso!");
@@ -123,8 +107,6 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
     })
     .catch(erro=>{
       console.log(erro);
-      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved')
-        console.log('Não foi possível se comunicar com o servidor.');
       alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.");
     })
     .finally(()=>{

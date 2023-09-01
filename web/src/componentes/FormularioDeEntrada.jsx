@@ -1,20 +1,24 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import { contexto } from '../App';
 import carregando from '../imagens/loading.svg'
+import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function FormularioDeEntrada({funcFecharMenu, horizontal}) {
   //let componenteExiste = true;
   const contexto2 = useContext(contexto);
-  const urlNaMinhaCasa = contexto2.hostCasa;
-  const urlNaCasaDeWisney = contexto2.hostWisney;
   const historico = useHistory();
+  const urlAtual = useLocation();
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
 
   //useEffect(()=>{
   //  return ()=>componenteExiste = false;
   //}, [])
+
+  useEffect(()=>{
+    definirMensagem('');
+  }, [urlAtual])
 
   function validarEntrada(e) {
     e.preventDefault();
@@ -39,38 +43,30 @@ export default function FormularioDeEntrada({funcFecharMenu, horizontal}) {
   }
 
   function tentarEntrar(nomeDoUsuario, senha) {
-    const endereco = `/entrar`;
-    const abortista = new AbortController();
     const dados = {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({nomeDoUsuario, senha}),
-      signal: abortista.signal
     };
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, dados);
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, dados);
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/entrar`, dados)
     .then(resp=>resp.json())
     .then(resp=>{
-      abortista.abort();
       if (resp.erro)
         throw resp.erro;
       else {
         funcFecharMenu();
+        sessionStorage.setItem("idDoUsuarioLogado", resp.id);
         sessionStorage.setItem("usuarioLogado", resp.nome);
         //if (componenteExiste)
-          contexto2.definirUsuarioLogado(resp.nome);
+          contexto2.definirUsuarioLogado(resp);
         historico.push('/conta');
       }
     })
     .catch(erro=>{
       console.log(erro);
-      if (''+erro == 'AggregateError: No Promise in Promise.any was resolved') {
-        console.log('Não foi possível se comunicar com o servidor.');
-        //if (componenteExiste)
-          definirMensagem('Não foi possível se comunicar com o servidor.');
-      } else //if (componenteExiste)
+      //if (componenteExiste)
         definirMensagem(''+erro);
+        definirAguardando(false);
     //})
     //.finally(()=>{
       //if (componenteExiste)

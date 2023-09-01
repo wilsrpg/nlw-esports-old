@@ -21,54 +21,16 @@ const abrirBanco = open({
 
 const bcryptSaltRounds = 10;
 
-//const myPlaintextPassword = 'not_bacon';
-//const someOtherPlaintextPassword = 'not_bacom';
-//bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
-//	console.log('hash='+hash);
-//	bcrypt.compare(myPlaintextPassword, hash, function(err, result) {
-//		console.log('true='+result);
-//	});
-//	bcrypt.compare(someOtherPlaintextPassword, hash, function(err, result) {
-//		console.log('fals='+result);
-//	});
-//});
-
-/*
-const pass = '!]m:#$xDY@p/QDeW';
-//examinando o hash de 2^10 até 2^20
-console.time(`Time`);
-let saltRound = 10;
-//for (let saltRound = 10; saltRound <= 15; saltRound++) {
-  bcrypt.hash(pass, saltRound)
-  .then(passHashed=> {
-    //console.time(`Time: ${saltRound}`);
-    //console.log(passHashed);
-    //console.timeEnd(`Time: ${saltRound}`);
-		//if (saltRound==15)
-			console.timeEnd(`Time`);
-  });
-//}
-*/
-
-/*
-//informado no formulário
-async function check(username, pass) {
-  //buscando no banco a senha do usuário
-	let passHashedDB = '$2b$12$dbstSfo1FN9jnZOSQ96N7eMMMe9FFI2QmYWo6E44WhutEUg9kZOcW'
-	const match = await bcrypt.compare(pass, passHashedDB);
-	if (match)
-		console.log('Granted!')
-	else
-		console.log('Access Denied')
-}
-
-//chamando a função check
-let userPass = '!]m:#$xDY@p/QDeW'
-check('JediMaster',userPass);
-*/
-
 async function iniciar() {
 	//const db = await abrirBanco;
+	//await db.run(`ALTER TABLE Anuncios2 RENAME COLUMN deHora TO horaDeInicio;`);
+	//await db.run(`ALTER TABLE Anuncios2 RENAME COLUMN ateHora TO horaDeTermino;`);
+	//await db.run(`ALTER TABLE Jogos ADD COLUMN uuid TEXT DEFAULT 0;`);
+	//await db.run(`UPDATE Jogos SET uuid = id WHERE uuid = 0;`);
+	//await db.run(`UPDATE Jogos SET id = rowid WHERE uuid = 'id';`); //sqlite n dxa mudar tipo, então n adianta fazer isso... o jeito é recriar
+	//await db.run(`ALTER TABLE Jogos RENAME COLUMN id TO uuid;`);
+	//await db.run(`ALTER TABLE Anuncios RENAME COLUMN id TO uuid;`);
+	//await db.run(`ALTER TABLE Anuncios ADD COLUMN uuid ;`);
 	//await db.run(`CREATE TABLE IF NOT EXISTS teste (id INTEGER PRIMARY KEY);`);
 	//await db.run(`ALTER TABLE Jogo RENAME TO Jogos;`);
 	//await db.run(`ALTER TABLE Anuncio RENAME TO Anuncios;`);
@@ -87,18 +49,68 @@ async function iniciar() {
 	//console.log(d.getTime());
 	//const anunciosErrados = await db.all('SELECT * FROM Anuncios WHERE dataDeCriacao > 1690864594730;');
 	//console.log(anunciosErrados.length);
+	
+	//db.run(`CREATE TABLE IF NOT EXISTS Jogos2 (
+	//	id INTEGER PRIMARY KEY,
+	//	nome TEXT NOT NULL,
+	//	nomeUrl TEXT NOT NULL,
+	//	urlImagem TEXT NOT NULL,
+	//	uuid TEXT);`
+	//);
 	//db.run(`CREATE TABLE IF NOT EXISTS Anuncios2 (
-	//	id TEXT PRIMARY KEY NOT NULL,
-	//	jogoId TEXT NOT NULL,
+	//	id INTEGER PRIMARY KEY,
+	//	idDoJogo INTEGER NOT NULL,
+	//	nomeDoJogo TEXT NOT NULL,
+	//	idDoUsuario INTEGER NOT NULL,
 	//	nomeDoUsuario TEXT NOT NULL,
 	//	tempoDeJogoEmAnos INTEGER NOT NULL,
+	//	tempoDeJogoEmMeses INTEGER NOT NULL,
 	//	discord TEXT NOT NULL,
 	//	diasQueJoga TEXT NOT NULL,
 	//	deHora INTEGER NOT NULL,
 	//	ateHora INTEGER NOT NULL,
 	//	usaChatDeVoz BOOLEAN NOT NULL,
-	//	dataDeCriacao INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP);`
+	//	dataDeCriacao INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	//	uuid TEXT);`
 	//);
+
+	//const a = await db.all(`SELECT rowid,nome,nomeUrl,urlImagem,id FROM Jogos;`);
+	//const a = await db.all(`SELECT rowid,nomeDoUsuario,tempoDeJogoEmAnos,discord,diasQueJoga,deHora,ateHora,usaChatDeVoz,dataDeCriacao,id,jogoId FROM Anuncios;`);
+	//const j = await db.all(`SELECT rowid,id,nome FROM Jogos;`);
+	//const u = await db.all(`SELECT * FROM Usuarios;`);
+	//a.map(anuncio=>{
+	//	anuncio.idDoJogo = j.find(jo=>jo.id == anuncio.jogoId).rowid;
+	//	anuncio.nomeDoJogo = j.find(jo=>jo.id == anuncio.jogoId).nome;
+	//	let uid = u.find(us=>us.nome == anuncio.nomeDoUsuario);
+	//	if (uid) anuncio.idDoUsuario = uid.id;
+	//	else anuncio.idDoUsuario = -1;
+	//	anuncio.tempoDeJogoEmMeses = anuncio.tempoDeJogoEmAnos * 12;
+	//	anuncio.horaDeInicio = anuncio.deHora;
+	//	anuncio.horaDeTermino = anuncio.ateHora;
+	//	anuncio.uuid = anuncio.id;
+	//});
+	//console.log(a);
+
+	//await db.run(`DELETE FROM Anuncios2;`);
+
+	//let i=0;
+	//while(i < a.length) {
+	//	await db.run(`INSERT INTO Anuncios2
+	//		(idDoJogo, nomeDoJogo, idDoUsuario, nomeDoUsuario, tempoDeJogoEmAnos, tempoDeJogoEmMeses, discord, diasQueJoga, horaDeInicio, horaDeTermino, usaChatDeVoz, dataDeCriacao, uuid)
+	//		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`, [a[i].idDoJogo, a[i].nomeDoJogo, a[i].idDoUsuario, a[i].nomeDoUsuario, a[i].tempoDeJogoEmAnos, a[i].tempoDeJogoEmMeses, a[i].discord, a[i].diasQueJoga, a[i].horaDeInicio, a[i].horaDeTermino, a[i].usaChatDeVoz, a[i].dataDeCriacao, a[i].uuid]
+	//	);
+	//	console.log('inseriu registro '+(i+1)+' (nome='+a[i].nomeDoUsuario+', discord='+a[i].discord+', jogo='+a[i].nomeDoJogo+')');
+	//	i++;
+	//}
+	//a.map(async (an,i)=>{
+		//console.log([i, an.idDoJogo, an.nomeDoJogo, an.idDoUsuario, an.nomeDoUsuario, an.tempoDeJogoEmAnos, an.tempoDeJogoEmMeses, an.discord, an.diasQueJoga, an.horaDeInicio, an.horaDeTermino, an.usaChatDeVoz, an.dataDeCriacao].join(', '));
+		//await db.run(`INSERT INTO Anuncios2
+		//	(idDoJogo, nomeDoJogo, idDoUsuario, nomeDoUsuario, tempoDeJogoEmAnos, tempoDeJogoEmMeses, discord, diasQueJoga, horaDeInicio, horaDeTermino, usaChatDeVoz, dataDeCriacao, uuid)
+		//	VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`, [an.idDoJogo, an.nomeDoJogo, an.idDoUsuario, an.nomeDoUsuario, an.tempoDeJogoEmAnos, an.tempoDeJogoEmMeses, an.discord, an.diasQueJoga, an.horaDeInicio, an.horaDeTermino, an.usaChatDeVoz, an.dataDeCriacao, an.uuid]
+		//);
+		//console.log('inseriu registro '+(i+1)+' (nome='+an.nomeDoUsuario+', discord='+an.discord+')');
+	//});
+
 
 	//const anunciosCertos = await db.all('SELECT * FROM Anuncios WHERE dataDeCriacao > 1690864594730;');
 	//await db.run(`INSERT INTO Anuncios2 SELECT * FROM Anuncios WHERE dataDeCriacao > 1690864594730;`);
@@ -130,10 +142,10 @@ async function iniciar() {
 	//await db.run(`ALTER TABLE Anuncios2 RENAME TO Anuncios;`);
 
 	//await db.migrate();
-	servidor.listen(
-		process.env.PORTA_DO_SERVIDOR,
-		()=>console.log("iniciou server, ouvindo porta "+process.env.PORTA_DO_SERVIDOR)
-	);
+	//servidor.listen(
+	//	process.env.PORTA_DO_SERVIDOR,
+	//	()=>console.log("iniciou server, ouvindo porta "+process.env.PORTA_DO_SERVIDOR)
+	//);
 }
 iniciar();
 
@@ -149,7 +161,7 @@ servidor.get('/jogos', async (req, resp)=>{
 	);
 	jogos.map(jogo=>jogo._count = {anuncios: jogosQtde.find(j=>j.id==jogo.id).qtdeAnuncios});
 	return resp.json(jogos);
-})
+});
 
 servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
 	const jogoNomeUrl = req.params.jogoNomeUrl;
@@ -157,17 +169,19 @@ servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
 	const jogo = await db.get(`SELECT * FROM Jogos WHERE nomeUrl = '${jogoNomeUrl}';`);
 	console.log("GET jogos/jogo="+jogo.nome+", ip="+req.ip);
 	return resp.json(jogo);
-})
+});
 
 servidor.post('/anuncios', async (req, resp)=>{
 	const body = req.body;
 	//console.log("POST anuncios, ip="+req.ip+", body:");
 	if (!body.jogo) body.jogo = '%';
-	let naoContem = false;
+
+	let naoContem = false, exatamente = false;
 	if (!body.nome) body.nome = '%';
 	else if (!body.opcoesNome) body.nome = '%'+body.nome+'%';
 	else if (body.opcoesNome == 'comecaCom') body.nome = body.nome+'%';
 	else if (body.opcoesNome == 'terminaCom') body.nome = '%'+body.nome;
+	else if (body.opcoesNome == 'exatamente') exatamente = true;
 	else if (body.opcoesNome == 'naoContem') {
 		naoContem = true;
 		body.nome = '%'+body.nome+'%';
@@ -228,7 +242,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 			diasQueJoga, deHora, ateHora, usaChatDeVoz, dataDeCriacao
 		FROM Anuncios JOIN Jogos ON jogoId = Jogos.id
 		WHERE Jogos.nomeUrl LIKE (?)
-		  AND nomeDoUsuario ${naoContem ? 'NOT' : ''} LIKE (?)
+		  AND nomeDoUsuario ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
 			AND tempoDeJogoEmAnos ${noMaximo ? '<=' : '>='} (?)
 			${''/*AND diasQueJoga LIKE (?)
 			AND deHora <= (?)
@@ -339,8 +353,9 @@ servidor.post('/anuncios', async (req, resp)=>{
 			ateHora: converterMinutosParaHoraString(anuncio.ateHora)
 		};
 	}));
-})
+});
 
+//só usado no modal de jogo selecionado, na página inicial
 servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 	const jogoNomeUrl = req.params.jogoNomeUrl;
 	const db = await abrirBanco;
@@ -352,7 +367,7 @@ servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 		WHERE jogoId='${jogo.id}'
 		ORDER BY dataDeCriacao DESC;`
 	);
-	console.log("GET jogos/jogo/anuncios="+jogoNomeUrl+", qtde="+anuncios.length+", ip="+req.ip);
+	console.log("GET jogos/"+jogoNomeUrl+"/anuncios, qtde="+anuncios.length+", ip="+req.ip);
 	return resp.json(anuncios.map(anuncio=>{
 		return {...anuncio,
 			diasQueJoga: anuncio.diasQueJoga.split(','),
@@ -360,15 +375,16 @@ servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 			ateHora: converterMinutosParaHoraString(anuncio.ateHora)
 		};
 	}));
-})
+});
 
+//usado no modal conectar, nos cartões de anúncios
 servidor.get('/anuncios/:id/discord', async (req, resp)=>{
 	const anuncioId = req.params.id;
 	const db = await abrirBanco;
 	const anuncio = await db.get(`SELECT discord FROM Anuncios WHERE id='${anuncioId}';`);
 	console.log("GET anuncios/id/discord, discord="+anuncio.discord+", ip="+req.ip);
 	return resp.json({discord: anuncio.discord});
-})
+});
 
 servidor.put('/jogos/:id/anuncios', async (req, resp)=>{
 	const jogoId = req.params.id;
@@ -423,7 +439,7 @@ servidor.put('/jogos/:id/anuncios', async (req, resp)=>{
 		console.log(erro);
 		return resp.status(500).json(erro);
 	});
-})
+});
 
 function converterHoraStringParaMinutos(horaString) {
 	const [horas, minutos] = horaString.split(':').map(Number);
@@ -464,19 +480,17 @@ servidor.put('/registrar', async (req, resp)=>{
 				return this.lastID;
 			}
 		);
-		//const usuarioRegistrado = await db.get(
-		//	`SELECT id,nome,dataDeCriacao FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`
-		//);
+		const usuarioRegistrado = await db.get( `SELECT id,nome FROM Usuarios WHERE nome = (?);`, [body.nomeDoUsuario]);
 		//console.log(usuarioRegistrado);
 		//return resp.status(201).json({usuario: usuarioRegistrado});
-		return resp.status(201).json({nome: body.nomeDoUsuario});
+		return resp.status(201).json({id: usuarioRegistrado.id, nome: usuarioRegistrado.nome});
 	}
 	catch (erro) {
 		console.log("entrou no catch");
 		console.log(erro);
 		return resp.status(500).json({erro});
 	}
-})
+});
 
 servidor.post('/entrar', async (req, resp)=>{
 	try {
@@ -484,8 +498,8 @@ servidor.post('/entrar', async (req, resp)=>{
 		console.log("POST entrar, usuário="+body.nomeDoUsuario+", ip="+req.ip);
 		//console.log("sql="+`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
 		const db = await abrirBanco;
-		const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = (?);`,[body.nomeDoUsuario]);
+		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+		const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = (?);`,[body.nomeDoUsuario]);
 		//console.log("existe="+usuarioExiste);
 		if (!usuarioExiste)
 			return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
@@ -493,7 +507,7 @@ servidor.post('/entrar', async (req, resp)=>{
 		const senhaCorreta = await bcrypt.compare(body.senha, usuarioExiste.senhaHash);
 		if (!senhaCorreta)
 			return resp.status(401).json({erro: 'Senha incorreta.'});
-		return resp.status(201).json({nome: usuarioExiste.nome});
+		return resp.status(201).json({id: usuarioExiste.id, nome: usuarioExiste.nome});
 		//se for manter sessão:
 		//const token = {id: usuarioExiste.id, nome: usuarioExiste.nome, token: uuidv4()};
 		//await db.run(`INSERT INTO UsuariosLogados (id, nome, token) VALUES (?,?,?);`,
@@ -516,7 +530,7 @@ servidor.post('/entrar', async (req, resp)=>{
 		console.log(erro);
 		return resp.status(500).json({erro});
 	}
-})
+});
 
 //se for manter sessão:
 /*servidor.post('/sair', async (req, resp)=>{
@@ -527,21 +541,22 @@ servidor.post('/entrar', async (req, resp)=>{
 	//const usuarioExiste = await db.get(`SELECT id,nome FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
 	//if (!usuarioExiste)
 	//	return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
-	return resp.status(204).json(???);
+	return resp.status(200).json(???);
 	}
 	catch (erro) {
 		console.log("entrou no catch");
 		console.log(erro);
 		return resp.status(500).json({erro});
 	}
-})*/
+});*/
 
 servidor.post('/alterarsenha', async (req, resp)=>{
 	try {
 		const body = req.body;
 		console.log("POST alterarsenha, usuário="+body.nomeDoUsuario+", ip="+req.ip);
 		const db = await abrirBanco;
-		const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+		const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = (?);`,[body.nomeDoUsuario]);
 		if (!usuarioExiste)
 			return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
 		const senhaCorreta = await bcrypt.compare(body.senha, usuarioExiste.senhaHash);
@@ -550,7 +565,8 @@ servidor.post('/alterarsenha', async (req, resp)=>{
 		const novaSenhaHash = await bcrypt.hash(body.novaSenha, bcryptSaltRounds);
 		//await db.run(`INSERT INTO Usuarios (id, nome, senhaHash, dataDeCriacao) VALUES (?,?,?,?);`,
 			//[uuidv4(), body.nomeDoUsuario, senhaHash, Date.now()],
-		await db.run(`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE nome = '${body.nomeDoUsuario}';`);
+		//await db.run(`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE nome = '${body.nomeDoUsuario}';`);
+		await db.run(`UPDATE Usuarios SET senhaHash = (?) WHERE nome = (?);`, [novaSenhaHash, body.nomeDoUsuario]);
 		return resp.status(200).json({ok: 'Senha alterada com sucesso.'});
 	}
 	catch (erro) {
@@ -558,4 +574,48 @@ servidor.post('/alterarsenha', async (req, resp)=>{
 		console.log(erro);
 		return resp.status(500).json({erro});
 	}
-})
+});
+
+servidor.post('/excluirconta', async (req, resp)=>{
+	try {
+		const body = req.body;
+		console.log("POST excluirconta, usuário="+body.nomeDoUsuario+", ip="+req.ip);
+		const db = await abrirBanco;
+		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+		const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = (?);`,[body.nomeDoUsuario]);
+		if (!usuarioExiste)
+			return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
+		const senhaCorreta = await bcrypt.compare(body.senha, usuarioExiste.senhaHash);
+		if (!senhaCorreta)
+			return resp.status(401).json({erro: 'Senha incorreta.'});
+		//await db.run(`DELETE FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+		await db.run(`DELETE FROM Usuarios WHERE nome = (?);`,[body.nomeDoUsuario]);
+		return resp.status(200).json({ok: 'Conta excluída.'});
+	}
+	catch (erro) {
+		console.log("entrou no catch");
+		console.log(erro);
+		return resp.status(500).json({erro});
+	}
+});
+
+servidor.post('/excluiranuncio', async (req, resp)=>{
+	try {
+		const body = req.body;
+		console.log("POST excluiranuncio, id="+body.idDoAnuncio+", ip="+req.ip);
+		const db = await abrirBanco;
+		await db.run(`DELETE FROM Anuncios WHERE id = (?);`,[body.idDoAnuncio]);
+		//await new Promise(r=>setTimeout(r,1000));
+		return resp.status(200).json({ok: 'Anúncio excluído.'});
+	}
+	catch (erro) {
+		console.log("entrou no catch");
+		console.log(erro);
+		return resp.status(500).json({erro});
+	}
+});
+
+servidor.listen(
+	process.env.PORTA_DO_SERVIDOR,
+	()=>console.log("iniciou server, ouvindo porta "+process.env.PORTA_DO_SERVIDOR)
+);

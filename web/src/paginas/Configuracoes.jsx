@@ -2,15 +2,17 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom';
 import { contexto } from '../App';
 import carregando from '../imagens/loading.svg'
+import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function Configuracoes() {
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
-  const urlNaMinhaCasa = contexto2.hostCasa;
-  const urlNaCasaDeWisney = contexto2.hostWisney;
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
   const [erroAoValidar, definirErroAoValidar] = useState(false);
+  const [confirmandoExclusaoDaConta, definirConfirmandoExclusaoDaConta] = useState(false);
+  const [aguardandoExcluir, definirAguardandoExcluir] = useState(false);
+  const [mensagemExcluir, definirMensagemExcluir] = useState('');
   const historico = useHistory();
 
   useEffect(()=>{
@@ -21,20 +23,14 @@ export default function Configuracoes() {
   }, [])
 
   function tentarAlterarSenha(senha,novaSenha) {
-    const endereco = `/alterarsenha`;
-    const abortista = new AbortController();
     const dados = {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({nomeDoUsuario: contexto2.usuarioLogado, senha, novaSenha}),
-      signal: abortista.signal
+      body: JSON.stringify({nomeDoUsuario: contexto2.usuarioLogado.nome, senha, novaSenha}),
     };
-    const naMinhaCasa = fetch(urlNaMinhaCasa+endereco, dados);
-    const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, dados);
-    Promise.any([naCasaDeWisney,naMinhaCasa])
+    fetch(SERVIDOR+`/alterarsenha`, dados)
     .then(resp=>resp.json())
     .then(resp=>{
-      abortista.abort();
       if (resp.erro)
         throw resp.erro;
       else if (componenteExiste) {
@@ -44,13 +40,8 @@ export default function Configuracoes() {
     })
     .catch(erro=>{
       console.log(erro);
-      let msgErro=''+erro;
-      if (msgErro == 'AggregateError: No Promise in Promise.any was resolved') {
-        msgErro = 'Não foi possível se comunicar com o servidor.';
-        console.log(msgErro);
-      }
       if (componenteExiste)
-        definirMensagem(msgErro);
+        definirMensagem(''+erro);
     })
     .finally(()=>{
       if (componenteExiste)
@@ -92,6 +83,45 @@ export default function Configuracoes() {
     tentarAlterarSenha(dados.senhaAtual,dados.novaSenha);
   }
 
+  function validarExclusaoDaConta() {
+    const senha = document.getElementById('confirmarSenhaParaExclusaoDaConta').value;
+    if (!senha) {
+      definirMensagemExcluir('Digite sua senha.');
+      document.getElementById('confirmarSenhaParaExclusaoDaConta').focus();
+      return;
+    }
+    if (confirm('Excluir permanentemente esta conta? Esta ação é irreversível.')) {
+      definirAguardandoExcluir(true);
+      excluirConta(senha);
+    }
+  }
+
+  function excluirConta(senha) {
+    const dados = {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({nomeDoUsuario: contexto2.usuarioLogado.nome, senha}),
+    };
+    fetch(SERVIDOR+`/excluirconta`, dados)
+    .then(resp=>resp.json())
+    .then(resp=>{
+      if (resp.erro)
+        throw resp.erro;
+      else if (componenteExiste) {
+        sessionStorage.removeItem("usuarioLogado");
+        sessionStorage.removeItem("idDoUsuarioLogado");
+        contexto2.definirUsuarioLogado();
+        alert('Conta excluída.');
+        historico.push('/entrar');
+      }
+    })
+    .catch(erro=>{
+      console.log(erro);
+      definirAguardandoExcluir(false);
+      definirMensagemExcluir(''+erro);
+    });
+  }
+  
   return (
     <div className='conteudo'>
       <h2>Configurações</h2>
@@ -107,6 +137,32 @@ export default function Configuracoes() {
         </form>
         <p className={erroAoValidar ? 'mensagemDeErro' : 'mensagemDeSucesso'}>{mensagem}</p>
       </div>
+      {/*<div className='flex flexColumn'>*/}
+        {!confirmandoExclusaoDaConta ?
+          <button className='excluirConta alturaBase' onClick={()=>definirConfirmandoExclusaoDaConta(true)}>
+            Excluir minha conta
+          </button>
+        :
+          <>
+          <p>Digite sua senha novamente antes de prosseguir com esta operação.</p>
+          <div>
+            <div className='flex flexColumn'>
+              <input id='confirmarSenhaParaExclusaoDaConta' type='password' placeholder='Senha atual' onChange={()=>definirMensagemExcluir('')}/>
+              <button className='excluirConta alturaBase' onClick={validarExclusaoDaConta}>
+                {aguardandoExcluir ? <img className='carregando' src={carregando}/> : 'Excluir minha conta'}
+              </button>
+              <button className='alturaBase' onClick={()=>{
+                definirConfirmandoExclusaoDaConta(false);
+                definirMensagemExcluir('');
+              }}>
+                Cancelar
+              </button>
+            </div>
+            <p className='mensagemDeErro'>{mensagemExcluir}</p>
+          </div>
+          </>
+        }
+      {/*</div>*/}
     </div>
   )
 }
