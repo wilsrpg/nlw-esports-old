@@ -23,8 +23,31 @@ const bcryptSaltRounds = 10;
 
 async function iniciar() {
 	//const db = await abrirBanco;
-	//await db.run(`ALTER TABLE Anuncios2 RENAME COLUMN deHora TO horaDeInicio;`);
-	//await db.run(`ALTER TABLE Anuncios2 RENAME COLUMN ateHora TO horaDeTermino;`);
+	//await db.run(`PRAGMA foreign_keys = ON;`);
+	//const A = await db.get(`PRAGMA foreign_keys;`);
+	//console.log(A);
+	
+	//await db.run(`CREATE TABLE IF NOT EXISTS Disponibilidades (
+	//	idDoAnuncio INTEGER NOT NULL,
+	//	dias TEXT NOT NULL,
+	//	horaDeInicio INTEGER NOT NULL,
+	//	horaDeTermino INTEGER NOT NULL,
+	//	FOREIGN KEY (idDoAnuncio) REFERENCES Anuncios2(idDoAnuncio)
+	//	ON DELETE CASCADE);`
+	//);
+
+	//await db.run(`ALTER TABLE Anuncios2 RENAME COLUMN id TO idDoAnuncio;`);
+	//await db.run(`ALTER TABLE Anuncios2 DROP COLUMN nomeDoJogo;`);
+	//await db.run(`ALTER TABLE Anuncios2 RENAME COLUMN nomeDoUsuario TO nomeNoJogo;`);
+	//await db.run(`ALTER TABLE Anuncios2 DROP COLUMN tempoDeJogoEmAnos;`);
+
+	//await db.run(`INSERT INTO Disponibilidades
+	//	SELECT idDoAnuncio,diasQueJoga,horaDeInicio,horaDeTermino FROM Anuncios2;`
+	//);
+	//await db.run(`ALTER TABLE Anuncios2 DROP COLUMN diasQueJoga;`);
+	//await db.run(`ALTER TABLE Anuncios2 DROP COLUMN horaDeInicio;`);
+	//await db.run(`ALTER TABLE Anuncios2 DROP COLUMN horaDeTermino;`);
+
 	//await db.run(`ALTER TABLE Jogos ADD COLUMN uuid TEXT DEFAULT 0;`);
 	//await db.run(`UPDATE Jogos SET uuid = id WHERE uuid = 0;`);
 	//await db.run(`UPDATE Jogos SET id = rowid WHERE uuid = 'id';`); //sqlite n dxa mudar tipo, então n adianta fazer isso... o jeito é recriar
@@ -151,15 +174,43 @@ iniciar();
 
 servidor.get('/jogos', async (req, resp)=>{
 	const db = await abrirBanco;
-	const jogos = await db.all(`SELECT * FROM Jogos;`);
-	console.log("GET jogos, qtde="+jogos.length+", ip="+req.ip);
-	const jogosQtde = await db.all(
-		`SELECT Jogos.id, COUNT(Anuncios.jogoId) as qtdeAnuncios
+	const jogos = await db.all(
+		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.jogoId) AS qtdeAnuncios
 		FROM Jogos LEFT JOIN Anuncios
-		ON Jogos.id=Anuncios.jogoId
-		GROUP BY Jogos.id;`
+		ON Jogos.id = jogoId
+		GROUP BY Jogos.id
+		ORDER BY MAX(dataDeCriacao) DESC;`
 	);
-	jogos.map(jogo=>jogo._count = {anuncios: jogosQtde.find(j=>j.id==jogo.id).qtdeAnuncios});
+	console.log("GET jogos, qtde="+jogos.length+", ip="+req.ip);
+	//const jogosQtde = await db.all(
+	//	`SELECT Jogos.id, COUNT(Anuncios.jogoId) AS qtdeAnuncios
+	//	FROM Jogos LEFT JOIN Anuncios
+	//	ON Jogos.id=Anuncios.jogoId
+	//	GROUP BY Jogos.id;`
+	//);
+	//jogos.map(jogo=>jogo._count = {anuncios: jogosQtde.find(j=>j.id==jogo.id).qtdeAnuncios});
+	jogos.map(jogo=>jogo._count = {anuncios: jogo.qtdeAnuncios});
+	return resp.json(jogos);
+});
+
+servidor.get('/jogos2', async (req, resp)=>{
+	const db = await abrirBanco;
+	const jogos = await db.all(
+		`SELECT Jogos2.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.jogoId) AS qtdeAnuncios
+		FROM Jogos2 LEFT JOIN Anuncios
+		ON Jogos2.id = jogoId
+		GROUP BY Jogos2.id
+		ORDER BY MAX(dataDeCriacao) DESC;`
+	);
+	console.log("GET jogos2, qtde="+jogos.length+", ip="+req.ip);
+	//const jogosQtde = await db.all(
+	//	`SELECT Jogos.id, COUNT(Anuncios.jogoId) AS qtdeAnuncios
+	//	FROM Jogos LEFT JOIN Anuncios
+	//	ON Jogos.id=Anuncios.jogoId
+	//	GROUP BY Jogos.id;`
+	//);
+	//jogos.map(jogo=>jogo._count = {anuncios: jogosQtde.find(j=>j.id==jogo.id).qtdeAnuncios});
+	jogos.map(jogo=>jogo._count = {anuncios: jogo.qtdeAnuncios});
 	return resp.json(jogos);
 });
 
@@ -169,6 +220,22 @@ servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
 	const jogo = await db.get(`SELECT * FROM Jogos WHERE nomeUrl = '${jogoNomeUrl}';`);
 	console.log("GET jogos/jogo="+jogo.nome+", ip="+req.ip);
 	return resp.json(jogo);
+});
+
+servidor.post('/jogosrecentes', async (req, resp)=>{
+	const db = await abrirBanco;
+	const qtde = parseInt(req.body.qtde);
+	console.log("GET jogosrecentes, qtde="+qtde+" ip="+req.ip);
+	const jogos = await db.all(
+		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.jogoId) AS qtdeAnuncios
+		FROM Jogos LEFT JOIN Anuncios
+		ON Jogos.id = jogoId
+		GROUP BY Jogos.id
+		ORDER BY MAX(dataDeCriacao) DESC
+		LIMIT '${qtde}';`
+	);
+	jogos.map(jogo=>jogo._count = {anuncios: jogo.qtdeAnuncios});
+	return resp.json(jogos);
 });
 
 servidor.post('/anuncios', async (req, resp)=>{
@@ -344,7 +411,11 @@ servidor.post('/anuncios', async (req, resp)=>{
 	}
 	//console.log("dps do filtro d disponibilidade, qtde="+anuncios.length);
 
-	//console.log(anuncios);
+	//console.log({
+	//	diasQueJoga: anuncios[0].diasQueJoga.split(','),
+	//	horarioDeInicio: converterMinutosParaHoraString(anuncios[0].deHora),
+	//	horarioDeTermino: converterMinutosParaHoraString(anuncios[0].ateHora)
+	//});
 	console.log("POST anuncios, qtde="+anuncios.length+", ip="+req.ip);
 	return resp.json(anuncios.map(anuncio=>{
 		return {...anuncio,
@@ -613,6 +684,53 @@ servidor.post('/excluiranuncio', async (req, resp)=>{
 		console.log(erro);
 		return resp.status(500).json({erro});
 	}
+});
+
+servidor.put('/novoanuncio', async (req, resp)=>{
+	const body = req.body;
+	console.log("PUT novoanuncio, usuário="+body.idDoUsuario+", ip="+req.ip);
+
+	console.log(body);
+	return resp.status(200).json({ok: 'Anúncio recebido, mas não registrado.'});
+	//const disponibilidade = [];
+	//disponibilidade.push({
+	//	diasQueJoga: body.diasQueJoga,
+	//	horarioDeInicio: converterHoraStringParaMinutos(body.deHora),
+	//	horarioDeTermino: converterHoraStringParaMinutos(body.ateHora)
+	//});
+
+	//const db = await abrirBanco;
+	//await db.run(`INSERT INTO Anuncios2
+	//	(idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, discord, diasQueJoga, usaChatDeVoz, dataDeCriacao)
+	//	VALUES (?,?,?,?,?,?,?,?);`,
+	//	[body.idDoJogo, body.idDoUsuario, body.nomeNoJogo, body.tempoDeJogoEmMeses, body.discord, body.diasQueJoga,
+	//	converterHoraStringParaMinutos(body.deHora), converterHoraStringParaMinutos(body.ateHora),
+	//	body.usaChatDeVoz, Date.now()],
+	//	function(erro) {
+	//		console.log('quando isso é executado??');
+	//		if (erro) {
+	//			console.log('erro:');
+	//			console.log(erro);
+	//			return console.log(erro);
+	//		}
+	//		console.log(`A row has been inserted with rowid ${this.lastID}`);
+	//		return this.lastID;
+	//	}
+	//)
+	//.then(async dados=>{
+	//	//console.log("dados:");
+	//	//console.log(dados);
+	//	const anuncioPublicado = await db.get(
+	//		`SELECT * FROM Anuncios WHERE dataDeCriacao = (SELECT MAX(dataDeCriacao) FROM Anuncios);`
+	//	);
+	//	//console.log(anuncioPublicado);
+	//	return resp.status(201).json(anuncioPublicado);
+	//})
+	//.catch(erro=>{
+	//	console.log("entrou no catch");
+	//	console.log(erro);
+	//	return resp.status(500).json(erro);
+	//});
 });
 
 servidor.listen(

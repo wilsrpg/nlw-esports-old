@@ -12,8 +12,8 @@ export default function Registrar() {
   const historico = useHistory();
 
   useEffect(()=>{
-    if (contexto2.usuarioLogado)
-      historico.push('/conta');
+    //if (contexto2.usuarioLogado)
+    //  historico.push('/conta');
 
     return ()=>componenteExiste = false;
   }, [])
@@ -30,8 +30,8 @@ export default function Registrar() {
       if (resp.erro)
         throw resp.erro;
       else {
-        sessionStorage.setItem("idDoUsuarioLogado", resp.id);
-        sessionStorage.setItem("usuarioLogado", resp.nome);
+        localStorage.setItem("idDoUsuarioLogado", resp.id);
+        localStorage.setItem("usuarioLogado", resp.nome);
         contexto2.definirUsuarioLogado(resp);
         historico.push('/conta');
       }
@@ -74,18 +74,24 @@ export default function Registrar() {
 
   return (
     <div className='conteudo'>
-      <h2>Criar nova conta</h2>
-      <div>
-        <form className='flex flexColumn' onSubmit={e=>validarRegistro(e)}>
-          <input id='nomeDoUsuario' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')}/>
-          <input id='senha' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')}/>
-          <input id='confirmarSenha' name='confirmarSenha' onChange={()=>definirMensagem('')} type='password' placeholder='Repita a senha'/>
-          <button className='alturaBase' type='submit'>
-            {aguardando ? <img className='carregando' src={carregando}/> : 'Registrar'}
-          </button>
-        </form>
-        <p className='mensagemDeErro'>{mensagem}</p>
-      </div>
+      {!contexto2.usuarioLogado ?
+        <>
+        <h2>Criar nova conta</h2>
+        <div>
+          <form className='flex flexColumn' onSubmit={e=>validarRegistro(e)}>
+            <input id='nomeDoUsuario' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')}/>
+            <input id='senha' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')}/>
+            <input id='confirmarSenha' name='confirmarSenha' onChange={()=>definirMensagem('')} type='password' placeholder='Repita a senha'/>
+            <button className='alturaBase' type='submit'>
+              {aguardando ? <img className='carregando' src={carregando}/> : 'Registrar'}
+            </button>
+          </form>
+          <p className='mensagemDeErro'>{mensagem}</p>
+        </div>
+        </>
+      :
+        <p>Desconecte a conta atual para registrar uma nova.</p>
+      }
     </div>
   )
 }

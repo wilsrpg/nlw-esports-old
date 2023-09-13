@@ -3,7 +3,7 @@ import { useHistory, useLocation, Link } from 'react-router-dom';
 import { contexto } from '../App';
 import iconeMenu from '../imagens/icons8-menu.svg'
 import iconeUsuario from '../imagens/user-circle-svgrepo-com.svg'
-import FormularioDeEntrada from './FormularioDeEntrada';
+import FormularioDeEntradaNoCabecalho from './FormularioDeEntradaNoCabecalho';
 
 export default function BarraSuperior() {
   const contexto2 = useContext(contexto);
@@ -43,8 +43,8 @@ export default function BarraSuperior() {
 
   function sair() {
     definirExibindoMenuDoUsuarioSuspenso(false);
-    sessionStorage.removeItem("usuarioLogado");
-    sessionStorage.removeItem("idDoUsuarioLogado");
+    localStorage.removeItem("usuarioLogado");
+    localStorage.removeItem("idDoUsuarioLogado");
     contexto2.definirUsuarioLogado();
     historico.push('/entrar');
     /*const dados = {
@@ -58,7 +58,7 @@ export default function BarraSuperior() {
       if (resp.erro)
         definirMensagem(resp.erro);
       else {
-        sessionStorage.removeItem("usuarioLogado");
+        localStorage.removeItem("usuarioLogado");
         definirUsuarioLogado();
       }
     })
@@ -139,7 +139,7 @@ export default function BarraSuperior() {
             <img className='botaoCopiar' src={iconeUsuario} onClick={e=>exibirMenuDoUsuario(e)}/>
           </div>
         :
-          <FormularioDeEntrada funcFecharMenu={()=>definirExibindoMenuDoUsuarioSuspenso(false)} horizontal/>
+          <FormularioDeEntradaNoCabecalho funcFecharMenu={()=>definirExibindoMenuDoUsuarioSuspenso(false)} horizontal/>
         }
       </div>
 
@@ -161,7 +161,7 @@ export default function BarraSuperior() {
             {contexto2.usuarioLogado ?
               <OpcoesDoMenuDoUsuario/>
             :
-              <FormularioDeEntrada funcFecharMenu={()=>definirExibindoMenuDoUsuarioSuspenso(false)}/>
+              <FormularioDeEntradaNoCabecalho funcFecharMenu={()=>definirExibindoMenuDoUsuarioSuspenso(false)}/>
             }
           </div>
         </div>

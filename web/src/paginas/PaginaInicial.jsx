@@ -3,6 +3,7 @@ import logo from '../imagens/NLW-eSports-Logo.svg'
 import carregando from '../imagens/loading.svg'
 import CartaoDeJogo from '../componentes/CartaoDeJogo'
 import lupa from '../imagens/magnifying-glass-plus-reverse.svg'
+import setaDupla from '../imagens/caret-double-right.svg'
 import ModalParaCriarAnuncio from '../componentes/ModalParaCriarAnuncio';
 import ModalDeJogoSelecionado from '../componentes/ModalDeJogoSelecionado'
 import { SERVIDOR } from '../../../enderecoDoServidor';
@@ -19,6 +20,14 @@ export default function App() {
   const [jogoProModalDeAnuncios, definirJogoProModalDeAnuncios] = useState('');
 
   useEffect(()=>{
+    //const dados = {
+    //  method: "POST",
+    //  headers: {"Content-Type": "application/json"},
+    //  body: JSON.stringify({qtde: 3}),
+    //};
+    //fetch(SERVIDOR+`/jogosrecentes`, dados)
+    //.then(resp=>resp.json())
+    //.then(resp=>console.log(resp));
 
     return ()=>componenteExiste = false;
   }, [])
@@ -26,7 +35,13 @@ export default function App() {
   useEffect(()=>{
     if (exibindoModalParaCriarAnuncio && !recarregarJogos || jogoProModalDeAnuncios)
       return;
-    fetch(SERVIDOR+`/jogos`)
+    const qtdeJogosExibidos = 4;
+    const dados = {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({qtde: qtdeJogosExibidos}),
+    };
+    fetch(SERVIDOR+`/jogosrecentes`, dados)
     .then(resp=>resp.json())
     .then(dados=>{
       if (componenteExiste) {
@@ -62,16 +77,18 @@ export default function App() {
           (jogos.length == 0 ?
             <p>Nenhum jogo cadastrado.</p>
           :
-            jogos.map((jogo,i)=>
+            <>
+            {jogos.map((jogo,i)=>
               <Link key={i} to={`/anuncios/?jogo=${jogo.nomeUrl}`}>
                 <CartaoDeJogo jogo={jogo}/>
               </Link>
-              //<CartaoDeJogo
-              //  key={i}
-              //  jogo={jogo}
-              //  funcDefinirJogoProModal={definirJogoProModalDeAnuncios}
-              ///>
-            )
+            )}
+            <div className='botaoIrParaJogos'>
+              <Link to='/jogos'>
+                <img src={setaDupla} title='Ir para página de jogos'/>
+              </Link>
+            </div>
+            </>
           )
         }
       </div>
@@ -82,7 +99,8 @@ export default function App() {
             <strong>Não encontrou seu duo?</strong>
             <p>Publique um anúncio para encontrar novos players!</p>
           </div>
-          <Link to={contexto2.usuarioLogado ? '/novoanuncio' : '/entrar'}
+          {/*<Link to={contexto2.usuarioLogado ? '/novoanuncio' : '/entrar'}*/}
+          <Link to='/novoanuncio'
             className={`botaoAbrirModalPraPublicar botao ${contexto2.usuarioLogado ? 'semShrink' : ''}`}
           >
           {/*<button className='botaoAbrirModalPraPublicar'

@@ -1,33 +1,36 @@
 import React, { useContext, useEffect, useState } from 'react'
+import { contexto } from '../App';
 import carregando from '../imagens/loading.svg'
 import { SERVIDOR } from '../../../enderecoDoServidor';
-import { useHistory } from 'react-router-dom';
-import { contexto } from '../App';
+//import { useHistory } from 'react-router-dom';
+import FormularioDeEntrada from '../componentes/FormularioDeEntrada';
 
 export default function NovoAnuncio() {
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [jogos, definirJogos] = useState();
-  const [dias, definirDias] = useState([
-    {abrev:'D', nome:'domingo', marcado:false},
-    {abrev:'S', nome:'segunda', marcado:false},
-    {abrev:'T', nome:'terça', marcado:false},
-    {abrev:'Q', nome:'quarta', marcado:false},
-    {abrev:'Q', nome:'quinta', marcado:false},
-    {abrev:'S', nome:'sexta', marcado:false},
-    {abrev:'S', nome:'sábado', marcado:false},
-  ]);
+  const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+  //const dias = [
+  //  {abrev:'D', nome:'domingo'},
+  //  {abrev:'S', nome:'segunda'},
+  //  {abrev:'T', nome:'terça'},
+  //  {abrev:'Q', nome:'quarta'},
+  //  {abrev:'Q', nome:'quinta'},
+  //  {abrev:'S', nome:'sexta'},
+  //  {abrev:'S', nome:'sábado'},
+  //];
   const [usaChatDeVoz, definirUsaChatDeVoz] = useState(false);
   const [publicando, definirPublicando] = useState(false);
-  const historico = useHistory();
+  //const historico = useHistory();
   const [diasDisponiveis, definirDiasDisponiveis] = useState([[false,false,false,false,false,false,false]]);
 
   useEffect(()=>{
-    if (!contexto2.usuarioLogado)
-      historico.push('/entrar');
-    else
-      fetch(SERVIDOR+`/jogos`)
+    //if (!contexto2.usuarioLogado)
+    //  historico.push('/entrar');
+    //else
+    if (contexto2.usuarioLogado)
+      fetch(SERVIDOR+`/jogos2`)
       .then(resp=>resp.json())
       .then(dados=>{
         if (componenteExiste) {
@@ -42,67 +45,98 @@ export default function NovoAnuncio() {
       });
     
     return ()=>componenteExiste = false;
-  }, [])
+  }, [contexto2.usuarioLogado])
 
   async function publicarAnuncio(e) {
     if (publicando)
       return;
     e.preventDefault();
-    if (document.getElementById("jogo").value == "nenhum") {
-      //document.getElementById("jogo").style.backgroundColor = "red";
-      document.getElementById("jogo").style.animation = "chamarAtencao 500ms";
-      document.getElementById("jogo").focus();
+    if (document.getElementById('jogo').value == 'nenhum') {
+      //document.getElementById('jogo').style.backgroundColor = 'red';
+      document.getElementById('jogo').style.animation = 'chamarAtencao 500ms';
+      document.getElementById('jogo').focus();
       setTimeout(() => {
-        document.getElementById("jogo").style.animation = "";
+        document.getElementById('jogo').style.animation = '';
       }, 500);
       return;
     }
-    if (!dias.some(dia=>dia.marcado)) {
-      document.getElementById("dias").style.animation = "chamarAtencao 1000ms";
-      //dias.map(dia=>document.getElementById(dia.dia).style.animation = "chamarAtencaoDias 0.5s")
+    if (!document.getElementById('tempoDeJogoEmAnos').value && !document.getElementById('tempoDeJogoEmMeses').value) {
+      document.getElementById('tempoDeJogo').style.animation = 'chamarAtencao 500ms';
+      document.getElementById('tempoDeJogo').focus();
       setTimeout(() => {
-        document.getElementById("dias").style.animation = "";
-        //dias.map(dia=>document.getElementById(dia.dia).style.animation = "")
-      }, 1000);
+        document.getElementById('tempoDeJogo').style.animation = '';
+      }, 500);
       return;
     }
-    const dados = Object.fromEntries(new FormData(e.target));
-    const diasNum = [];
-    dias.map((dia,id)=>{
-      if (dia.marcado)
-        diasNum.push(id);
+    let tdsdisps = true;
+    diasDisponiveis.map((disp,i)=>{
+      if (!tdsdisps)
+        return;
+      let id = i == 0 ? '' : i+1;
+      if (!disp.some(dia=>dia)) {
+        document.getElementById('quando'+id).style.animation = 'chamarAtencao 1000ms';
+        //dias.map(dia=>document.getElementById(dia.dia).style.animation = 'chamarAtencaoDias 0.5s')
+        setTimeout(() => {
+          document.getElementById('quando'+id).style.animation = '';
+          //dias.map(dia=>document.getElementById(dia.dia).style.animation = '')
+        }, 1000);
+        tdsdisps = false;
+      }
     });
+    if (!tdsdisps)
+      return;
+    
+    const dados = Object.fromEntries(new FormData(e.target));
+    let tempoDeJogoEmMeses = dados.tempoDeJogoEmAnos*12 + dados.tempoDeJogoEmMeses*1;
+    //if (document.getElementById('tempoDeJogoEmAnos').value)
+    //  tempoDeJogoEmMeses += parseInt(document.getElementById('tempoDeJogoEmAnos').value)*12;
+    //if (document.getElementById('tempoDeJogoEmMeses').value)
+    //  tempoDeJogoEmMeses += parseInt(document.getElementById('tempoDeJogoEmMeses').value);
+
+    const disponibilidades = [];
+    diasDisponiveis.map((disp,i)=>{
+      const diasd = [];
+      disp.map((dia,j)=>{
+        if (dia)
+          diasd.push(j);
+      });
+      let id = i == 0 ? '' : i+1;
+      if (diasd.length)
+        disponibilidades.push({dias: diasd.join(), horaDeInicio: dados['de'+id], horaDeTermino: dados['ate'+id]});
+    });
+
     const novoAnuncio = JSON.stringify({
-      jogoId: dados.jogoId,
-      idDoUsuario: contexto2.usuarioLogado.id,
-      nomeDoUsuario: dados.nome,
-      tempoDeJogoEmAnos: Number(dados.tempoDeJogo),
+      idDoJogo: dados.jogoId*1,
+      idDoUsuario: contexto2.usuarioLogado.id*1,
+      nomeNoJogo: dados.nome,
+      tempoDeJogoEmMeses: tempoDeJogoEmMeses,
       discord: dados.discord,
-      diasQueJoga: diasNum.join(),
-      deHora: dados.horaDe,
-      ateHora: dados.horaAte,
+      disponibilidades: disponibilidades,
       usaChatDeVoz: usaChatDeVoz,
     });
-    definirPublicando(true);
-    tentarPublicar(dados.jogoId, novoAnuncio);
+
+    //console.log(novoAnuncio);
+    //definirPublicando(true);
+    tentarPublicar(novoAnuncio);
   }
 
-  function tentarPublicar(jogoId, anuncio) {
+  function tentarPublicar(anuncio) {
     const dados = {
-      method: "PUT",
-      headers: {"Content-Type": "application/json"},
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      //body: JSON.stringify(anuncio),
       body: anuncio,
     };
-    fetch(SERVIDOR+`/jogos/${jogoId}/anuncios`, dados)
+    fetch(SERVIDOR+`/novoanuncio`, dados)
     .then(resp=>{
       if (resp.ok) {
-        alert("Anúncio publicado com sucesso!");
+        alert('Anúncio publicado com sucesso!');
       } else
-        alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.");
+        alert('Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.');
     })
     .catch(erro=>{
       console.log(erro);
-      alert("Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.");
+      alert('Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.');
     })
     .finally(()=>{
       if (componenteExiste)
@@ -112,107 +146,77 @@ export default function NovoAnuncio() {
 
   return (
     <div className='conteudo'>
-      <h2>Publique seu anúncio</h2>
-      <form className='flex flexColumn fundoSemitransparente' onSubmit={publicarAnuncio}>
+      {!contexto2.usuarioLogado ?
+        <FormularioDeEntrada/>
+      :
+        <>
+        <h2>Publique seu anúncio</h2>
+        <form className='flex flexColumn fundoSemitransparente' onSubmit={publicarAnuncio}>
 
-        <label>Jogo</label>
-        <select disabled={!jogos} id="jogo" name="jogoId"
-          onFocus={e=>e.target.style.backgroundColor=''}
-        >
-          <option value="nenhum">
-            {!jogos ?
-              (!erroAoObterDados ? "Buscando jogos..." : "Erro ao obter dados dos jogos do servidor.")
-            :
-              "Selecione um jogo"
-            }
-          </option>
-          {jogos && jogos.map((jogo,id)=>{
-            return <option key={id} value={jogo.id}>{jogo.nome}</option>
-          })}
-        </select>
+          <label>Jogo</label>
+          <select disabled={!jogos} id='jogo' name='jogoId'
+            onFocus={e=>e.target.style.backgroundColor=''}
+          >
+            <option value='nenhum'>
+              {!jogos ?
+                (!erroAoObterDados ? 'Buscando jogos...' : 'Erro ao obter dados dos jogos do servidor.')
+              :
+                'Selecione um jogo'
+              }
+            </option>
+            {jogos && jogos.map((jogo,id)=>{
+              return <option key={id} value={jogo.id}>{jogo.nome}</option>
+            })}
+          </select>
 
-        <label htmlFor="nome">Nome ou apelido</label>
-        <input id="nome" name="nome" required/>
-
-        <div className='aoLado'>
-
-          <div className='flex flexColumn'>
-            <label htmlFor="discord">Discord</label>
-            {/*<input id="discord" name="discord" placeholder='Nome de Usuário#0000' pattern='.*[\S][#][\d]{4}' required/>*/}
-            <input id="discord" name="discord" required/>
-          </div>
-
-          <div className='flex flexColumn'>
-            {/*<label htmlFor="tempo de jogo">Joga há quantos anos?</label>*/}
-            {/*<input id="tempo de jogo" name="tempoDeJogo" type="tel" maxLength="2" pattern='\d*' required/>*/}
-            <label>Joga há quanto tempo?</label>
-            <div className='flex flexWrap'>
-              <input id="tempoDeJogoAnos" className='tempoDeJogo' name="tempo de jogo" type="tel" maxLength="2" pattern='\d*'/>
-              <label htmlFor="tempoDeJogoAnos">ano(s)</label>
-              <input id="tempoDeJogoMeses" className='tempoDeJogo' name="tempoDeJogoMeses" type="tel" maxLength="2" pattern='\d*'/>
-              <label htmlFor="tempoDeJogoMeses">mês(es)</label>
-            </div>
-          </div>
-
-          </div>
-
-          {/*<div className='flex flexColumn'>*/}
-            <div className='flex'>
-              <label>Dias disponíveis</label>
-              <button className='carregando' type='button'
-                onClick={()=>
-                  definirDiasDisponiveis(diasDisponiveis.concat([[false,false,false,false,false,false,false]]))
-                }
-              >
-                +
-              </button>
-            </div>
-            {/*<div id='dias' className='flex dias'>
-              {dias.map((dia,id)=>
-                <input
-                  key={id}
-                  id={dia.nome}
-                  type="button"
-                  value={dia.abrev}
-                  title={dia.nome}
-                  className={dia.marcado ? 'roxinho' : ''}
-                  onClick={()=>{
-                    document.getElementById("dias").style.borderColor='#71717a';
-                    definirDias([
-                      ...dias.slice(0,id),
-                      {...dia, marcado: !dia.marcado},
-                      ...dias.slice(id+1)
-                    ]);
-                  }}
-                />
-              )}
-            </div>
-          </div>*/}
-
-          {/*<div className='flex flexColumn'>*/}
-            {/*<label>Horário disponível</label>*/}
-            {/*<div className='flex'>
-              <label htmlFor='de'>De</label>
-              <input id="de" name="horaDe" type="time" required/>
-              <label htmlFor='até'>Até</label>
-              <input id="até" name="horaAte" type="time" required/>
-            </div>
-          </div>*/}
+          <label htmlFor='nome'>Nome no jogo</label>
+          <input id='nome' name='nome' required/>
 
           <div className='aoLado'>
-            {diasDisponiveis.map((disp,i)=>{
-              let id = i == 0 ? '' : i+1;
-              return (
-                //<div key={i} className='flex flexWrap'>
-                <>
-                <div id={'quando'+id} className='flex dias' key={i*2}>
+
+            <div className='flex flexColumn'>
+              <label htmlFor='discord'>Discord</label>
+              {/*<input id='discord' name='discord' placeholder='Nome de Usuário#0000' pattern='.*[\S][#][\d]{4}' required/>*/}
+              <input id='discord' name='discord' required/>
+            </div>
+
+            <div className='flex flexColumn'>
+              {/*<label htmlFor='tempo de jogo'>Joga há quantos anos?</label>*/}
+              {/*<input id='tempo de jogo' name='tempoDeJogo' type='tel' maxLength='2' pattern='\d*' required/>*/}
+              <label>Joga há quanto tempo?</label>
+              <div id='tempoDeJogo' className='flex flexWrap dias'>
+                <input id='tempoDeJogoEmAnos' className='tempoDeJogo' name='tempoDeJogoEmAnos' type='tel' maxLength='2' pattern='\d*'/>
+                <label htmlFor='tempoDeJogoEmAnos'>ano(s)</label>
+                <input id='tempoDeJogoEmMeses' className='tempoDeJogo' name='tempoDeJogoEmMeses' type='tel' maxLength='2' pattern='\d*'/>
+                <label htmlFor='tempoDeJogoEmMeses'>mês(es)</label>
+              </div>
+            </div>
+
+          </div>
+
+          <div className='flex'>
+            <label>Horários disponíveis</label>
+            <button className='carregando' type='button'
+              onClick={()=>
+                definirDiasDisponiveis(diasDisponiveis.concat([[false,false,false,false,false,false,false]]))
+              }
+            >
+              +
+            </button>
+          </div>
+
+          {diasDisponiveis.map((disp,i)=>{
+            let id = i == 0 ? '' : i+1;
+            return (
+              <div key={i} className='aoLado'>
+                <div id={'quando'+id} className='flex dias'>
                   {disp.map((dia,j)=>
                     <input
                       key={j}
                       //id={dia.nome}
-                      type="button"
-                      value={dias[j].abrev}
-                      title={dias[j].nome}
+                      type='button'
+                      value={dias[j].slice(0,1).toUpperCase()}
+                      title={dias[j]}
                       className={dia ? 'roxinho' : ''}
                       onClick={()=>{
                         document.getElementById('quando'+id).style.borderColor='#71717a';
@@ -227,9 +231,9 @@ export default function NovoAnuncio() {
                   )}
                 </div>
                 {/*<select id={'quando'+id} name={'quando'+id}>
-                  <option value="todoDia">Todo dia</option>
-                  <option value="semana">De segunda a sexta</option>
-                  <option value="finsDeSemana">Fins de semana</option>
+                  <option value='todoDia'>Todo dia</option>
+                  <option value='semana'>De segunda a sexta</option>
+                  <option value='finsDeSemana'>Fins de semana</option>
                   {dias.map((dia,j)=>
                     <option key={j} value={dia.nome}>{dia.nome[0].toUpperCase()+dia.nome.slice(1)}</option>
                   )}
@@ -237,11 +241,14 @@ export default function NovoAnuncio() {
                 <div className='flex' key={i*2+1}>
                   <div className='flex'>
                     <label htmlFor={'de'+id}>De</label>
-                    <input id={'de'+id} name={'de'+id} type="time"/>
+                    <input id={'de'+id} name={'de'+id} type='time' required/>
                   </div>
                   <div className='flex'>
                     <label htmlFor={'ate'+id}>Até</label>
-                    <input id={'ate'+id} name={'ate'+id} type="time"/>
+                    <input id={'ate'+id} name={'ate'+id} type='time' required/>
+                    {diasDisponiveis.length == 1 &&
+                      <div className='carregando'/>
+                    }
                     {diasDisponiveis.length > 1 &&
                       <button className='carregando' type='button'
                         onClick={()=>{
@@ -271,24 +278,22 @@ export default function NovoAnuncio() {
                     }
                   </div>
                 </div>
-                </>
-                //</div>
-              )
-            })}
+              </div>
+            )
+          })}
+
+          <div className='chatDeVoz'>
+            <input id='voz' name='usaChatDeVoz' type='checkbox' onChange={e=>definirUsaChatDeVoz(e.target.checked)}/>
+            <label htmlFor='voz'>Costumo usar o chat de voz</label>
           </div>
 
-        {/*</div>*/}
+          <button type='submit' disabled={publicando} className='botaoPublicarAnuncio roxinho'>
+            {!publicando ? 'Publicar' : <img className='carregando' src={carregando}/>}
+          </button>
 
-        <div className='chatDeVoz'>
-          <input id="voz" name="usaChatDeVoz" type="checkbox" onChange={e=>definirUsaChatDeVoz(e.target.checked)}/>
-          <label htmlFor="voz">Costumo usar o chat de voz</label>
-        </div>
-
-        <button type="submit" disabled={publicando} className='botaoPublicarAnuncio roxinho'>
-          {!publicando ? "Publicar" : <img className='carregando' src={carregando}/>}
-        </button>
-
-      </form>
+        </form>
+        </>
+      }
 
     </div>
   )

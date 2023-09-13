@@ -63,7 +63,7 @@ span.gradienteNlwGay {
 
 .jogos {
   width: 100%;
-  max-width: 55rem;
+  max-width: 50rem;
   padding: 0.5rem 0;
   display: grid;
   grid-auto-flow: column;
@@ -76,6 +76,10 @@ span.gradienteNlwGay {
     justify-content: center;
     max-height: 90vh;
   }
+}
+
+.jogos a {
+  width: fit-content;
 }
 
 .cartaoJogo {
@@ -378,6 +382,13 @@ h2 {
   z-index: 1;
 }
 
+.cabecalho a {
+  opacity: 0.75;
+}
+.cabecalho a:hover {
+  opacity: 1;
+}
+
 .barraSuperior {
   height: 100%;
   display: flex;
@@ -535,4 +546,23 @@ label.paginaAtual {
 	gap: 0.5rem;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+.botaoIrParaJogos {
+  width: 2.5rem;
+  align-self: center;
+  justify-self: center;
+  opacity: 0.5;
+}
+.botaoIrParaJogos:hover {
+  opacity: 1;
+}
+
+.botaoIrParaJogos a {
+  display: block;
+  width: 100%;
+}
+
+.botaoIrParaJogos img {
+  display: block;
 }

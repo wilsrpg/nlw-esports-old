@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { contexto } from '../App';
 import carregando from '../imagens/loading.svg'
 import { SERVIDOR } from '../../../enderecoDoServidor';
+import FormularioDeEntrada from '../componentes/FormularioDeEntrada';
 
 export default function Configuracoes() {
   let componenteExiste = true;
@@ -16,8 +17,8 @@ export default function Configuracoes() {
   const historico = useHistory();
 
   useEffect(()=>{
-    if (!contexto2.usuarioLogado)
-      historico.push('/entrar');
+    //if (!contexto2.usuarioLogado)
+    //  historico.push('/entrar');
 
     return ()=>componenteExiste = false;
   }, [])
@@ -108,8 +109,8 @@ export default function Configuracoes() {
       if (resp.erro)
         throw resp.erro;
       else if (componenteExiste) {
-        sessionStorage.removeItem("usuarioLogado");
-        sessionStorage.removeItem("idDoUsuarioLogado");
+        localStorage.removeItem("usuarioLogado");
+        localStorage.removeItem("idDoUsuarioLogado");
         contexto2.definirUsuarioLogado();
         alert('Conta excluída.');
         historico.push('/entrar');
@@ -124,20 +125,23 @@ export default function Configuracoes() {
   
   return (
     <div className='conteudo'>
-      <h2>Configurações</h2>
-      <strong>Alterar senha</strong>
-      <div>
-        <form className='flex flexColumn' onSubmit={e=>validarAlteracaoDeSenha(e)}>
-          <input id='senhaAtual' name='senhaAtual' type='password' placeholder='Senha atual' onChange={()=>definirMensagem('')}/>
-          <input id='novaSenha' name='novaSenha' type='password' placeholder='Nova senha' onChange={()=>definirMensagem('')}/>
-          <input id='confirmarNovaSenha' name='confirmarNovaSenha' type='password' placeholder='Repita a nova senha' onChange={()=>definirMensagem('')}/>
-          <button className='alturaBase' type='submit'>
-            {aguardando ? <img className='carregando' src={carregando}/> : 'Salvar'}
-          </button>
-        </form>
-        <p className={erroAoValidar ? 'mensagemDeErro' : 'mensagemDeSucesso'}>{mensagem}</p>
-      </div>
-      {/*<div className='flex flexColumn'>*/}
+      {!contexto2.usuarioLogado ?
+        <FormularioDeEntrada/>
+      :
+        <>
+        <h2>Configurações</h2>
+        <strong>Alterar senha</strong>
+        <div>
+          <form className='flex flexColumn' onSubmit={e=>validarAlteracaoDeSenha(e)}>
+            <input id='senhaAtual' name='senhaAtual' type='password' placeholder='Senha atual' onChange={()=>definirMensagem('')}/>
+            <input id='novaSenha' name='novaSenha' type='password' placeholder='Nova senha' onChange={()=>definirMensagem('')}/>
+            <input id='confirmarNovaSenha' name='confirmarNovaSenha' type='password' placeholder='Repita a nova senha' onChange={()=>definirMensagem('')}/>
+            <button className='alturaBase' type='submit'>
+              {aguardando ? <img className='carregando' src={carregando}/> : 'Salvar'}
+            </button>
+          </form>
+          <p className={erroAoValidar ? 'mensagemDeErro' : 'mensagemDeSucesso'}>{mensagem}</p>
+        </div>
         {!confirmandoExclusaoDaConta ?
           <button className='excluirConta alturaBase' onClick={()=>definirConfirmandoExclusaoDaConta(true)}>
             Excluir minha conta
@@ -162,7 +166,8 @@ export default function Configuracoes() {
           </div>
           </>
         }
-      {/*</div>*/}
+        </>
+      }
     </div>
   )
 }

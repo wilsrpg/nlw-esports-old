@@ -29,7 +29,7 @@ export default function Jogos() {
 
   return (
     <div className='conteudo'>
-      <h2>Clique em um jogo para ver os anúncios publicados dele.</h2>
+      <h2>Clique em um jogo para ver os anúncios publicados.</h2>
       <div className='jogosPagina'>
         {!jogos ?
           (!erroAoObterDados ?
