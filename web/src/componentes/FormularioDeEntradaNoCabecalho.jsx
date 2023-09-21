@@ -18,6 +18,7 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
 
   useEffect(()=>{
     definirMensagem('');
+    //console.log(urlAtual);
   }, [urlAtual])
 
   function validarEntrada(e) {
@@ -39,14 +40,14 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
       definirMensagem('');
       definirAguardando(true);
     //}
-    tentarEntrar(dados.nomeDoUsuario,dados.senha);
+    tentarEntrar(dados.nomeDoUsuario,dados.senha, dados.manterSessao);
   }
 
-  function tentarEntrar(nomeDoUsuario, senha) {
+  function tentarEntrar(nomeDoUsuario, senha, manterSessao) {
     const dados = {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({nomeDoUsuario, senha}),
+      body: JSON.stringify({nomeDoUsuario, senha, manterSessao}),
     };
     fetch(SERVIDOR+`/entrar`, dados)
     .then(resp=>resp.json())
@@ -55,11 +56,14 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
         throw resp.erro;
       else {
         funcFecharMenu();
-        localStorage.setItem("idDoUsuarioLogado", resp.id);
-        localStorage.setItem("usuarioLogado", resp.nome);
+        //localStorage.setItem("idDoUsuarioLogado", resp.id);
+        //localStorage.setItem("usuarioLogado", resp.nome);
+        if (manterSessao)
+          setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
         //if (componenteExiste)
           contexto2.definirUsuarioLogado(resp);
-        historico.push('/conta');
+        if (urlAtual.pathname == '/entrar' || urlAtual.pathname == '/registrar')
+          historico.push('/conta');
       }
     })
     .catch(erro=>{
@@ -74,11 +78,22 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
     });
   }
 
+  function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    let expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+
   return (
     <div>
       <form className={horizontal ? 'flex' : 'flex flexColumn'} onSubmit={e=>validarEntrada(e)}>
-        <input id='nomeDoUsuarioCabecalho' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')}/>
-        <input id='senhaCabecalho' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')}/>
+        <input id='nomeDoUsuarioCabecalho' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
+        <input id='senhaCabecalho' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
+        <div className='manterSessao'>
+          <input id="manterSessaoCabecalho" name="manterSessao" type="checkbox"/>
+          <label htmlFor="manterSessaoCabecalho">Continuar conectado</label>
+        </div>
         <div className={horizontal ? 'flex' : 'formularioDeEntradaSuspenso'}>
           <button className='botaoEntrar alturaBase' type='submit'>
             {aguardando ? <img className='carregando' src={carregando}/> : 'Entrar'}

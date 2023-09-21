@@ -11,7 +11,7 @@ export default function ResultadosDaPesquisa({filtros}) {
   const [paginas, definirPaginas] = useState(['']);
   const [paginaAtual, definirPaginaAtual] = useState(1);
   const [anuncios, definirAnuncios] = useState();
-  const [resultadosPorPagina, definirResultadosPorPagina] = useState();
+  const [resultadosPorPagina, definirResultadosPorPagina] = useState(10);
   const [ordenarPor, definirOrdenarPor] = useState('');
   const [emOrdem, definirEmOrdem] = useState('');
   const [anunciosPorPagina, definirAnunciosPorPagina] = useState();
@@ -39,13 +39,13 @@ export default function ResultadosDaPesquisa({filtros}) {
         definirAnuncios(dados);
         
         if (filtros.resultadosPorPagina) definirResultadosPorPagina(filtros.resultadosPorPagina);
-        else definirResultadosPorPagina(10);
+        //else definirResultadosPorPagina(10);
 
         if (filtros.ordenarPor) definirOrdenarPor(filtros.ordenarPor);
-        else definirOrdenarPor('');
+        //else definirOrdenarPor('');
 
         if (filtros.emOrdem) definirEmOrdem(filtros.emOrdem);
-        else definirEmOrdem('');
+        //else definirEmOrdem('');
       }
     })
     .catch(erro=>{
@@ -227,12 +227,12 @@ export default function ResultadosDaPesquisa({filtros}) {
             key={i}
             nomeDoJogo={anuncio.nomeDoJogo}
             anuncio={anuncio}
-            funcConectar={()=>obterDiscord(anuncio.id)}
+            funcConectar={()=>obterDiscord(anuncio.idDoAnuncio)}
             funcExcluir={()=>{
               if (componenteExiste)
                 //definirAnuncioPraExcluir(anuncio.id);
                 //definirIdDoAnuncioPraExcluir(anuncio.id);
-                definirAnuncios(anuncios.filter(an=>an.id != anuncio.id));
+                definirAnuncios(anuncios.filter(an=>an.idDoAnuncio != anuncio.idDoAnuncio));
             }}
             excluindo={excluindoAnuncio}
             definirExcluindo={definirExcluindoAnuncio}

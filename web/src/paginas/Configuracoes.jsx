@@ -23,33 +23,6 @@ export default function Configuracoes() {
     return ()=>componenteExiste = false;
   }, [])
 
-  function tentarAlterarSenha(senha,novaSenha) {
-    const dados = {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({nomeDoUsuario: contexto2.usuarioLogado.nome, senha, novaSenha}),
-    };
-    fetch(SERVIDOR+`/alterarsenha`, dados)
-    .then(resp=>resp.json())
-    .then(resp=>{
-      if (resp.erro)
-        throw resp.erro;
-      else if (componenteExiste) {
-        definirErroAoValidar(false);
-        definirMensagem('Senha alterada com sucesso.');
-      }
-    })
-    .catch(erro=>{
-      console.log(erro);
-      if (componenteExiste)
-        definirMensagem(''+erro);
-    })
-    .finally(()=>{
-      if (componenteExiste)
-        definirAguardando(false);
-    });
-  }
-
   function validarAlteracaoDeSenha(e) {
     e.preventDefault();
     definirErroAoValidar(true);
@@ -84,6 +57,33 @@ export default function Configuracoes() {
     tentarAlterarSenha(dados.senhaAtual,dados.novaSenha);
   }
 
+  function tentarAlterarSenha(senha,novaSenha) {
+    const dados = {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({id: contexto2.usuarioLogado.id, senha, novaSenha}),
+    };
+    fetch(SERVIDOR+`/alterarsenha`, dados)
+    .then(resp=>resp.json())
+    .then(resp=>{
+      if (resp.erro)
+        throw resp.erro;
+      else if (componenteExiste) {
+        definirErroAoValidar(false);
+        definirMensagem('Senha alterada com sucesso.');
+      }
+    })
+    .catch(erro=>{
+      console.log(erro);
+      if (componenteExiste)
+        definirMensagem(''+erro);
+    })
+    .finally(()=>{
+      if (componenteExiste)
+        definirAguardando(false);
+    });
+  }
+
   function validarExclusaoDaConta() {
     const senha = document.getElementById('confirmarSenhaParaExclusaoDaConta').value;
     if (!senha) {
@@ -93,15 +93,15 @@ export default function Configuracoes() {
     }
     if (confirm('Excluir permanentemente esta conta? Esta ação é irreversível.')) {
       definirAguardandoExcluir(true);
-      excluirConta(senha);
+      tentarExcluirConta(senha);
     }
   }
 
-  function excluirConta(senha) {
+  function tentarExcluirConta(senha) {
     const dados = {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({nomeDoUsuario: contexto2.usuarioLogado.nome, senha}),
+      body: JSON.stringify({id: contexto2.usuarioLogado.id, senha}),
     };
     fetch(SERVIDOR+`/excluirconta`, dados)
     .then(resp=>resp.json())
@@ -109,8 +109,9 @@ export default function Configuracoes() {
       if (resp.erro)
         throw resp.erro;
       else if (componenteExiste) {
-        localStorage.removeItem("usuarioLogado");
-        localStorage.removeItem("idDoUsuarioLogado");
+        //localStorage.removeItem("usuarioLogado");
+        //localStorage.removeItem("idDoUsuarioLogado");
+        document.cookie = "tokenDaSessao=;expires=0;path=/";
         contexto2.definirUsuarioLogado();
         alert('Conta excluída.');
         historico.push('/entrar');

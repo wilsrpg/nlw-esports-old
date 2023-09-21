@@ -44,10 +44,10 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
 
   async function validarExclusaoDoAnuncio() {
     //definirAguardandoExcluir(true);
-    document.getElementById(anuncio.id).style.borderColor = 'red';
+    document.getElementById(anuncio.idDoAnuncio).style.borderColor = 'red';
     if (!confirm('Confirma exclusão do anúncio?')) {
-      if (document.getElementById(anuncio.id))
-        document.getElementById(anuncio.id).style.borderColor = '';
+      if (document.getElementById(anuncio.idDoAnuncio))
+        document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
         //if (componenteExiste)
         //  definirAguardandoExcluir(false);
       return;
@@ -63,7 +63,7 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
     const dados = {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({idDoAnuncio: anuncio.id}),
+      body: JSON.stringify({idDoAnuncio: anuncio.idDoAnuncio}),
     };
     fetch(SERVIDOR+`/excluiranuncio`, dados)
     .then(resp=>resp.json())
@@ -72,8 +72,8 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
         throw resp.erro;
       //if (componenteExiste)
       //definirAnuncioPraExcluir();
-      if (document.getElementById(anuncio.id))
-        document.getElementById(anuncio.id).style.borderColor = '';
+      if (document.getElementById(anuncio.idDoAnuncio))
+        document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
       if (componenteExiste)
       //  definirExcluindoAnuncio(true);
         funcExcluir();
@@ -103,8 +103,8 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
   //}
 
   return (
-    <div id={anuncio.id} className='cartaoAnuncio'>
-      {contexto2.usuarioLogado && contexto2.usuarioLogado.nome == anuncio.nomeDoUsuario &&
+    <div id={anuncio.idDoAnuncio} className='cartaoAnuncio'>
+      {contexto2.usuarioLogado && contexto2.usuarioLogado.id == anuncio.idDoUsuario &&
         <img className='botaoCopiar botaoFechar'
           src={aguardando ? carregando : iconeLixeira}
           onClick={excluindo ? undefined : validarExclusaoDoAnuncio}
@@ -124,7 +124,7 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
       <strong>{anuncio.tempoDeJogoEmAnos} ano{anuncio.tempoDeJogoEmAnos > 1 && "s"}</strong>
 
       <p>Disponibilidade</p>
-      <strong className='cursorAjuda'
+      {/*<strong className='cursorAjuda'
         title={anuncio.diasQueJoga.map((dia,i)=>{
           let d = dias[parseInt(dia)];
           if (i == 0)
@@ -133,7 +133,31 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
         }).join(', ')}
       >
         {anuncio.diasQueJoga.length} dia{anuncio.diasQueJoga.length > 1 && "s"} • {anuncio.deHora} - {anuncio.ateHora}
-      </strong>
+      </strong>*/}
+      {anuncio.disponibilidades.map((disp,i)=>
+        <strong key={i}>
+          {disp.dias.join() == '0,1,2,3,4,5,6' ?
+            'Todo dia, de ' + disp.horaDeInicio + ' a ' + disp.horaDeTermino
+          :
+            disp.dias.join() == '1,2,3,4,5' ?
+              'De segunda a sexta, de ' + disp.horaDeInicio + ' a ' + disp.horaDeTermino
+            :
+              disp.dias.join() == '0,6' ?
+                'Sábado e domingo, de ' + disp.horaDeInicio + ' a ' + disp.horaDeTermino
+              :
+                //disp.dias.map(dia=>
+                //  dias[dia]+', de '+disp.horaDeInicio+' a '+disp.horaDeTermino+'\n'
+                //)
+                (disp.dias.length > 1 ?
+                  (disp.dias.map(dia=>dias[dia]).filter((d,j)=>j<disp.dias.length-1).join(', ') + ' e ')
+                :
+                  ''
+                )
+                + dias[disp.dias.at(-1)]
+                + ', de ' + disp.horaDeInicio + ' a ' + disp.horaDeTermino
+          }
+        </strong>
+      )}
 
       <p>Chamada de voz</p>
       <strong>{anuncio.usaChatDeVoz ? "Sim" : "Não"}</strong>

@@ -271,13 +271,13 @@ h2 {
   }
 }
 
-.modalAnuncio .chatDeVoz {
+.chatDeVoz {
   display: flex;
   align-items: center;
   height: 2rem;
 }
 
-.modalAnuncio .chatDeVoz input {
+.chatDeVoz input {
   width: 5%;
   height: 100%;
   accent-color: #8b5cf6;
@@ -565,4 +565,15 @@ label.paginaAtual {
 
 .botaoIrParaJogos img {
   display: block;
+}
+
+.manterSessao {
+  display: inline;
+  font-size: small;
+  color: #d4d4d8;
+  align-self: center;
+}
+
+.manterSessao input {
+  margin: 0 0.25rem;
 }

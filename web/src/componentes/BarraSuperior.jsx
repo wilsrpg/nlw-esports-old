@@ -41,31 +41,57 @@ export default function BarraSuperior() {
     definirExibindoMenuDoUsuarioSuspenso(false);
   }
 
+  function getCookie(cname) {
+    let name = cname + '=';
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return '';
+  }
+
   function sair() {
     definirExibindoMenuDoUsuarioSuspenso(false);
-    localStorage.removeItem("usuarioLogado");
-    localStorage.removeItem("idDoUsuarioLogado");
-    contexto2.definirUsuarioLogado();
-    historico.push('/entrar');
-    /*const dados = {
-      method: "POST",
-      //headers: {"Content-Type": "application/json"},
-      //body: JSON.stringify({nomeDoUsuario}),
-    };
-    fetch(SERVIDOR+`/sair`, dados)
-    .then(resp=>resp.json())
-    .then((resp)=>{
-      if (resp.erro)
-        definirMensagem(resp.erro);
-      else {
-        localStorage.removeItem("usuarioLogado");
-        definirUsuarioLogado();
-      }
-    })
-    .catch(erro=>{
-      console.log(erro);
-      definirMensagem(''+erro);
-    });*/
+    //localStorage.removeItem("usuarioLogado");
+    //localStorage.removeItem("idDoUsuarioLogado");
+    //document.cookie = "tokenDaSessao=;expires=0;path=/";
+    //contexto2.definirUsuarioLogado();
+    //historico.push('/entrar');
+    const tokenDaSessao = getCookie('tokenDaSessao');
+    if (!tokenDaSessao) {
+      definirUsuarioLogado();
+      historico.push('/entrar');
+    } else {
+      const dados = {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({tokenDaSessao}),
+      };
+      fetch(SERVIDOR+`/excluirsessao`, dados)
+      .then(resp=>resp.json())
+      .then((resp)=>{
+        if (resp.erro)
+          definirMensagem(resp.erro);
+        else {
+          //localStorage.removeItem("idDoUsuarioLogado");
+          //localStorage.removeItem("usuarioLogado");
+          document.cookie = "tokenDaSessao=;expires=0;path=/";
+          definirUsuarioLogado();
+          historico.push('/entrar');
+        }
+      })
+      .catch(erro=>{
+        console.log(erro);
+        definirMensagem(''+erro);
+      });
+    }
   }
 
   function exibirMenuDaPagina(e) {

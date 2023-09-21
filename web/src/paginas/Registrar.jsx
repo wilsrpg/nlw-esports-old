@@ -18,33 +18,6 @@ export default function Registrar() {
     return ()=>componenteExiste = false;
   }, [])
 
-  function tentarRegistrar(nomeDoUsuario, senha) {
-    const dados = {
-      method: "PUT",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({nomeDoUsuario, senha}),
-    };
-    fetch(SERVIDOR+`/registrar`, dados)
-    .then(resp=>resp.json())
-    .then(resp=>{
-      if (resp.erro)
-        throw resp.erro;
-      else {
-        localStorage.setItem("idDoUsuarioLogado", resp.id);
-        localStorage.setItem("usuarioLogado", resp.nome);
-        contexto2.definirUsuarioLogado(resp);
-        historico.push('/conta');
-      }
-    })
-    .catch(erro=>{
-      console.log(erro);
-      if (componenteExiste) {
-        definirMensagem(''+erro);
-        definirAguardando(false);
-      }
-    });
-  }
-
   function validarRegistro(e) {
     e.preventDefault();
     const dados = Object.fromEntries(new FormData(e.target));
@@ -70,6 +43,41 @@ export default function Registrar() {
     definirMensagem('');
     definirAguardando(true);
     tentarRegistrar(dados.nomeDoUsuario,dados.senha);
+  }
+
+  function tentarRegistrar(nomeDoUsuario, senha) {
+    const dados = {
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({nomeDoUsuario, senha}),
+    };
+    fetch(SERVIDOR+`/registrar`, dados)
+    .then(resp=>resp.json())
+    .then(resp=>{
+      if (resp.erro)
+        throw resp.erro;
+      else {
+        //localStorage.setItem("idDoUsuarioLogado", resp.id);
+        //localStorage.setItem("usuarioLogado", resp.nome);
+        //setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
+        contexto2.definirUsuarioLogado(resp);
+        historico.push('/conta');
+      }
+    })
+    .catch(erro=>{
+      console.log(erro);
+      if (componenteExiste) {
+        definirMensagem(''+erro);
+        definirAguardando(false);
+      }
+    });
+  }
+
+  function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    let expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
   }
 
   return (

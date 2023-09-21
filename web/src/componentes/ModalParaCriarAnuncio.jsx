@@ -16,7 +16,7 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
     {abrev:'S', dia:'sexta', marcado:false},
     {abrev:'S', dia:'sábado', marcado:false},
   ]);
-  const [usaChatDeVoz, definirUsaChatDeVoz] = useState(false);
+  //const [usaChatDeVoz, definirUsaChatDeVoz] = useState(false);
   const [publicando, definirPublicando] = useState(false);
 
   useEffect(()=>{
@@ -85,7 +85,7 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
       diasQueJoga: diasNum.join(),
       deHora: dados.horaDe,
       ateHora: dados.horaAte,
-      usaChatDeVoz: usaChatDeVoz,
+      usaChatDeVoz: dados.usaChatDeVoz,
     });
     definirPublicando(true);
     tentarPublicar(dados.jogoId, novoAnuncio);
@@ -192,7 +192,7 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
           </div>
 
           <div className='chatDeVoz'>
-            <input id="voz" name="usaChatDeVoz" type="checkbox" onChange={e=>definirUsaChatDeVoz(e.target.checked)}/>
+            <input id="voz" name="usaChatDeVoz" type="checkbox"/>
             <label htmlFor="voz">Costumo usar o chat de voz</label>
           </div>
 

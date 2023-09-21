@@ -2,9 +2,12 @@ import express from 'express'
 import cors from 'cors'
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
-import { config as dotenvConfig } from 'dotenv';
+//import { config as dotenvConfig } from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
+//import { PORTA } from '../../enderecoDoServidor';
+
+const PORTA = '3333';
 
 const servidor = express();
 servidor.use(express.json());
@@ -12,7 +15,7 @@ servidor.use(cors({
 	//origin: 'http://meudominio.com'
 }));
 
-dotenvConfig();
+//dotenvConfig();
 
 const abrirBanco = open({
 	filename: '../db/db.sqlite',
@@ -27,6 +30,19 @@ async function iniciar() {
 	//const A = await db.get(`PRAGMA foreign_keys;`);
 	//console.log(A);
 	
+	//await db.run(`ALTER TABLE teste RENAME TO SessoesAtivas;`);
+	//await db.run(`ALTER TABLE SessoesAtivas ADD COLUMN idDoUsuario INTEGER NOT NULL;`);
+	//await db.run(`ALTER TABLE SessoesAtivas ADD COLUMN tokenDaSessao TEXT NOT NULL;`);
+	//await db.run(`ALTER TABLE SessoesAtivas ADD COLUMN dataDeExpiracao DATETIME NOT NULL;`);
+
+	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 12 WHERE idDoUsuario = -1 AND idDoAnuncio = 20;`);
+	//await db.run(`DELETE FROM Anuncios2 WHERE idDoAnuncio > 37;`);
+	//await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio > 37;`);
+	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 1 WHERE idDoUsuario = -1 AND idDoAnuncio IN (2,5,8,9,37);`);
+	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 10 WHERE idDoUsuario = -1 AND idDoAnuncio IN (15,19,36);`);
+	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 3 WHERE idDoUsuario = -1 AND idDoAnuncio IN (22,23,24,32);`);
+	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 2 WHERE idDoUsuario = -1 AND idDoAnuncio IN (6);`);
+
 	//await db.run(`CREATE TABLE IF NOT EXISTS Disponibilidades (
 	//	idDoAnuncio INTEGER NOT NULL,
 	//	dias TEXT NOT NULL,
@@ -137,10 +153,10 @@ async function iniciar() {
 
 	//const anunciosCertos = await db.all('SELECT * FROM Anuncios WHERE dataDeCriacao > 1690864594730;');
 	//await db.run(`INSERT INTO Anuncios2 SELECT * FROM Anuncios WHERE dataDeCriacao > 1690864594730;`);
-	//anunciosCertos.map(anu=>db.run(`UPDATE Anuncios2 SET dataDeCriacao = ? WHERE dataDeCriacao > 1690864594730;`,
+	//anunciosCertos.map(anu=>db.run(`UPDATE Anuncios2 SET dataDeCriacao = (?) WHERE dataDeCriacao > 1690864594730;`,
 	//	[new Date(anu.dataDeCriacao).getTime()]
 	//));
-	//anunciosCertos.map(anu=>db.run(`UPDATE Anuncios2 SET dataDeCriacao = ? WHERE dataDeCriacao > 1690864594730;`,
+	//anunciosCertos.map(anu=>db.run(`UPDATE Anuncios2 SET dataDeCriacao = (?) WHERE dataDeCriacao > 1690864594730;`,
 	//	[new Date(anu.dataDeCriacao).getTime()]
 	//));
 
@@ -217,7 +233,7 @@ servidor.get('/jogos2', async (req, resp)=>{
 servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
 	const jogoNomeUrl = req.params.jogoNomeUrl;
 	const db = await abrirBanco;
-	const jogo = await db.get(`SELECT * FROM Jogos WHERE nomeUrl = '${jogoNomeUrl}';`);
+	const jogo = await db.get(`SELECT id,nome,nomeUrl,urlImagem FROM Jogos WHERE nomeUrl = '${jogoNomeUrl}';`);
 	console.log("GET jogos/jogo="+jogo.nome+", ip="+req.ip);
 	return resp.json(jogo);
 });
@@ -243,6 +259,9 @@ servidor.post('/anuncios', async (req, resp)=>{
 	//console.log("POST anuncios, ip="+req.ip+", body:");
 	if (!body.jogo) body.jogo = '%';
 
+	if (!body.idDoUsuario) body.idDoUsuario = '%';
+	//console.log("body.idDoUsuario="+body.idDoUsuario);
+	
 	let naoContem = false, exatamente = false;
 	if (!body.nome) body.nome = '%';
 	else if (!body.opcoesNome) body.nome = '%'+body.nome+'%';
@@ -257,6 +276,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 	//if (!body.discord) body.discord = '%';
 	
 	let tempoDeJogoEmAnos = 0, tempoDeJogoEmAnos2 = 0;
+	//let tempoDeJogoEmMeses = 0, tempoDeJogoEmMeses2 = 0;
 	let noMaximo = false, entre = false;
 	if (body.tempoDeJogoAnos)
 		tempoDeJogoEmAnos = parseInt(body.tempoDeJogoAnos);
@@ -305,53 +325,87 @@ servidor.post('/anuncios', async (req, resp)=>{
 
 	const db = await abrirBanco;
 	let anuncios = await db.all(
-		`SELECT Anuncios.id, jogoId, Jogos.nome AS nomeDoJogo, nomeDoUsuario, tempoDeJogoEmAnos,
-			diasQueJoga, deHora, ateHora, usaChatDeVoz, dataDeCriacao
-		FROM Anuncios JOIN Jogos ON jogoId = Jogos.id
-		WHERE Jogos.nomeUrl LIKE (?)
-		  AND nomeDoUsuario ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
-			AND tempoDeJogoEmAnos ${noMaximo ? '<=' : '>='} (?)
-			${''/*AND diasQueJoga LIKE (?)
-			AND deHora <= (?)
-			AND ateHora >= (?)*/}
+		`SELECT idDoAnuncio, idDoJogo, idDoUsuario, Jogos2.nome AS nomeDoJogo, nomeNoJogo, tempoDeJogoEmMeses,
+			usaChatDeVoz, dataDeCriacao
+		FROM Anuncios2 JOIN Jogos2 ON idDoJogo = Jogos2.id
+		WHERE Jogos2.nomeUrl LIKE (?)
+		  AND idDoUsuario ${body.idDoUsuario == '%' ? 'LIKE' : '=' } (?)
+			AND nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
+			AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} (?)
 			AND usaChatDeVoz LIKE (?)
 		ORDER BY dataDeCriacao DESC;`,
-		[body.jogo, body.nome, tempoDeJogoEmAnos, body.usaChatDeVoz]
+		[body.jogo, body.idDoUsuario, body.nome, tempoDeJogoEmAnos*12, body.usaChatDeVoz]
 	);
+	//let anuncios = await db.all(
+	//	`SELECT Anuncios.id, jogoId, Jogos.nome AS nomeDoJogo, nomeDoUsuario, tempoDeJogoEmAnos,
+	//		diasQueJoga, deHora, ateHora, usaChatDeVoz, dataDeCriacao
+	//	FROM Anuncios JOIN Jogos ON jogoId = Jogos.id
+	//	WHERE Jogos.nomeUrl LIKE (?)
+	//	  AND nomeDoUsuario ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
+	//		AND tempoDeJogoEmAnos ${noMaximo ? '<=' : '>='} (?)
+	//		${''/*AND diasQueJoga LIKE (?)
+	//		AND deHora <= (?)
+	//		AND ateHora >= (?)*/}
+	//		AND usaChatDeVoz LIKE (?)
+	//	ORDER BY dataDeCriacao DESC;`,
+	//	[body.jogo, body.nome, tempoDeJogoEmAnos, body.usaChatDeVoz]
+	//);
+	//console.log('qtde an='+anuncios.length);
+	//console.log(anuncios);
+	let idsDosAnuncios = anuncios.map(an=>an.idDoAnuncio).join();
+	//console.log(idsDosAnuncios);
+	let disponibilidades = await db.all(`SELECT idDoAnuncio,dias,horaDeInicio,horaDeTermino FROM Disponibilidades WHERE idDoAnuncio IN (${idsDosAnuncios});`);
+	//console.log('qtde disp='+disponibilidades.length);
+	anuncios.map(an=>{
+		an.disponibilidades = disponibilidades.filter(disp=>disp.idDoAnuncio == an.idDoAnuncio);
+		//console.log(an.disponibilidades);
+	});
+	//disponibilidades.map(disp=>{
+
+	//})
+	//console.log(disponibilidades);
+	//console.log(anuncios);
 
 	//console.log("ants do filtro d tempoDeJogoEntre, qtde= "+anuncios.length);
 
 	if (entre)
-		anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmAnos <= tempoDeJogoEmAnos2);
+		//anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmAnos <= tempoDeJogoEmAnos2);
+		anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmMeses <= tempoDeJogoEmAnos2*12);
 	
 	//console.log("dps do filtro d tempoDeJogoEntre e ants do d disponibilidade, qtde= "+anuncios.length);
 		
-	let diasQueJoga;
-  const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
-	let deHora;
-	let ateHora;
-	//let virandoNoite = false;
-	let disponivelEmTodos = false;
-	let anunciosOu = [];
-
 	if (body.qtdeFiltrosDisponibilidade) {
+		//const disponibilidades = [];
+		let diasQueJoga;
+		const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+		let deHora;
+		let ateHora;
+		//let virandoNoite = false;
+		let disponivelEmTodos = false;
+		let anunciosOu = [];
+
 		for (let i = 0; i < body.qtdeFiltrosDisponibilidade; i++) {
 			//console.log('ants do filtro '+i);
 			//console.log(anuncios);
 			
       let id = i == 0 ? '' : i+1;
 			if (body['quando'+id] == 'qualquerDia')
-				diasQueJoga = '.*';
+				//diasQueJoga = '.*';
+				diasQueJoga = [];
 			else if (body['quando'+id] == 'todoDia')
-				diasQueJoga = '0,1,2,3,4,5,6';
+				//diasQueJoga = '0,1,2,3,4,5,6';
+				diasQueJoga = [0,1,2,3,4,5,6];
 			else if (body['quando'+id] == 'semana')
-				diasQueJoga = '.*1,2,3,4,5.*';
+				//diasQueJoga = '.*1,2,3,4,5.*';
+				diasQueJoga = [1,2,3,4,5];
 			else if (body['quando'+id] == 'finsDeSemana')
-				diasQueJoga = '0.*6';
+				//diasQueJoga = '0.*6';
+				diasQueJoga = [0,6];
 			else
 				dias.some((dia,i)=>{
 					if (dia == body['quando'+id]) {
-						diasQueJoga = '.*'+i+'.*';
+						//diasQueJoga = '.*'+i+'.*';
+						diasQueJoga = [i];
 						return true;
 					}
 				});
@@ -361,40 +415,102 @@ servidor.post('/anuncios', async (req, resp)=>{
 			if (body['de'+id])
 				deHora = converterHoraStringParaMinutos(body['de'+id]);
 			else
-				deHora = null;
+				deHora = undefined;
 			if (body['ate'+id])
 				ateHora = converterHoraStringParaMinutos(body['ate'+id]);
 			else
-				ateHora = null;
+				ateHora = undefined;
 			//if (deHora > ateHora)
 			//	virandoNoite = true;
 			if (body.opcoesDisponibilidade)
 				disponivelEmTodos = true;
-	
+
+			//disponibilidades.push({diasQueJoga, deHora, ateHora});
 			//console.log('deHora~ateHora= '+deHora+'~'+ateHora);
 
 			//if(!disponivelEmTodos) {
 			//	;
 			//} else
 			anuncios = anuncios.filter(anuncio=>{
-			if (!body['de'+id])
-					deHora = anuncio.deHora;
-			if (!body['ate'+id])
-					ateHora = anuncio.ateHora;
-				//let anuncioVirandoNoite = anuncio.deHora > anuncio.ateHora;
-				let duracaoBusca = (1440 + ateHora - deHora) % 1440;
+				//anuncio.disponibilidades;
+				//for (let j = 0; j < anuncio.disponibilidades.length; j++) {
+				//	const element = anuncio.disponibilidades[j];
+				//}
+				let dispEncontradas = [];
+				let encontrouTodas = false;
+				//console.log('diasQueJoga busca=');
+				//console.log(diasQueJoga);
+				diasQueJoga.map(dia=>{
+					//console.log('dia='+dia);
+					//anuncio.disponibilidades.map(disp=>{
+					for (let j = 0; j < anuncio.disponibilidades.length && !encontrouTodas; j++) {
+						const disp = anuncio.disponibilidades[j];
+						
+						let arrDisp = disp.dias.split(',');
+						//console.log('j='+j+', disp e arrDisp=');
+						//console.log(disp);
+						//console.log(arrDisp);
+					
+						//console.log('deHora~ateHora= '+deHora+'~'+ateHora);
+						let horaDeInicio = deHora;
+						if (horaDeInicio == undefined)
+							horaDeInicio = disp.horaDeInicio;
+						let horaDeTermino = ateHora;
+						if (horaDeTermino == undefined)
+							horaDeTermino = disp.horaDeTermino;
+						//console.log('horaDeInicio~horaDeTermino= '+horaDeInicio+'~'+horaDeTermino);
+						let duracaoBusca = (1440 + horaDeTermino - horaDeInicio) % 1440;
+						let duracaoAnuncio = (1440 + disp.horaDeTermino - disp.horaDeInicio) % 1440;
+						let diferencaInicio = (1440 - disp.horaDeInicio + horaDeInicio) % 1440;
+						//console.log('duracaoBusca,duracaoAnuncio,diferencaInicio= '+duracaoBusca+','+duracaoAnuncio+','+diferencaInicio);
+						
+						if (duracaoAnuncio - diferencaInicio >= duracaoBusca && arrDisp.some(d=>d==dia)) {
+							dispEncontradas.push(dia);
+							dispEncontradas.sort();
+						}
+						//console.log('dispEncontradas e diasQueJoga=');
+						//console.log(dispEncontradas);
+						//console.log(diasQueJoga);
+						if (dispEncontradas.join() == diasQueJoga.join())
+							encontrouTodas = true;
+						//console.log(encontrouTodas);
+					}
+					//});
+				});
+				//let passou2 = disp.diasQueJoga.match(diasQueJoga)
+				//							&& duracaoAnuncio - diferencaInicio >= duracaoBusca;
+				let passou2 = encontrouTodas;
+				if (!disponivelEmTodos){
+					if (passou2)
+						anunciosOu.push(anuncio);
+					passou2 = !passou2;
+				}
+				return passou2;
+
+				let horaDeInicio = deHora || anuncio.disponibilidades[0].horaDeInicio;
+				let horaDeTermino = ateHora || anuncio.disponibilidades[0].horaDeTermino;
+				console.log('horaDeInicio~horaDeTermino= '+horaDeInicio+'~'+horaDeTermino);
+				//if (!body['de'+id])
+				//if (deHora == undefined)
+				//		horaDeInicio = anuncio.disponibilidades[0].horaDeInicio;
+				//if (!body['ate'+id])
+				//if (ateHora == undefined)
+				//		horaDeTermino = anuncio.disponibilidades[0].horaDeTermino;
+				//let anuncioVirandoNoite = anuncio.horaDeInicio > anuncio.horaDeTermino;
+				let duracaoBusca = (1440 + horaDeTermino - horaDeInicio) % 1440;
 				//if (duracaoBusca < 0) duracaoBusca += 1440;
-				let duracaoAnuncio = (1440 + anuncio.ateHora - anuncio.deHora) % 1440;
+				let duracaoAnuncio = (1440 + anuncio.disponibilidades[0].horaDeTermino - anuncio.disponibilidades[0].horaDeInicio) % 1440;
 				//if (duracaoAnuncio < 0) duracaoAnuncio += 1440;
 				//console.log('duração busca/anúncio= '+duracaoBusca+'/'+duracaoAnuncio);
-				let diferençaInicio = (1440 - anuncio.deHora + deHora) % 1440;
-				//duracaoAnuncio = anuncio.deHora > deHora ? anuncio.deHora + duracaoAnuncio - 1440 - deHora : duracaoAnuncio;
+				let diferencaInicio = (1440 - anuncio.disponibilidades[0].horaDeInicio + horaDeInicio) % 1440;
+				//duracaoAnuncio = anuncio.horaDeInicio > horaDeInicio ? anuncio.horaDeInicio + duracaoAnuncio - 1440 - horaDeInicio : duracaoAnuncio;
 				//console.log('duração anúncio2= '+duracaoAnuncio+', condições:');
 
 				//console.log('tá nos dias que joga='+anuncio.diasQueJoga.match(diasQueJoga) ? true : false);
 				//console.log('tá no período q joga='+duracaoAnuncio - diferençaInicio >= duracaoBusca);
 
-				let passou = anuncio.diasQueJoga.match(diasQueJoga) && duracaoAnuncio - diferençaInicio >= duracaoBusca;
+				let passou = anuncio.disponibilidades[0].diasQueJoga.match(diasQueJoga)
+										 && duracaoAnuncio - diferencaInicio >= duracaoBusca;
 				if (!disponivelEmTodos){
 					if (passou)
 						anunciosOu.push(anuncio);
@@ -404,10 +520,11 @@ servidor.post('/anuncios', async (req, resp)=>{
 			});
 			//console.log('dps do filtro '+i);
 			//console.log(anuncios);
-			
 		}
 		if (!disponivelEmTodos)
 			anuncios = anunciosOu.sort((a,b)=>b.dataDeCriacao - a.dataDeCriacao);
+			
+		//console.log(disponibilidades);
 	}
 	//console.log("dps do filtro d disponibilidade, qtde="+anuncios.length);
 
@@ -416,12 +533,26 @@ servidor.post('/anuncios', async (req, resp)=>{
 	//	horarioDeInicio: converterMinutosParaHoraString(anuncios[0].deHora),
 	//	horarioDeTermino: converterMinutosParaHoraString(anuncios[0].ateHora)
 	//});
+	anuncios.map(anuncio=>{
+		anuncio.disponibilidades.sort((a,b)=>a.dias - b.dias);
+		anuncio.disponibilidades.map(disp=>{
+			disp.dias = disp.dias.split(',');
+			disp.horaDeInicio = converterMinutosParaHoraString(disp.horaDeInicio);
+			disp.horaDeTermino = converterMinutosParaHoraString(disp.horaDeTermino);
+		});
+	});
+
 	console.log("POST anuncios, qtde="+anuncios.length+", ip="+req.ip);
 	return resp.json(anuncios.map(anuncio=>{
 		return {...anuncio,
-			diasQueJoga: anuncio.diasQueJoga.split(','),
-			deHora: converterMinutosParaHoraString(anuncio.deHora),
-			ateHora: converterMinutosParaHoraString(anuncio.ateHora)
+			nomeDoUsuario: anuncio.nomeNoJogo,
+			tempoDeJogoEmAnos: anuncio.tempoDeJogoEmMeses/12,
+			//diasQueJoga: anuncio.diasQueJoga.split(','),
+			diasQueJoga: anuncio.disponibilidades[0].dias,
+			//deHora: converterMinutosParaHoraString(anuncio.disponibilidades[0].horaDeInicio),
+			//ateHora: converterMinutosParaHoraString(anuncio.disponibilidades[0].horaDeTermino)
+			deHora: anuncio.disponibilidades[0].horaDeInicio,
+			ateHora: anuncio.disponibilidades[0].horaDeTermino
 		};
 	}));
 });
@@ -435,7 +566,7 @@ servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 	const anuncios = await db.all(
 		`SELECT id,nomeDoUsuario,tempoDeJogoEmAnos,diasQueJoga,deHora,ateHora,usaChatDeVoz,dataDeCriacao
 		FROM Anuncios
-		WHERE jogoId='${jogo.id}'
+		WHERE jogoId = ${jogo.id}
 		ORDER BY dataDeCriacao DESC;`
 	);
 	console.log("GET jogos/"+jogoNomeUrl+"/anuncios, qtde="+anuncios.length+", ip="+req.ip);
@@ -452,7 +583,7 @@ servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 servidor.get('/anuncios/:id/discord', async (req, resp)=>{
 	const anuncioId = req.params.id;
 	const db = await abrirBanco;
-	const anuncio = await db.get(`SELECT discord FROM Anuncios WHERE id='${anuncioId}';`);
+	const anuncio = await db.get(`SELECT discord FROM Anuncios2 WHERE idDoAnuncio = ${anuncioId};`);
 	console.log("GET anuncios/id/discord, discord="+anuncio.discord+", ip="+req.ip);
 	return resp.json({discord: anuncio.discord});
 });
@@ -555,34 +686,11 @@ servidor.put('/registrar', async (req, resp)=>{
 		//console.log(usuarioRegistrado);
 		//return resp.status(201).json({usuario: usuarioRegistrado});
 		return resp.status(201).json({id: usuarioRegistrado.id, nome: usuarioRegistrado.nome});
-	}
-	catch (erro) {
-		console.log("entrou no catch");
-		console.log(erro);
-		return resp.status(500).json({erro});
-	}
-});
-
-servidor.post('/entrar', async (req, resp)=>{
-	try {
-		const body = req.body;
-		console.log("POST entrar, usuário="+body.nomeDoUsuario+", ip="+req.ip);
-		//console.log("sql="+`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-		const db = await abrirBanco;
-		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-		const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = (?);`,[body.nomeDoUsuario]);
-		//console.log("existe="+usuarioExiste);
-		if (!usuarioExiste)
-			return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
-		//const senhaHash = await db.get(`SELECT senhaHash FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-		const senhaCorreta = await bcrypt.compare(body.senha, usuarioExiste.senhaHash);
-		if (!senhaCorreta)
-			return resp.status(401).json({erro: 'Senha incorreta.'});
-		return resp.status(201).json({id: usuarioExiste.id, nome: usuarioExiste.nome});
-		//se for manter sessão:
-		//const token = {id: usuarioExiste.id, nome: usuarioExiste.nome, token: uuidv4()};
-		//await db.run(`INSERT INTO UsuariosLogados (id, nome, token) VALUES (?,?,?);`,
-		//	[token.id, token.nome, token.token],
+		//const token = {id: usuarioRegistrado.id, nome: usuarioRegistrado.nome, tokenDaSessao: uuidv4()};
+		//const tokenDaSessaoHash = await bcrypt.hash(token.tokenDaSessao, bcryptSaltRounds);
+		//const daquiAUmMes = Date.now()+30*24*60*60*1000;
+		//await db.run(`INSERT INTO SessoesAtivas (tokenDaSessao, idDoUsuario, dataDeExpiracao) VALUES (?,?,?);`,
+		//	[tokenDaSessaoHash, token.id, daquiAUmMes],
 		//	function(erro) {
 		//		console.log('quando isso é executado??');
 		//		if (erro) {
@@ -603,33 +711,123 @@ servidor.post('/entrar', async (req, resp)=>{
 	}
 });
 
-//se for manter sessão:
-/*servidor.post('/sair', async (req, resp)=>{
-	try{
-	//const body = req.body;
-	//console.log("POST sair, usuário="+body.nomeDoUsuario+", ip="+req.ip);
-	//const db = await abrirBanco;
-	//const usuarioExiste = await db.get(`SELECT id,nome FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-	//if (!usuarioExiste)
-	//	return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
-	return resp.status(200).json(???);
+servidor.post('/entrar', async (req, resp)=>{
+	try {
+		const body = req.body;
+		console.log("POST entrar, usuário="+body.nomeDoUsuario+", manter sessão="+body.manterSessao+", ip="+req.ip);
+		const db = await abrirBanco;
+		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+		const usuarioExiste = await db.get(`SELECT id,senhaHash,nome FROM Usuarios WHERE nome = (?);`,[body.nomeDoUsuario]);
+		//console.log("existe="+usuarioExiste);
+		if (!usuarioExiste)
+			return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
+		const senhaCorreta = await bcrypt.compare(body.senha, usuarioExiste.senhaHash);
+		if (!senhaCorreta)
+			return resp.status(401).json({erro: 'Senha incorreta.'});
+		//return resp.status(201).json({id: usuarioExiste.id, nome: usuarioExiste.nome});
+		//se for manter sessão:
+		const resposta = {id: usuarioExiste.id, nome: usuarioExiste.nome};
+		if (body.manterSessao) {
+			resposta.tokenDaSessao = uuidv4();
+			const tokenDaSessaoHash = await bcrypt.hash(resposta.tokenDaSessao, bcryptSaltRounds);
+			const daquiAUmMes = Date.now()+30*24*60*60*1000;
+			await db.run(`INSERT INTO SessoesAtivas (tokenDaSessao, idDoUsuario, dataDeExpiracao)
+				VALUES '${tokenDaSessaoHash}', '${resposta.id}', '${daquiAUmMes}';`,
+				//[tokenDaSessaoHash, token.id, daquiAUmMes],
+			//const token = {id: usuarioExiste.id, nome: usuarioExiste.nome, token: uuidv4()};
+			//await db.run(`INSERT INTO SessoesAtivas (id, nome, token) VALUES (?,?,?);`,
+			//	[token.id, token.nome, token.token],
+				function(erro) {
+					console.log('quando isso é executado??');
+					if (erro) {
+						console.log('erro:');
+						console.log(erro);
+						return console.log(erro);
+					}
+					console.log(`A row has been inserted with rowid ${this.lastID}`);
+					return this.lastID;
+				}
+			);
+		}
+		return resp.status(201).json(resposta);
 	}
 	catch (erro) {
 		console.log("entrou no catch");
 		console.log(erro);
 		return resp.status(500).json({erro});
 	}
-});*/
+});
+
+//se for manter sessão:
+servidor.post('/excluirsessao', async (req, resp)=>{
+	try {
+		const body = req.body;
+		console.log("POST excluirsessao, ip="+req.ip);
+		const db = await abrirBanco;
+		const tokenDaSessaoHash = await bcrypt.hash(body.tokenDaSessao, bcryptSaltRounds);
+		const sessaoExiste = await db.get(`SELECT id FROM SessoesAtivas WHERE tokenDaSessaoHash = '${tokenDaSessaoHash}';`);
+		if (!sessaoExiste)
+			return resp.status(404).json({erro: 'Sessão inválida.'});
+		await db.run(`DELETE FROM SessoesAtivas WHERE tokenDaSessaoHash = '${tokenDaSessaoHash}';`);
+		return resp.status(200).json({ok: 'Sessão excluída.'});
+	}
+	catch (erro) {
+		console.log("entrou no catch");
+		console.log(erro);
+		return resp.status(500).json({erro});
+	}
+});
+
+//se for manter sessão:
+servidor.post('/autenticarsessao', async (req, resp)=>{
+	try {
+		const body = req.body;
+		console.log("POST autenticarsessao, ip="+req.ip);
+		const db = await abrirBanco;
+		const tokenDaSessaoHash = await bcrypt.hash(body.tokenDaSessao, bcryptSaltRounds);
+		const sessaoExiste = await db.get(`SELECT id,idDoUsuario,dataDeExpiracao FROM SessoesAtivas WHERE tokenDaSessaoHash = '${tokenDaSessaoHash}';`);
+		if (!sessaoExiste)
+			return resp.status(404).json({erro: 'Sessão inválida.'});
+		if(sessaoExiste.dataDeExpiracao < Date.now())
+			return resp.status(404).json({erro: 'Sessão expirada.'});
+		const usuarioExiste = await db.get(`SELECT id,nome FROM Usuarios WHERE id = ${sessaoExiste.idDoUsuario};`);
+		const token = {id: usuarioExiste.id, nome: usuarioExiste.nome, tokenDaSessao: uuidv4()};
+		const tokenDaNovaSessaoHash = await bcrypt.hash(token.tokenDaSessao, bcryptSaltRounds);
+		const daquiAUmMes = Date.now()+30*24*60*60*1000;
+		await db.run(`UPDATE SessoesAtivas SET tokenDaSessao = '${tokenDaNovaSessaoHash}', dataDeExpiracao = ${daquiAUmMes} WHERE id = ${sessaoExiste.id};`,
+			//[tokenDaNovaSessaoHash, daquiAUmMes],
+		//const token = {id: usuarioExiste.id, nome: usuarioExiste.nome, token: uuidv4()};
+		//await db.run(`INSERT INTO SessoesAtivas (id, nome, token) VALUES (?,?,?);`,
+		//	[token.id, token.nome, token.token],
+			function(erro) {
+				console.log('quando isso é executado??');
+				if (erro) {
+					console.log('erro:');
+					console.log(erro);
+					return console.log(erro);
+				}
+				console.log(`A row has been inserted with rowid ${this.lastID}`);
+				return this.lastID;
+			}
+		);
+		return resp.status(201).json(token);
+	}
+	catch (erro) {
+		console.log("entrou no catch");
+		console.log(erro);
+		return resp.status(500).json({erro});
+	}
+});
 
 servidor.post('/alterarsenha', async (req, resp)=>{
 	try {
 		const body = req.body;
-		console.log("POST alterarsenha, usuário="+body.nomeDoUsuario+", ip="+req.ip);
+		console.log("POST alterarsenha, id do usuário="+body.id+", ip="+req.ip);
 		const db = await abrirBanco;
 		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-		const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = (?);`,[body.nomeDoUsuario]);
+		const usuarioExiste = await db.get(`SELECT id,senhaHash FROM Usuarios WHERE id = (?);`, [body.id]);
 		if (!usuarioExiste)
-			return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
+			return resp.status(404).json({erro: 'Usuário não encontrado.'});
 		const senhaCorreta = await bcrypt.compare(body.senha, usuarioExiste.senhaHash);
 		if (!senhaCorreta)
 			return resp.status(401).json({erro: 'Senha incorreta.'});
@@ -637,7 +835,19 @@ servidor.post('/alterarsenha', async (req, resp)=>{
 		//await db.run(`INSERT INTO Usuarios (id, nome, senhaHash, dataDeCriacao) VALUES (?,?,?,?);`,
 			//[uuidv4(), body.nomeDoUsuario, senhaHash, Date.now()],
 		//await db.run(`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE nome = '${body.nomeDoUsuario}';`);
-		await db.run(`UPDATE Usuarios SET senhaHash = (?) WHERE nome = (?);`, [novaSenhaHash, body.nomeDoUsuario]);
+		await db.run(`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE id = ${usuarioExiste.id};`,
+			function(erro) {
+				console.log('quando isso é executado??');
+				if (erro) {
+					console.log('erro:');
+					console.log(erro);
+					return console.log(erro);
+				}
+				console.log(`A row has been inserted with rowid ${this.lastID}`);
+				return this.lastID;
+			}
+		);
+		await db.run(`DELETE FROM SessoesAtivas WHERE idDoUsuario = ${usuarioExiste.id};`);
 		return resp.status(200).json({ok: 'Senha alterada com sucesso.'});
 	}
 	catch (erro) {
@@ -650,17 +860,18 @@ servidor.post('/alterarsenha', async (req, resp)=>{
 servidor.post('/excluirconta', async (req, resp)=>{
 	try {
 		const body = req.body;
-		console.log("POST excluirconta, usuário="+body.nomeDoUsuario+", ip="+req.ip);
+		console.log("POST excluirconta, id do usuário="+body.id+", ip="+req.ip);
 		const db = await abrirBanco;
 		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-		const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = (?);`,[body.nomeDoUsuario]);
+		const usuarioExiste = await db.get(`SELECT id,senhaHash FROM Usuarios WHERE id = (?);`, [body.id]);
 		if (!usuarioExiste)
 			return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
 		const senhaCorreta = await bcrypt.compare(body.senha, usuarioExiste.senhaHash);
 		if (!senhaCorreta)
 			return resp.status(401).json({erro: 'Senha incorreta.'});
 		//await db.run(`DELETE FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-		await db.run(`DELETE FROM Usuarios WHERE nome = (?);`,[body.nomeDoUsuario]);
+		await db.run(`DELETE FROM Usuarios WHERE id = ${usuarioExiste.id};`);
+		await db.run(`DELETE FROM SessoesAtivas WHERE idDoUsuario = ${usuarioExiste.id};`);
 		return resp.status(200).json({ok: 'Conta excluída.'});
 	}
 	catch (erro) {
@@ -675,7 +886,8 @@ servidor.post('/excluiranuncio', async (req, resp)=>{
 		const body = req.body;
 		console.log("POST excluiranuncio, id="+body.idDoAnuncio+", ip="+req.ip);
 		const db = await abrirBanco;
-		await db.run(`DELETE FROM Anuncios WHERE id = (?);`,[body.idDoAnuncio]);
+		await db.run(`DELETE FROM Anuncios WHERE id = (?);`, [body.idDoAnuncio]);
+		await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = (?);`, [body.idDoAnuncio]);
 		//await new Promise(r=>setTimeout(r,1000));
 		return resp.status(200).json({ok: 'Anúncio excluído.'});
 	}
@@ -687,53 +899,72 @@ servidor.post('/excluiranuncio', async (req, resp)=>{
 });
 
 servidor.put('/novoanuncio', async (req, resp)=>{
-	const body = req.body;
-	console.log("PUT novoanuncio, usuário="+body.idDoUsuario+", ip="+req.ip);
+	try {
+		const body = req.body;
+		console.log("PUT novoanuncio, usuário="+body.idDoUsuario+", ip="+req.ip);
 
-	console.log(body);
-	return resp.status(200).json({ok: 'Anúncio recebido, mas não registrado.'});
-	//const disponibilidade = [];
-	//disponibilidade.push({
-	//	diasQueJoga: body.diasQueJoga,
-	//	horarioDeInicio: converterHoraStringParaMinutos(body.deHora),
-	//	horarioDeTermino: converterHoraStringParaMinutos(body.ateHora)
-	//});
+		//console.log(body);
+		//console.log(body.disponibilidades);
+		//return resp.status(200).json({ok: 'Anúncio recebido, mas não registrado.'});
+		//const disponibilidade = [];
+		//disponibilidade.push({
+		//	diasQueJoga: body.diasQueJoga,
+		//	horarioDeInicio: converterHoraStringParaMinutos(body.deHora),
+		//	horarioDeTermino: converterHoraStringParaMinutos(body.ateHora)
+		//});
 
-	//const db = await abrirBanco;
-	//await db.run(`INSERT INTO Anuncios2
-	//	(idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, discord, diasQueJoga, usaChatDeVoz, dataDeCriacao)
-	//	VALUES (?,?,?,?,?,?,?,?);`,
-	//	[body.idDoJogo, body.idDoUsuario, body.nomeNoJogo, body.tempoDeJogoEmMeses, body.discord, body.diasQueJoga,
-	//	converterHoraStringParaMinutos(body.deHora), converterHoraStringParaMinutos(body.ateHora),
-	//	body.usaChatDeVoz, Date.now()],
-	//	function(erro) {
-	//		console.log('quando isso é executado??');
-	//		if (erro) {
-	//			console.log('erro:');
-	//			console.log(erro);
-	//			return console.log(erro);
-	//		}
-	//		console.log(`A row has been inserted with rowid ${this.lastID}`);
-	//		return this.lastID;
-	//	}
-	//)
-	//.then(async dados=>{
-	//	//console.log("dados:");
-	//	//console.log(dados);
-	//	const anuncioPublicado = await db.get(
-	//		`SELECT * FROM Anuncios WHERE dataDeCriacao = (SELECT MAX(dataDeCriacao) FROM Anuncios);`
-	//	);
-	//	//console.log(anuncioPublicado);
-	//	return resp.status(201).json(anuncioPublicado);
-	//})
-	//.catch(erro=>{
-	//	console.log("entrou no catch");
-	//	console.log(erro);
-	//	return resp.status(500).json(erro);
-	//});
+		const db = await abrirBanco;
+		await db.run(`INSERT INTO Anuncios2
+			(idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, discord, usaChatDeVoz, dataDeCriacao)
+			VALUES (?,?,?,?,?,?,?);`,
+			[body.idDoJogo, body.idDoUsuario, body.nomeNoJogo, body.tempoDeJogoEmMeses, body.discord, body.usaChatDeVoz,
+				Date.now()],
+			function(err) {
+				console.log('quando isso é executado??');
+				if (err) {
+					console.log('erro:');
+					console.log(err);
+					return console.log(err);
+				}
+				console.log(`A row has been inserted with rowid ${this.lastID}`);
+				return this.lastID;
+			}
+		);
+		const anuncioPublicado = await db.get(
+			`SELECT idDoAnuncio FROM Anuncios2 WHERE dataDeCriacao = (SELECT MAX(dataDeCriacao) FROM Anuncios2);`
+		);
+
+		let i = 0;
+		while (i < body.disponibilidades.length) {
+			await db.run(`INSERT INTO Disponibilidades
+				(idDoAnuncio, dias, horaDeInicio, horaDeTermino)
+				VALUES (?,?,?,?);`,
+				[anuncioPublicado.idDoAnuncio, body.disponibilidades[i].dias,
+					converterHoraStringParaMinutos(body.disponibilidades[i].horaDeInicio),
+					converterHoraStringParaMinutos(body.disponibilidades[i].horaDeTermino)
+				],
+				function(err) {
+					console.log('quando isso é executado??');
+					if (err) {
+						console.log('erro:');
+						console.log(err);
+						return console.log(err);
+					}
+					console.log(`A row has been inserted with rowid ${this.lastID}`);
+					return this.lastID;
+				}
+			);
+			i++;
+			//console.log(i+','+body.disponibilidades.length);
+		}
+		//console.log(anuncioPublicado);
+		return resp.status(201).json(anuncioPublicado);
+	}
+	catch (erro) {
+		console.log("entrou no catch");
+		console.log(erro);
+		return resp.status(500).json({erro});
+	}
 });
 
-servidor.listen(
-	process.env.PORTA_DO_SERVIDOR,
-	()=>console.log("iniciou server, ouvindo porta "+process.env.PORTA_DO_SERVIDOR)
-);
+servidor.listen(PORTA, ()=>console.log("iniciou server, ouvindo porta "+PORTA));

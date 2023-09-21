@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useState } from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import './App.css'
-import carregando from './imagens/loading.svg'
+//import carregando from './imagens/loading.svg'
 import BarraSuperior from './componentes/BarraSuperior'
 //import BarraInferior from './componentes/BarraInferior'
 import PaginaInicial from './paginas/PaginaInicial'
@@ -17,14 +17,12 @@ import NovoAnuncio from './paginas/NovoAnuncio'
 import MeusAnuncios from './paginas/MeusAnuncios'
 
 /*falta:
--na publicação, atrelar id do usuário ao anúncio
--separar nome do usuário do nome no jogo
 -cadastrar jogo?
 -no servidor, trocar jogos/anúncios por jogos2/anúncios2 (do banco de dados) e fazer as adaptações
 -sessão em cookie
--exibir anúncios com várias disponibilidades
 -ajeitar chamarAtencao
 -ajeitar ModalConectar
+-unificar formulários de entrada
 */
 
 export const contexto = createContext();
@@ -34,13 +32,76 @@ export default function App() {
   const [aguardando, definirAguardando] = useState(true);
   
   useEffect(()=>{
-    if (localStorage.getItem("idDoUsuarioLogado"))
-      definirUsuarioLogado({
-        id: localStorage.getItem("idDoUsuarioLogado"),
-        nome: localStorage.getItem("usuarioLogado")
-      });
+    const tokenDaSessao = getCookie('tokenDaSessao');
+    if (tokenDaSessao) {
+      console.log('com cookie='+tokenDaSessao);
+      const usuarioLogado = autenticarSessao(tokenDaSessao);
+      if (usuarioLogado)
+        definirUsuarioLogado({
+          id: usuarioLogado.id,
+          nome: usuarioLogado.nome
+        });
+      //else
+    } else
+      console.log('sem cookie');
+    
+    //if (localStorage.getItem('idDoUsuarioLogado'))
+    //  definirUsuarioLogado({
+    //    id: localStorage.getItem('idDoUsuarioLogado'),
+    //    nome: localStorage.getItem('usuarioLogado')
+    //  });
     definirAguardando(false);
   }, [contexto])
+
+  function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    let expires = 'expires='+ d.toUTCString();
+    document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+  }
+
+  function getCookie(cname) {
+    let name = cname + '=';
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return '';
+  }
+
+  function checkACookieExists(cname) {
+    if (document.cookie.split(';').some(item=>item.trim().startsWith(cname+'=')))
+      return true;
+    return false;
+  }
+
+  function autenticarSessao(tokenDaSessao) {
+    const dados = {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({tokenDaSessao})
+    };
+    fetch(SERVIDOR+`/autenticarsessao`, dados)
+    .then(resp=>resp.json())
+    .then(token=>{
+      //if (componenteExiste) {
+        return token;
+      //}
+    })
+    .catch(erro=>{
+      console.log(erro);
+      return null;
+      //if (componenteExiste)
+      //  definirErroAoObterDados(true);
+    });
+  }
 
   return (
     <contexto.Provider value={{usuarioLogado, definirUsuarioLogado}}>
@@ -53,43 +114,43 @@ export default function App() {
         <BrowserRouter>
           <BarraSuperior/>
           <Switch>
-            <Route exact path="/">
+            <Route exact path='/'>
               <PaginaInicial/>
             </Route>
-            <Route path="/registrar">
+            <Route path='/registrar'>
               <Registrar/>
             </Route>
-            <Route path="/entrar">
+            <Route path='/entrar'>
               <Entrar/>
             </Route>
-            <Route path="/conta">
+            <Route path='/conta'>
               <Conta/>
             </Route>
-            {/*<Route path="/usuarios/:nome">
+            {/*<Route path='/usuarios/:nome'>
               <Perfil />
             </Route>*/}
-            {/*<Route path="/amigos">
+            {/*<Route path='/amigos'>
               <Amigos/>
             </Route>*/}
-            <Route path="/meusanuncios">
+            <Route path='/meusanuncios'>
               <MeusAnuncios/>
             </Route>
-            <Route path="/configuracoes">
+            <Route path='/configuracoes'>
               <Configuracoes/>
             </Route>
-            {/*<Route path="/usuarios/:nome/anuncios">
+            {/*<Route path='/usuarios/:nome/anuncios'>
               <Anuncios />
             </Route>*/}
-            {/*<Route path="/jogos/:nome"> //página de informações do jogo
+            {/*<Route path='/jogos/:nome'> //página de informações do jogo
               <Jogos />
             </Route>*/}
-            <Route path="/jogos">
+            <Route path='/jogos'>
               <Jogos/>
             </Route>
-            <Route path="/anuncios">
+            <Route path='/anuncios'>
               <Anuncios/>
             </Route>
-            <Route path="/novoanuncio">
+            <Route path='/novoanuncio'>
               <NovoAnuncio/>
             </Route>
             <Route>

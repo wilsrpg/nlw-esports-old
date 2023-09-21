@@ -20,7 +20,7 @@ export default function NovoAnuncio() {
   //  {abrev:'S', nome:'sexta'},
   //  {abrev:'S', nome:'sábado'},
   //];
-  const [usaChatDeVoz, definirUsaChatDeVoz] = useState(false);
+  //const [usaChatDeVoz, definirUsaChatDeVoz] = useState(false);
   const [publicando, definirPublicando] = useState(false);
   //const historico = useHistory();
   const [diasDisponiveis, definirDiasDisponiveis] = useState([[false,false,false,false,false,false,false]]);
@@ -105,18 +105,18 @@ export default function NovoAnuncio() {
         disponibilidades.push({dias: diasd.join(), horaDeInicio: dados['de'+id], horaDeTermino: dados['ate'+id]});
     });
 
-    const novoAnuncio = JSON.stringify({
-      idDoJogo: dados.jogoId*1,
+    const novoAnuncio = {
+      idDoJogo: dados.idDoJogo*1,
       idDoUsuario: contexto2.usuarioLogado.id*1,
       nomeNoJogo: dados.nome,
       tempoDeJogoEmMeses: tempoDeJogoEmMeses,
       discord: dados.discord,
       disponibilidades: disponibilidades,
-      usaChatDeVoz: usaChatDeVoz,
-    });
+      usaChatDeVoz: dados.usaChatDeVoz,
+    };
 
     //console.log(novoAnuncio);
-    //definirPublicando(true);
+    definirPublicando(true);
     tentarPublicar(novoAnuncio);
   }
 
@@ -124,8 +124,8 @@ export default function NovoAnuncio() {
     const dados = {
       method: 'PUT',
       headers: {'Content-Type': 'application/json'},
-      //body: JSON.stringify(anuncio),
-      body: anuncio,
+      body: JSON.stringify(anuncio)
+      //body: anuncio
     };
     fetch(SERVIDOR+`/novoanuncio`, dados)
     .then(resp=>{
@@ -154,7 +154,7 @@ export default function NovoAnuncio() {
         <form className='flex flexColumn fundoSemitransparente' onSubmit={publicarAnuncio}>
 
           <label>Jogo</label>
-          <select disabled={!jogos} id='jogo' name='jogoId'
+          <select disabled={!jogos} id='jogo' name='idDoJogo'
             onFocus={e=>e.target.style.backgroundColor=''}
           >
             <option value='nenhum'>
@@ -283,7 +283,7 @@ export default function NovoAnuncio() {
           })}
 
           <div className='chatDeVoz'>
-            <input id='voz' name='usaChatDeVoz' type='checkbox' onChange={e=>definirUsaChatDeVoz(e.target.checked)}/>
+            <input id='voz' name='usaChatDeVoz' type='checkbox'/>
             <label htmlFor='voz'>Costumo usar o chat de voz</label>
           </div>
 
