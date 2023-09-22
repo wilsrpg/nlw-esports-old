@@ -43,7 +43,7 @@ export default function FormularioDeEntrada() {
     const dados = {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({nomeDoUsuario, senha}),
+      body: JSON.stringify({nomeDoUsuario, senha, manterSessao}),
     };
     fetch(SERVIDOR+`/entrar`, dados)
     .then(resp=>resp.json())
@@ -56,7 +56,7 @@ export default function FormularioDeEntrada() {
         if (manterSessao)
           setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
         else
-          document.cookie = "sessaoTemporaria="+'?'+";path=/";
+          document.cookie = "sessaoTemporaria=0;samesite=lax;path=/";
         contexto2.definirUsuarioLogado(resp);
         if (paginaAtual.pathname == '/entrar' || paginaAtual.pathname == '/registrar')
           historico.push('/conta');
@@ -76,7 +76,7 @@ export default function FormularioDeEntrada() {
     const d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
     let expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";samesite=lax;path=/";
   }
 
   return (

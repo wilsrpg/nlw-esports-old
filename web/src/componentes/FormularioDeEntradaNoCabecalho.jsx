@@ -36,11 +36,17 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
         definirMensagem('Digite sua senha.');
       return;
     }
+    //console.log(dados.manterSessao);
+    if (dados.manterSessao == 'on')
+      dados.manterSessao = true;
+    else
+      dados.manterSessao = false;
+
     //if (componenteExiste) {
       definirMensagem('');
       definirAguardando(true);
     //}
-    tentarEntrar(dados.nomeDoUsuario,dados.senha, dados.manterSessao);
+    tentarEntrar(dados.nomeDoUsuario, dados.senha, dados.manterSessao);
   }
 
   function tentarEntrar(nomeDoUsuario, senha, manterSessao) {
@@ -61,7 +67,10 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
         if (manterSessao)
           setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
         //if (componenteExiste)
-          contexto2.definirUsuarioLogado(resp);
+          contexto2.definirUsuarioLogado({
+            id: resp.id,
+            nome: resp.nome
+          });
         if (urlAtual.pathname == '/entrar' || urlAtual.pathname == '/registrar')
           historico.push('/conta');
       }
@@ -82,7 +91,7 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
     const d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
     let expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";samesite=lax;path=/";
   }
 
   return (

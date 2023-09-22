@@ -15,6 +15,7 @@ import PaginaNaoEncontrada from './paginas/PaginaNaoEncontrada'
 import Entrar from './paginas/Entrar'
 import NovoAnuncio from './paginas/NovoAnuncio'
 import MeusAnuncios from './paginas/MeusAnuncios'
+import { SERVIDOR } from '../../enderecoDoServidor';
 
 /*falta:
 -cadastrar jogo?
@@ -33,31 +34,33 @@ export default function App() {
   
   useEffect(()=>{
     const tokenDaSessao = getCookie('tokenDaSessao');
-    if (tokenDaSessao) {
-      console.log('com cookie='+tokenDaSessao);
-      const usuarioLogado = autenticarSessao(tokenDaSessao);
-      if (usuarioLogado)
-        definirUsuarioLogado({
-          id: usuarioLogado.id,
-          nome: usuarioLogado.nome
-        });
+    if (tokenDaSessao && tokenDaSessao != 'undefined') {
+      console.log('com cookie=['+tokenDaSessao+']');
+      autenticarSessao(tokenDaSessao);
+      //const usuarioLogado = autenticarSessao(tokenDaSessao);
+      //if (usuarioLogado)
+      //  definirUsuarioLogado({
+      //    id: usuarioLogado.id,
+      //    nome: usuarioLogado.nome
+      //  });
       //else
-    } else
-      console.log('sem cookie');
+    }
+    //else
+    //  console.log('sem cookie');
     
     //if (localStorage.getItem('idDoUsuarioLogado'))
     //  definirUsuarioLogado({
     //    id: localStorage.getItem('idDoUsuarioLogado'),
     //    nome: localStorage.getItem('usuarioLogado')
     //  });
-    definirAguardando(false);
+    //definirAguardando(false);
   }, [contexto])
 
   function setCookie(cname, cvalue, exdays) {
     const d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
     let expires = 'expires='+ d.toUTCString();
-    document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+    document.cookie = cname + '=' + cvalue + ';' + expires + ';samesite=lax;path=/';
   }
 
   function getCookie(cname) {
@@ -88,16 +91,49 @@ export default function App() {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({tokenDaSessao})
     };
+    //let usuarioLogado;
     fetch(SERVIDOR+`/autenticarsessao`, dados)
     .then(resp=>resp.json())
-    .then(token=>{
+    .then(resp=>{
+      //console.log(resp);
       //if (componenteExiste) {
-        return token;
+      definirUsuarioLogado({
+        id: resp.id,
+        nome: resp.nome
+      });
+      //usuarioLogado = {id: resp.id, nome: resp.nome};
+      setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
       //}
     })
     .catch(erro=>{
       console.log(erro);
-      return null;
+      //if (componenteExiste)
+      //  definirErroAoObterDados(true);
+    });
+  }
+
+  function excluirSessaoTemporaria(tokenDaSessao) {
+    const dados = {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({tokenDaSessao})
+    };
+    //let usuarioLogado;
+    fetch(SERVIDOR+`/excluirsessao`, dados)
+    .then(resp=>resp.json())
+    .then(resp=>{
+      //console.log(resp);
+      //if (componenteExiste) {
+      //definirUsuarioLogado({
+      //  id: resp.id,
+      //  nome: resp.nome
+      //});
+      //usuarioLogado = {id: resp.id, nome: resp.nome};
+      document.cookie = "tokenDaSessaoTemporaria=0;expires=0;samesite=lax;path=/";
+      //}
+    })
+    .catch(erro=>{
+      console.log(erro);
       //if (componenteExiste)
       //  definirErroAoObterDados(true);
     });

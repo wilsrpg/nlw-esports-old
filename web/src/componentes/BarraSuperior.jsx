@@ -4,6 +4,7 @@ import { contexto } from '../App';
 import iconeMenu from '../imagens/icons8-menu.svg'
 import iconeUsuario from '../imagens/user-circle-svgrepo-com.svg'
 import FormularioDeEntradaNoCabecalho from './FormularioDeEntradaNoCabecalho';
+import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function BarraSuperior() {
   const contexto2 = useContext(contexto);
@@ -65,8 +66,9 @@ export default function BarraSuperior() {
     //contexto2.definirUsuarioLogado();
     //historico.push('/entrar');
     const tokenDaSessao = getCookie('tokenDaSessao');
+    //console.log(tokenDaSessao);
     if (!tokenDaSessao) {
-      definirUsuarioLogado();
+      contexto2.definirUsuarioLogado();
       historico.push('/entrar');
     } else {
       const dados = {
@@ -76,14 +78,15 @@ export default function BarraSuperior() {
       };
       fetch(SERVIDOR+`/excluirsessao`, dados)
       .then(resp=>resp.json())
-      .then((resp)=>{
+      .then(resp=>{
         if (resp.erro)
           definirMensagem(resp.erro);
         else {
           //localStorage.removeItem("idDoUsuarioLogado");
           //localStorage.removeItem("usuarioLogado");
-          document.cookie = "tokenDaSessao=;expires=0;path=/";
-          definirUsuarioLogado();
+          //document.cookie = "tokenDaSessao=0;expires=0;samesite=lax;httponly=true;path=/";
+          document.cookie = "tokenDaSessao=0;expires=0;samesite=lax;path=/";
+          contexto2.definirUsuarioLogado();
           historico.push('/entrar');
         }
       })
