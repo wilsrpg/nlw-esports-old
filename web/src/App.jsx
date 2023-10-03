@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useState } from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import './App.css'
-//import carregando from './imagens/loading.svg'
+import carregando from './imagens/loading.svg'
 import BarraSuperior from './componentes/BarraSuperior'
 //import BarraInferior from './componentes/BarraInferior'
 import PaginaInicial from './paginas/PaginaInicial'
@@ -20,10 +20,10 @@ import { SERVIDOR } from '../../enderecoDoServidor';
 /*falta:
 -cadastrar jogo?
 -no servidor, trocar jogos/anúncios por jogos2/anúncios2 (do banco de dados) e fazer as adaptações
--sessão em cookie
 -ajeitar chamarAtencao
--ajeitar ModalConectar
 -unificar formulários de entrada
+-verificar sessão qd tentar fazer alterações
+-trocar verbos por categorias+métodos+params
 */
 
 export const contexto = createContext();
@@ -34,8 +34,10 @@ export default function App() {
   
   useEffect(()=>{
     const tokenDaSessao = getCookie('tokenDaSessao');
-    if (tokenDaSessao && tokenDaSessao != 'undefined') {
-      console.log('com cookie=['+tokenDaSessao+']');
+    //console.log('tokenDaSessao:');
+    //console.log(tokenDaSessao);
+    if (tokenDaSessao && tokenDaSessao != '0' && tokenDaSessao != 'undefined') {
+      //console.log('com cookie=['+tokenDaSessao+']');
       autenticarSessao(tokenDaSessao);
       //const usuarioLogado = autenticarSessao(tokenDaSessao);
       //if (usuarioLogado)
@@ -45,27 +47,22 @@ export default function App() {
       //  });
       //else
     }
-    //else
+    else
     //  console.log('sem cookie');
+      definirAguardando(false);
     
     //if (localStorage.getItem('idDoUsuarioLogado'))
     //  definirUsuarioLogado({
     //    id: localStorage.getItem('idDoUsuarioLogado'),
     //    nome: localStorage.getItem('usuarioLogado')
     //  });
-    //definirAguardando(false);
   }, [contexto])
-
-  function setCookie(cname, cvalue, exdays) {
-    const d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    let expires = 'expires='+ d.toUTCString();
-    document.cookie = cname + '=' + cvalue + ';' + expires + ';samesite=lax;path=/';
-  }
 
   function getCookie(cname) {
     let name = cname + '=';
     let decodedCookie = decodeURIComponent(document.cookie);
+    //console.log('decodedCookie:');
+    //console.log(decodedCookie);
     let ca = decodedCookie.split(';');
     for(let i = 0; i < ca.length; i++) {
       let c = ca[i];
@@ -79,22 +76,19 @@ export default function App() {
     return '';
   }
 
-  function checkACookieExists(cname) {
-    if (document.cookie.split(';').some(item=>item.trim().startsWith(cname+'=')))
-      return true;
-    return false;
-  }
-
   function autenticarSessao(tokenDaSessao) {
-    const dados = {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({tokenDaSessao})
-    };
+    //const dados = {
+    //  method: 'POST',
+    //  headers: {'Content-Type': 'application/json'},
+    //  body: JSON.stringify({tokenDaSessao})
+    //};
     //let usuarioLogado;
-    fetch(SERVIDOR+`/autenticarsessao`, dados)
+    //fetch(SERVIDOR+`/sessoes`, dados)
+    fetch(SERVIDOR+`/sessoes/${tokenDaSessao}`)
     .then(resp=>resp.json())
     .then(resp=>{
+      if (resp.erro)
+        throw resp.erro;
       //console.log(resp);
       //if (componenteExiste) {
       definirUsuarioLogado({
@@ -102,51 +96,28 @@ export default function App() {
         nome: resp.nome
       });
       //usuarioLogado = {id: resp.id, nome: resp.nome};
-      setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
+      //setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
+      document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao
+                        + (resp.manterSessao ? ';expires=' + new Date(resp.dataDeExpiracao).toUTCString() : '')
+                        + ';samesite=lax;path=/';
       //}
     })
     .catch(erro=>{
       console.log(erro);
       //if (componenteExiste)
       //  definirErroAoObterDados(true);
-    });
-  }
-
-  function excluirSessaoTemporaria(tokenDaSessao) {
-    const dados = {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({tokenDaSessao})
-    };
-    //let usuarioLogado;
-    fetch(SERVIDOR+`/excluirsessao`, dados)
-    .then(resp=>resp.json())
-    .then(resp=>{
-      //console.log(resp);
-      //if (componenteExiste) {
-      //definirUsuarioLogado({
-      //  id: resp.id,
-      //  nome: resp.nome
-      //});
-      //usuarioLogado = {id: resp.id, nome: resp.nome};
-      document.cookie = "tokenDaSessaoTemporaria=0;expires=0;samesite=lax;path=/";
-      //}
     })
-    .catch(erro=>{
-      console.log(erro);
-      //if (componenteExiste)
-      //  definirErroAoObterDados(true);
-    });
+    .finally(()=>definirAguardando(false));
   }
 
   return (
     <contexto.Provider value={{usuarioLogado, definirUsuarioLogado}}>
-      {/*{aguardando ?
+      {aguardando ?
         <div className='conteudo'>
           <img className='carregando' src={carregando}/>
         </div>
-      :*/}
-      {!aguardando &&
+      :
+      //{!aguardando &&
         <BrowserRouter>
           <BarraSuperior/>
           <Switch>

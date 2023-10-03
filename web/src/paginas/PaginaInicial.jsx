@@ -25,7 +25,7 @@ export default function App() {
     //  headers: {"Content-Type": "application/json"},
     //  body: JSON.stringify({qtde: 3}),
     //};
-    //fetch(SERVIDOR+`/jogosrecentes`, dados)
+    //fetch(SERVIDOR+`/jogos-recentes`, dados)
     //.then(resp=>resp.json())
     //.then(resp=>console.log(resp));
 
@@ -36,12 +36,13 @@ export default function App() {
     if (exibindoModalParaCriarAnuncio && !recarregarJogos || jogoProModalDeAnuncios)
       return;
     const qtdeJogosExibidos = 4;
-    const dados = {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({qtde: qtdeJogosExibidos}),
-    };
-    fetch(SERVIDOR+`/jogosrecentes`, dados)
+    //const dados = {
+    //  method: "POST",
+    //  headers: {"Content-Type": "application/json"},
+    //  body: JSON.stringify({qtde: qtdeJogosExibidos}),
+    //};
+    //fetch(SERVIDOR+`/jogos-recentes`, dados)
+    fetch(SERVIDOR+`/jogos-recentes/${qtdeJogosExibidos}`)
     .then(resp=>resp.json())
     .then(dados=>{
       if (componenteExiste) {

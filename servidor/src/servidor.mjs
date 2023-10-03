@@ -31,13 +31,16 @@ async function iniciar() {
 	//const A = await db.get(`PRAGMA foreign_keys;`);
 	//console.log(A);
 	
-	//await db.run(`DELETE FROM SessoesAtivas WHERE id IN (1,2);`);
-	//await db.run(`ALTER TABLE SessoesAtivas ADD COLUMN seletor TEXT NOT NULL;`);
-	//await db.run(`ALTER TABLE SessoesAtivas RENAME COLUMN tokenDaSessao TO tokenDaSessaoHash;`);
-	//await db.run(`ALTER TABLE teste RENAME TO SessoesAtivas;`);
-	//await db.run(`ALTER TABLE SessoesAtivas ADD COLUMN idDoUsuario INTEGER NOT NULL;`);
-	//await db.run(`ALTER TABLE SessoesAtivas ADD COLUMN tokenDaSessao TEXT NOT NULL;`);
-	//await db.run(`ALTER TABLE SessoesAtivas ADD COLUMN dataDeExpiracao DATETIME NOT NULL;`);
+	//await db.run(`DELETE FROM Sessoes WHERE id IN (1,2);`);
+	//await db.run(`ALTER TABLE Sessoes ADD COLUMN manterSessao BOOLEAN NOT NULL;`);
+	//await db.run(`ALTER TABLE SessoesAtivas RENAME TO Sessoes;`);
+	//await db.run(`DELETE FROM Sessoes WHERE id IN (1,2);`);
+	//await db.run(`ALTER TABLE Sessoes ADD COLUMN seletor TEXT NOT NULL;`);
+	//await db.run(`ALTER TABLE Sessoes RENAME COLUMN tokenDaSessao TO tokenDaSessaoHash;`);
+	//await db.run(`ALTER TABLE teste RENAME TO Sessoes;`);
+	//await db.run(`ALTER TABLE Sessoes ADD COLUMN idDoUsuario INTEGER NOT NULL;`);
+	//await db.run(`ALTER TABLE Sessoes ADD COLUMN tokenDaSessao TEXT NOT NULL;`);
+	//await db.run(`ALTER TABLE Sessoes ADD COLUMN dataDeExpiracao DATETIME NOT NULL;`);
 
 	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 12 WHERE idDoUsuario = -1 AND idDoAnuncio = 20;`);
 	//await db.run(`DELETE FROM Anuncios2 WHERE idDoAnuncio > 37;`);
@@ -242,10 +245,10 @@ servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
 	return resp.json(jogo);
 });
 
-servidor.post('/jogosrecentes', async (req, resp)=>{
+servidor.get('/jogos-recentes/:qtde', async (req, resp)=>{
 	const db = await abrirBanco;
-	const qtde = parseInt(req.body.qtde);
-	console.log("GET jogosrecentes, qtde="+qtde+" ip="+req.ip);
+	const qtde = parseInt(req.params.qtde);
+	console.log("GET jogos-recentes, qtde="+qtde+" ip="+req.ip);
 	const jogos = await db.all(
 		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.jogoId) AS qtdeAnuncios
 		FROM Jogos LEFT JOIN Anuncios
@@ -561,7 +564,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 	}));
 });
 
-//só usado no modal de jogo selecionado, na página inicial
+//só usado no modal de jogo selecionado, na antiga página inicial
 servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 	const jogoNomeUrl = req.params.jogoNomeUrl;
 	const db = await abrirBanco;
@@ -658,10 +661,10 @@ function converterMinutosParaHoraString(minutos) {
 	return String(hora).padStart(2,'0') + ":" + String(minuto).padStart(2,'0');
 }
 
-servidor.put('/registrar', async (req, resp)=>{
+servidor.put('/usuarios', async (req, resp)=>{
 	try {
 		const body = req.body;
-		console.log("PUT registrar, usuário="+body.nomeDoUsuario+", ip="+req.ip);
+		console.log("PUT contas, usuário="+body.nomeDoUsuario+", ip="+req.ip);
 		//console.log("sql="+`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
 		const db = await abrirBanco;
 		//const usuarioJaExiste = await db.get(`SELECT nome FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
@@ -693,7 +696,7 @@ servidor.put('/registrar', async (req, resp)=>{
 		//const token = {id: usuarioRegistrado.id, nome: usuarioRegistrado.nome, tokenDaSessao: uuidv4()};
 		//const tokenDaSessaoHash = await bcrypt.hash(token.tokenDaSessao, bcryptSaltRounds);
 		//const daquiAUmMes = Date.now()+30*24*60*60*1000;
-		//await db.run(`INSERT INTO SessoesAtivas (tokenDaSessaoHash, idDoUsuario, dataDeExpiracao) VALUES (?,?,?);`,
+		//await db.run(`INSERT INTO Sessoes (tokenDaSessaoHash, idDoUsuario, dataDeExpiracao) VALUES (?,?,?);`,
 		//	[tokenDaSessaoHash, token.id, daquiAUmMes],
 		//	function(erro) {
 		//		console.log('quando isso é executado??');
@@ -715,10 +718,10 @@ servidor.put('/registrar', async (req, resp)=>{
 	}
 });
 
-servidor.post('/entrar', async (req, resp)=>{
+servidor.put('/sessoes', async (req, resp)=>{
 	try {
 		const body = req.body;
-		console.log("POST entrar, usuário="+body.nomeDoUsuario+", manter sessão="+body.manterSessao+", ip="+req.ip);
+		console.log("PUT sessoes, usuário="+body.nomeDoUsuario+", manter sessão="+body.manterSessao+", ip="+req.ip);
 		const db = await abrirBanco;
 		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
 		const usuarioExiste = await db.get(`SELECT id,senhaHash,nome FROM Usuarios WHERE nome = (?);`, [body.nomeDoUsuario]);
@@ -730,19 +733,20 @@ servidor.post('/entrar', async (req, resp)=>{
 			return resp.status(401).json({erro: 'Senha incorreta.'});
 		//return resp.status(201).json({id: usuarioExiste.id, nome: usuarioExiste.nome});
 		//se for manter sessão:
-		const resposta = {id: usuarioExiste.id, nome: usuarioExiste.nome};
-		if (body.manterSessao) {
+		const resposta = {id: usuarioExiste.id, nome: usuarioExiste.nome, manterSessao: body.manterSessao};
+		//if (body.manterSessao) {
 			const seletor = crypto.randomBytes(4).toString('hex');
 			const tokenDaSessao = uuidv4();
 			resposta.tokenDaSessao = seletor + '-' + tokenDaSessao ;
-			console.log("seletor,token="+seletor+','+tokenDaSessao);
+			//console.log("seletor,token="+seletor+','+tokenDaSessao);
 			const tokenDaSessaoHash = await bcrypt.hash(tokenDaSessao, bcryptSaltRounds);
-			const daquiAUmMes = Date.now()+30*24*60*60*1000;
-			await db.run(`INSERT INTO SessoesAtivas (idDoUsuario, seletor, tokenDaSessaoHash, dataDeExpiracao)
-				VALUES (${resposta.id}, '${seletor}', '${tokenDaSessaoHash}', ${daquiAUmMes});`,
+			const dataDeExpiracao = Date.now() + 30 * 24*60*60*1000;
+			resposta.dataDeExpiracao = dataDeExpiracao;
+			await db.run(`INSERT INTO Sessoes (idDoUsuario, seletor, tokenDaSessaoHash, dataDeExpiracao, manterSessao)
+				VALUES (${resposta.id}, '${seletor}', '${tokenDaSessaoHash}', ${dataDeExpiracao}, ${body.manterSessao});`,
 				//[tokenDaSessaoHash, token.id, daquiAUmMes],
 			//const token = {id: usuarioExiste.id, nome: usuarioExiste.nome, token: uuidv4()};
-			//await db.run(`INSERT INTO SessoesAtivas (id, nome, token) VALUES (?,?,?);`,
+			//await db.run(`INSERT INTO Sessoes (id, nome, token) VALUES (?,?,?);`,
 			//	[token.id, token.nome, token.token],
 				function(erro) {
 					console.log('quando isso é executado?? - criando sessão');
@@ -755,7 +759,7 @@ servidor.post('/entrar', async (req, resp)=>{
 					return this.lastID;
 				}
 			);
-		}
+		//}
 		return resp.status(201).json(resposta);
 	}
 	catch (erro) {
@@ -766,32 +770,42 @@ servidor.post('/entrar', async (req, resp)=>{
 });
 
 //se for manter sessão:
-servidor.post('/autenticarsessao', async (req, resp)=>{
+//servidor.post('/sessoes', async (req, resp)=>{
+servidor.get('/sessoes/:tokenDaSessao', async (req, resp)=>{
 	try {
-		const body = req.body;
+		//const body = req.body;
+		const tokenDaSessao = req.params.tokenDaSessao;
 		const db = await abrirBanco;
-		const seletor = body.tokenDaSessao.slice(0,8);
-		const tokenDaSessao = body.tokenDaSessao.slice(9);
-		console.log('POST autenticarsessao, seletor='+seletor+', ip='+req.ip);
-		const sessaoExiste = await db.get(`SELECT id,idDoUsuario,tokenDaSessaoHash,dataDeExpiracao FROM SessoesAtivas WHERE seletor = '${seletor}';`);
+		const seletor = tokenDaSessao.slice(0,8);
+		const token = tokenDaSessao.slice(9);
+		console.log('POST sessoes/tokenDaSessao, seletor='+seletor+', ip='+req.ip);
+		const sessaoExiste = await db.get(`SELECT id,idDoUsuario,tokenDaSessaoHash,dataDeExpiracao,manterSessao
+			FROM Sessoes WHERE seletor = '${seletor}';`);
 		if (!sessaoExiste)
 			return resp.status(404).json({erro: 'Sessão inexistente.'});
 		if(sessaoExiste.dataDeExpiracao < Date.now())
 			return resp.status(404).json({erro: 'Sessão expirada.'});
-		const sessaoValida = await bcrypt.compare(tokenDaSessao, sessaoExiste.tokenDaSessaoHash);
+		const sessaoValida = await bcrypt.compare(token, sessaoExiste.tokenDaSessaoHash);
 		if (!sessaoValida)
 			return resp.status(404).json({erro: 'Sessão inválida.'});
 			//cookie roubado? oq deve ser feito nesse caso?
+
 		const usuarioExiste = await db.get(`SELECT nome FROM Usuarios WHERE id = ${sessaoExiste.idDoUsuario};`);
 		const novoTokenDaSessao = uuidv4();
-		const resposta = {id: sessaoExiste.idDoUsuario, nome: usuarioExiste.nome,
-											tokenDaSessao: seletor + '-' + novoTokenDaSessao};
+		const resposta = {
+			id: sessaoExiste.idDoUsuario,
+			nome: usuarioExiste.nome,
+			tokenDaSessao: seletor + '-' + novoTokenDaSessao,
+			manterSessao: sessaoExiste.manterSessao
+		};
 		const novoTokenDaSessaoHash = await bcrypt.hash(novoTokenDaSessao, bcryptSaltRounds);
-		const daquiAUmMes = Date.now()+30*24*60*60*1000;
-		await db.run(`UPDATE SessoesAtivas SET tokenDaSessaoHash = '${novoTokenDaSessaoHash}', dataDeExpiracao = ${daquiAUmMes} WHERE id = ${sessaoExiste.id};`,
+		resposta.dataDeExpiracao = Date.now() + 30 * 24*60*60*1000;
+		await db.run(`UPDATE Sessoes
+			SET tokenDaSessaoHash = '${novoTokenDaSessaoHash}', dataDeExpiracao = ${resposta.dataDeExpiracao}
+			WHERE id = ${sessaoExiste.id};`,
 			//[tokenDaNovaSessaoHash, daquiAUmMes],
 		//const token = {id: usuarioExiste.id, nome: usuarioExiste.nome, token: uuidv4()};
-		//await db.run(`INSERT INTO SessoesAtivas (id, nome, token) VALUES (?,?,?);`,
+		//await db.run(`INSERT INTO Sessoes (id, nome, token) VALUES (?,?,?);`,
 		//	[token.id, token.nome, token.token],
 			function(erro) {
 				console.log('quando isso é executado??');
@@ -814,22 +828,25 @@ servidor.post('/autenticarsessao', async (req, resp)=>{
 });
 
 //se for manter sessão:
-servidor.post('/excluirsessao', async (req, resp)=>{
+servidor.delete('/sessoes/:tokenDaSessao', async (req, resp)=>{
 	try {
-		const body = req.body;
-		const seletor = body.tokenDaSessao.slice(0,8);
-		const tokenDaSessao = body.tokenDaSessao.slice(9);
-		console.log('POST excluirsessao, seletor='+seletor+', ip='+req.ip);
+		//const body = req.body;
+		const tokenDaSessao = req.params.tokenDaSessao;
+		//const seletor = body.tokenDaSessao.slice(0,8);
+		//const tokenDaSessao = body.tokenDaSessao.slice(9);
+		const seletor = tokenDaSessao.slice(0,8);
+		const token = tokenDaSessao.slice(9);
+		console.log('DELETE sessoes/tokenDaSessao, seletor='+seletor+', ip='+req.ip);
 		const db = await abrirBanco;
-		const sessaoExiste = await db.get(`SELECT id,tokenDaSessaoHash FROM SessoesAtivas WHERE seletor = '${seletor}';`);
+		const sessaoExiste = await db.get(`SELECT id,tokenDaSessaoHash FROM Sessoes WHERE seletor = '${seletor}';`);
 		if (!sessaoExiste)
 			return resp.status(404).json({erro: 'Sessão inexistente.'});
-		const sessaoValida = await bcrypt.compare(tokenDaSessao, sessaoExiste.tokenDaSessaoHash);
+		const sessaoValida = await bcrypt.compare(token, sessaoExiste.tokenDaSessaoHash);
 		if (!sessaoValida)
 			return resp.status(404).json({erro: 'Sessão inválida.'});
 			//cookie roubado? oq deve ser feito nesse caso?
 		
-		await db.run(`DELETE FROM SessoesAtivas WHERE id = ${sessaoExiste.id};`);
+		await db.run(`DELETE FROM Sessoes WHERE id = ${sessaoExiste.id};`);
 		return resp.status(200).json({ok: 'Sessão excluída.'});
 	}
 	catch (erro) {
@@ -839,11 +856,42 @@ servidor.post('/excluirsessao', async (req, resp)=>{
 	}
 });
 
-servidor.post('/alterarsenha', async (req, resp)=>{
+//se for manter sessão:
+servidor.delete('/outras-sessoes/:id/:tokenDaSessao', async (req, resp)=>{
+	try {
+		//const body = req.body;
+		const id = req.params.id;
+		const tokenDaSessao = req.params.tokenDaSessao;
+		const seletor = tokenDaSessao.slice(0,8);
+		const token = tokenDaSessao.slice(9);
+		console.log('POST outras-sessoes/id/tokenDaSessao, id do usuário='+id+', seletor='+seletor+', ip='+req.ip);
+		const db = await abrirBanco;
+		const sessaoExiste = await db.get(`SELECT id,tokenDaSessaoHash FROM Sessoes WHERE idDoUsuario = ${id} AND seletor = '${seletor}';`);
+		if (!sessaoExiste)
+			return resp.status(404).json({erro: 'Sessão inexistente.'});
+		const sessaoValida = await bcrypt.compare(token, sessaoExiste.tokenDaSessaoHash);
+		if (!sessaoValida)
+			return resp.status(404).json({erro: 'Sessão inválida.'});
+			//cookie roubado? oq deve ser feito nesse caso?
+		
+		const sessoesConectadas = await db.get(`SELECT COUNT(*) AS qtde FROM Sessoes WHERE idDoUsuario = ${id} AND seletor != '${seletor}';`);
+		//if (!qtde)
+		//	qtde = 0;
+		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${id} AND seletor != '${seletor}';`);
+		return resp.status(200).json({qtdeSessoesDesconectadas: sessoesConectadas.qtde});
+	}
+	catch (erro) {
+		console.log("entrou no catch");
+		console.log(erro);
+		return resp.status(500).json({erro});
+	}
+});
+
+servidor.post('/usuarios/senha', async (req, resp)=>{
 	try {
 		const body = req.body;
 		const id = parseInt(body.id);
-		console.log("POST alterarsenha, id do usuário="+body.id+", ip="+req.ip);
+		console.log("POST usuarios/senha, id do usuário="+body.id+", ip="+req.ip);
 		const db = await abrirBanco;
 		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
 		const usuarioExiste = await db.get(`SELECT id,senhaHash FROM Usuarios WHERE id = ${id};`,
@@ -879,7 +927,7 @@ servidor.post('/alterarsenha', async (req, resp)=>{
 				return this.lastID;
 			}
 		);
-		await db.run(`DELETE FROM SessoesAtivas WHERE idDoUsuario = ${id};`,
+		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${id};`,
 			function(erro) {
 				console.log('quando isso é executado?? - excluindo sessões');
 				if (erro) {
@@ -900,11 +948,12 @@ servidor.post('/alterarsenha', async (req, resp)=>{
 	}
 });
 
-servidor.post('/excluirconta', async (req, resp)=>{
+servidor.delete('/usuarios/:id', async (req, resp)=>{
 	try {
 		const body = req.body;
-		const id = parseInt(body.id);
-		console.log("POST excluirconta, id do usuário="+body.id+", ip="+req.ip);
+		const id = parseInt(req.params.id);
+		//const id = parseInt(body.id);
+		console.log("DELETE contas, id do usuário="+id+", ip="+req.ip);
 		const db = await abrirBanco;
 		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
 		const usuarioExiste = await db.get(`SELECT id,senhaHash FROM Usuarios WHERE id = ${id};`,
@@ -937,7 +986,7 @@ servidor.post('/excluirconta', async (req, resp)=>{
 				return this.lastID;
 			}
 		);
-		await db.run(`DELETE FROM SessoesAtivas WHERE idDoUsuario = ${id};`,
+		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${id};`,
 			function(erro) {
 				console.log('quando isso é executado?? - excluindo sessões');
 				if (erro) {
@@ -958,11 +1007,12 @@ servidor.post('/excluirconta', async (req, resp)=>{
 	}
 });
 
-servidor.post('/excluiranuncio', async (req, resp)=>{
+servidor.delete('/anuncios/:id', async (req, resp)=>{
 	try {
-		const body = req.body;
-		const id = parseInt(body.idDoAnuncio);
-		console.log("POST excluiranuncio, id="+id+", ip="+req.ip);
+		//const body = req.body;
+		const id = parseInt(req.params.id);
+		//const id = parseInt(body.idDoAnuncio);
+		console.log("DELETE anuncios/id, id="+id+", ip="+req.ip);
 		const db = await abrirBanco;
 		await db.run(`DELETE FROM Anuncios WHERE id = ${id};`);
 		await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = ${id};`);
@@ -976,10 +1026,10 @@ servidor.post('/excluiranuncio', async (req, resp)=>{
 	}
 });
 
-servidor.put('/novoanuncio', async (req, resp)=>{
+servidor.put('/anuncios', async (req, resp)=>{
 	try {
 		const body = req.body;
-		console.log("PUT novoanuncio, usuário="+body.idDoUsuario+", ip="+req.ip);
+		console.log("PUT anuncios, usuário="+body.idDoUsuario+", ip="+req.ip);
 
 		//console.log(body);
 		//console.log(body.disponibilidades);

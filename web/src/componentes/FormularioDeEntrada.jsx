@@ -34,6 +34,11 @@ export default function FormularioDeEntrada() {
       definirMensagem('Digite sua senha.');
       return;
     }
+    if (dados.manterSessao == 'on')
+      dados.manterSessao = true;
+    else
+      dados.manterSessao = false;
+    
     definirMensagem('');
     definirAguardando(true);
     tentarEntrar(dados.nomeDoUsuario, dados.senha, dados.manterSessao);
@@ -41,11 +46,11 @@ export default function FormularioDeEntrada() {
 
   function tentarEntrar(nomeDoUsuario, senha, manterSessao) {
     const dados = {
-      method: "POST",
+      method: "PUT",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({nomeDoUsuario, senha, manterSessao}),
     };
-    fetch(SERVIDOR+`/entrar`, dados)
+    fetch(SERVIDOR+`/sessoes`, dados)
     .then(resp=>resp.json())
     .then(resp=>{
       if (resp.erro)
@@ -53,11 +58,18 @@ export default function FormularioDeEntrada() {
       else {
         //localStorage.setItem("idDoUsuarioLogado", resp.id);
         //localStorage.setItem("usuarioLogado", resp.nome);
-        if (manterSessao)
-          setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
-        else
-          document.cookie = "sessaoTemporaria=0;samesite=lax;path=/";
-        contexto2.definirUsuarioLogado(resp);
+        //if (manterSessao)
+          document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao
+                            //+ ';expires=' + new Date(resp.dataDeExpiracao).toUTCString()
+                            + (resp.manterSessao ? ';expires=' + new Date(resp.dataDeExpiracao).toUTCString() : '')
+                            + ';samesite=lax;path=/';
+          //setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
+        //else
+        //  document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao + ';samesite=lax;path=/';
+        contexto2.definirUsuarioLogado({
+          id: resp.id,
+          nome: resp.nome
+        });
         if (paginaAtual.pathname == '/entrar' || paginaAtual.pathname == '/registrar')
           historico.push('/conta');
         //historico.refresh();

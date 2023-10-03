@@ -5,11 +5,18 @@ import iconeCopiar from '../imagens/icons8-restore-down-26.png'
 import iconeCopiado from '../imagens/icons8-checked.svg'
 
 export default function ModalConectar({discord, funcFechar}) {
+  const [imagensCarregadas, definirImagensCarregadas] = useState(0);
+  const [carregou, definirCarregou] = useState(false);
   const [copiou, definirCopiou] = useState(false);
 
   useEffect(()=>{
     document.body.onkeydown = e=>fechar(e);
   }, [])
+
+  useEffect(()=>{
+    if (imagensCarregadas == 2)
+      definirCarregou(true);
+  }, [imagensCarregadas])
 
   function fechar(e) {
     if (e.repeat)
@@ -25,11 +32,12 @@ export default function ModalConectar({discord, funcFechar}) {
 
   return (
     <div className="modalAnuncioFora" onClick={funcFechar}>
-      <div className="modalAnuncio" onClick={e=>e.stopPropagation()}>
+      {/*{carregou &&*/}
+      <div className="modalAnuncio" style={{visibility: !carregou ? 'hidden' : 'visible'}} onClick={e=>e.stopPropagation()}>
 
-        <img className='botaoCopiar botaoFechar' src={iconeFechar} onClick={funcFechar}/>
+        <img className='botaoCopiar botaoFechar' src={iconeFechar} onClick={funcFechar} onLoad={()=>definirImagensCarregadas(imagensCarregadas+1)}/>
         <div className='modalConectarInterior'>
-          <img src={iconeSucesso}/>
+          <img src={iconeSucesso} onLoad={()=>definirImagensCarregadas(imagensCarregadas+1)}/>
           <div className='centralizado'>
             <h2>Let's play!</h2>
             <p>Agora é só começar a jogar!</p>
@@ -49,6 +57,7 @@ export default function ModalConectar({discord, funcFechar}) {
         </div>
 
       </div>
+      {/*}*/}
     </div>
   )
 }

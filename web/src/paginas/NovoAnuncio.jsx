@@ -127,7 +127,7 @@ export default function NovoAnuncio() {
       body: JSON.stringify(anuncio)
       //body: anuncio
     };
-    fetch(SERVIDOR+`/novoanuncio`, dados)
+    fetch(SERVIDOR+`/anuncios`, dados)
     .then(resp=>{
       if (resp.ok) {
         alert('Anúncio publicado com sucesso!');

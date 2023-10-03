@@ -67,16 +67,17 @@ export default function BarraSuperior() {
     //historico.push('/entrar');
     const tokenDaSessao = getCookie('tokenDaSessao');
     //console.log(tokenDaSessao);
-    if (!tokenDaSessao) {
+    if (!tokenDaSessao || tokenDaSessao == '0') {
       contexto2.definirUsuarioLogado();
       historico.push('/entrar');
     } else {
       const dados = {
-        method: "POST",
+        method: "DELETE",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({tokenDaSessao}),
+        //body: JSON.stringify({tokenDaSessao}),
       };
-      fetch(SERVIDOR+`/excluirsessao`, dados)
+      //fetch(SERVIDOR+`/excluir-sessao`, dados)
+      fetch(SERVIDOR+`/sessoes/${tokenDaSessao}`, dados)
       .then(resp=>resp.json())
       .then(resp=>{
         if (resp.erro)

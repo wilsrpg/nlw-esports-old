@@ -61,11 +61,12 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
 
   async function excluirAnuncio() {
     const dados = {
-      method: "POST",
+      method: "DELETE",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({idDoAnuncio: anuncio.idDoAnuncio}),
+      //body: JSON.stringify({idDoAnuncio: anuncio.idDoAnuncio}),
     };
-    fetch(SERVIDOR+`/excluiranuncio`, dados)
+    //fetch(SERVIDOR+`/excluir-anuncio`, dados)
+    fetch(SERVIDOR+`/anuncios/${anuncio.idDoAnuncio}`, dados)
     .then(resp=>resp.json())
     .then(resp=>{
       if (resp.erro)

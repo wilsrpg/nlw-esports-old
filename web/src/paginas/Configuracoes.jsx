@@ -63,7 +63,7 @@ export default function Configuracoes() {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({id: contexto2.usuarioLogado.id, senha, novaSenha}),
     };
-    fetch(SERVIDOR+`/alterarsenha`, dados)
+    fetch(SERVIDOR+`/usuarios/senha`, dados)
     .then(resp=>resp.json())
     .then(resp=>{
       if (resp.erro)
@@ -99,11 +99,11 @@ export default function Configuracoes() {
 
   function tentarExcluirConta(senha) {
     const dados = {
-      method: "POST",
+      method: "DELETE",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({id: contexto2.usuarioLogado.id, senha}),
     };
-    fetch(SERVIDOR+`/excluirconta`, dados)
+    fetch(SERVIDOR+`/usuarios/${contexto2.usuarioLogado.id}`, dados)
     .then(resp=>resp.json())
     .then(resp=>{
       if (resp.erro)
@@ -111,7 +111,7 @@ export default function Configuracoes() {
       else if (componenteExiste) {
         //localStorage.removeItem("usuarioLogado");
         //localStorage.removeItem("idDoUsuarioLogado");
-        document.cookie = "tokenDaSessao=;expires=0;path=/";
+        document.cookie = "tokenDaSessao=0;expires=0;samesite=lax;path=/";
         contexto2.definirUsuarioLogado();
         alert('Conta excluída.');
         historico.push('/entrar');
@@ -123,7 +123,50 @@ export default function Configuracoes() {
       definirMensagemExcluir(''+erro);
     });
   }
+
+  function desconectarOutrosDispositivos() {
+    if (!confirm('Desconectar conta de todos os outros dispositivos?'))
+      return;
+    const tokenDaSessao = getCookie('tokenDaSessao');
+    const dados = {
+      method: "DELETE",
+      headers: {"Content-Type": "application/json"},
+      //body: JSON.stringify({id: contexto2.usuarioLogado.id, tokenDaSessao}),
+    };
+    fetch(SERVIDOR+`/outras-sessoes/${contexto2.usuarioLogado.id}/${tokenDaSessao}`, dados)
+    .then(resp=>resp.json())
+    .then(resp=>{
+      console.log(resp.qtdeSessoesDesconectadas)
+      if (resp.erro)
+        throw resp.erro;
+      else if (componenteExiste) {
+        if (resp.qtdeSessoesDesconectadas == 0)
+          alert('Esta conta não está conectada em outros dispositivos.');
+        else
+          alert('Esta conta foi desconectada de '+resp.qtdeSessoesDesconectadas+' outro(s) dispositivo(s).');
+      }
+    })
+    .catch(erro=>{
+      console.log(erro);
+    });
+  }
   
+  function getCookie(cname) {
+    let name = cname + '=';
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return '';
+  }
+
   return (
     <div className='conteudo'>
       {!contexto2.usuarioLogado ?
@@ -143,6 +186,11 @@ export default function Configuracoes() {
           </form>
           <p className={erroAoValidar ? 'mensagemDeErro' : 'mensagemDeSucesso'}>{mensagem}</p>
         </div>
+
+        <strong>Desconectar outros dispositivos</strong>
+        <button className='alturaBase' onClick={desconectarOutrosDispositivos}>Desconectar</button>
+
+        <strong>Excluir conta</strong>
         {!confirmandoExclusaoDaConta ?
           <button className='excluirConta alturaBase' onClick={()=>definirConfirmandoExclusaoDaConta(true)}>
             Excluir minha conta

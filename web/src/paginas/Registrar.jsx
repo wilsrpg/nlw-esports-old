@@ -51,7 +51,7 @@ export default function Registrar() {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({nomeDoUsuario, senha}),
     };
-    fetch(SERVIDOR+`/registrar`, dados)
+    fetch(SERVIDOR+`/usuarios`, dados)
     .then(resp=>resp.json())
     .then(resp=>{
       if (resp.erro)
