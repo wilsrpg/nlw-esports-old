@@ -31,6 +31,8 @@ async function iniciar() {
 	//const A = await db.get(`PRAGMA foreign_keys;`);
 	//console.log(A);
 	
+	//await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = 35;`);
+	//await db.run(`INSERT INTO Disponibilidades(idDoAnuncio,dias,horaDeInicio,horaDeTermino) VALUES (34,2,3,4);`);
 	//await db.run(`DELETE FROM Sessoes WHERE id IN (1,2);`);
 	//await db.run(`ALTER TABLE Sessoes ADD COLUMN manterSessao BOOLEAN NOT NULL;`);
 	//await db.run(`ALTER TABLE SessoesAtivas RENAME TO Sessoes;`);
@@ -1014,7 +1016,7 @@ servidor.delete('/anuncios/:id', async (req, resp)=>{
 		//const id = parseInt(body.idDoAnuncio);
 		console.log("DELETE anuncios/id, id="+id+", ip="+req.ip);
 		const db = await abrirBanco;
-		await db.run(`DELETE FROM Anuncios WHERE id = ${id};`);
+		await db.run(`DELETE FROM Anuncios2 WHERE idDoAnuncio = ${id};`);
 		await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = ${id};`);
 		//await new Promise(r=>setTimeout(r,1000));
 		return resp.status(200).json({ok: 'Anúncio excluído.'});

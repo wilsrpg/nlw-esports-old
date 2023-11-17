@@ -13,7 +13,7 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
   const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
   const [aguardando, definirAguardando] = useState(false);
   //const [excluindo, definirExcluindo] = useState(false);
-  //const [excluindoAnuncio, definirExcluindoAnuncio] = useState(false);
+  const [excluindoAnuncio, definirExcluindoAnuncio] = useState(false);
   //const urlAtual = useLocation();
   //const [preparandoExclusao, definirPreparandoExclusao] = useState(false);
 
@@ -34,29 +34,27 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
   //  }
   //}, [preparandoExclusao])
 
-  //useEffect(()=>{
-  //  if (componenteExiste && excluindoAnuncio){
-  //    funcExcluir();
-  //    definirAguardandoExcluir(false);
-  //    //alert('Anúncio excluído.');
-  //  }
-  //}, [excluindoAnuncio])
+  useEffect(()=>{
+    if (componenteExiste && excluindoAnuncio){
+      if (!confirm('Confirma exclusão do anúncio?')) {
+        if (document.getElementById(anuncio.idDoAnuncio))
+          document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
+        if (componenteExiste)
+          definirExcluindoAnuncio(false);
+          // definirAguardandoExcluir(false);
+        return;
+      }
+      if (componenteExiste) {
+        definirExcluindo(true);
+        definirAguardando(true);
+      }
+      excluirAnuncio();
+    }
+  }, [excluindoAnuncio])
 
   async function validarExclusaoDoAnuncio() {
-    //definirAguardandoExcluir(true);
+    definirExcluindoAnuncio(true);
     document.getElementById(anuncio.idDoAnuncio).style.borderColor = 'red';
-    if (!confirm('Confirma exclusão do anúncio?')) {
-      if (document.getElementById(anuncio.idDoAnuncio))
-        document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
-        //if (componenteExiste)
-        //  definirAguardandoExcluir(false);
-      return;
-    }
-    if (componenteExiste) {
-      definirExcluindo(true);
-      definirAguardando(true);
-    }
-    excluirAnuncio();
   }
 
   async function excluirAnuncio() {
@@ -82,7 +80,11 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
     })
     .catch(erro=>{
       console.log(erro);
-      alert(''+erro);
+      alert('Erro ao excluir anúncio. Verifique o console do navegador para mais detalhes.\n'+erro);
+      if (document.getElementById(anuncio.idDoAnuncio))
+        document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
+      if (componenteExiste)
+        definirExcluindoAnuncio(false);
     })
     .finally(()=>{
       if (componenteExiste) {
