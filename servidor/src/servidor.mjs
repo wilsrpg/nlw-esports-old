@@ -25,6 +25,8 @@ const abrirBanco = open({
 
 const bcryptSaltRounds = 10;
 
+const duracaoDoTokenDeSessao = 30*24*60*60*1000;
+
 async function iniciar() {
 	//const db = await abrirBanco;
 	//await db.run(`PRAGMA foreign_keys = ON;`);
@@ -742,7 +744,7 @@ servidor.put('/sessoes', async (req, resp)=>{
 			resposta.tokenDaSessao = seletor + '-' + tokenDaSessao ;
 			//console.log("seletor,token="+seletor+','+tokenDaSessao);
 			const tokenDaSessaoHash = await bcrypt.hash(tokenDaSessao, bcryptSaltRounds);
-			const dataDeExpiracao = Date.now() + 30 * 24*60*60*1000;
+			const dataDeExpiracao = Date.now() + duracaoDoTokenDeSessao;
 			resposta.dataDeExpiracao = dataDeExpiracao;
 			await db.run(`INSERT INTO Sessoes (idDoUsuario, seletor, tokenDaSessaoHash, dataDeExpiracao, manterSessao)
 				VALUES (${resposta.id}, '${seletor}', '${tokenDaSessaoHash}', ${dataDeExpiracao}, ${body.manterSessao});`,
@@ -801,7 +803,7 @@ servidor.get('/sessoes/:tokenDaSessao', async (req, resp)=>{
 			manterSessao: sessaoExiste.manterSessao
 		};
 		const novoTokenDaSessaoHash = await bcrypt.hash(novoTokenDaSessao, bcryptSaltRounds);
-		resposta.dataDeExpiracao = Date.now() + 30 * 24*60*60*1000;
+		resposta.dataDeExpiracao = Date.now() + duracaoDoTokenDeSessao;
 		await db.run(`UPDATE Sessoes
 			SET tokenDaSessaoHash = '${novoTokenDaSessaoHash}', dataDeExpiracao = ${resposta.dataDeExpiracao}
 			WHERE id = ${sessaoExiste.id};`,
