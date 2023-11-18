@@ -3,59 +3,39 @@ import { SERVIDOR } from '../../../enderecoDoServidor';
 import { contexto } from '../App';
 import iconeLixeira from '../imagens/icons8-trash vermelha.svg'
 import carregando from '../imagens/loading.svg'
-//import { useLocation } from 'react-router-dom';
 
 export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, funcExcluir, excluindo, definirExcluindo}) {
-  //let compMontado = useRef(true);
-  //let componenteExiste = hook;
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
   const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
   const [aguardando, definirAguardando] = useState(false);
-  //const [excluindo, definirExcluindo] = useState(false);
-  const [excluindoAnuncio, definirExcluindoAnuncio] = useState(false);
-  //const urlAtual = useLocation();
-  //const [preparandoExclusao, definirPreparandoExclusao] = useState(false);
+  const [confirmandoExclusaoDoAnuncio, definirConfirmandoExclusaoDoAnuncio] = useState(false);
 
   useEffect(()=>{
-    //console.log(urlAtual.pathname);
     return ()=>componenteExiste = false;
   }, [])
 
-  //useEffect(()=>{
-  //  return ()=>componenteExiste = false;
-  //}, [])
-
-  //useEffect(()=>{
-  //  if (componenteExiste && preparandoExclusao){
-  //    //funcExcluir();
-  //    definirAguardandoExcluir(true);
-  //    //alert('Anúncio excluído.');
-  //  }
-  //}, [preparandoExclusao])
+  async function confirmarExclusaoDoAnuncio() {
+    definirConfirmandoExclusaoDoAnuncio(true);
+    document.getElementById(anuncio.idDoAnuncio).style.borderColor = 'red';
+  }
 
   useEffect(()=>{
-    if (componenteExiste && excluindoAnuncio){
-      if (!confirm('Confirma exclusão do anúncio?')) {
+    if (componenteExiste && confirmandoExclusaoDoAnuncio){
+      if (confirm('Confirma exclusão do anúncio?')) {
+        if (componenteExiste) {
+          definirExcluindo(true);
+          definirAguardando(true);
+        }
+        excluirAnuncio();
+      } else {
         if (document.getElementById(anuncio.idDoAnuncio))
           document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
         if (componenteExiste)
-          definirExcluindoAnuncio(false);
-          // definirAguardandoExcluir(false);
-        return;
+          definirConfirmandoExclusaoDoAnuncio(false);
       }
-      if (componenteExiste) {
-        definirExcluindo(true);
-        definirAguardando(true);
-      }
-      excluirAnuncio();
     }
-  }, [excluindoAnuncio])
-
-  async function validarExclusaoDoAnuncio() {
-    definirExcluindoAnuncio(true);
-    document.getElementById(anuncio.idDoAnuncio).style.borderColor = 'red';
-  }
+  }, [confirmandoExclusaoDoAnuncio])
 
   async function excluirAnuncio() {
     const dados = {
@@ -69,12 +49,9 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
     .then(resp=>{
       if (resp.erro)
         throw resp.erro;
-      //if (componenteExiste)
-      //definirAnuncioPraExcluir();
       if (document.getElementById(anuncio.idDoAnuncio))
         document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
       if (componenteExiste)
-      //  definirExcluindoAnuncio(true);
         funcExcluir();
       alert('Anúncio excluído.');
     })
@@ -84,7 +61,7 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
       if (document.getElementById(anuncio.idDoAnuncio))
         document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
       if (componenteExiste)
-        definirExcluindoAnuncio(false);
+        definirConfirmandoExclusaoDoAnuncio(false);
     })
     .finally(()=>{
       if (componenteExiste) {
@@ -94,23 +71,12 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
     });
   }
 
-  //async function definirAnuncioPraExcluir() {
-  //  //console.log(urlAtual.pathname);
-  //  //console.log('hook='+hook);
-  //  if (componenteExiste) {
-  //    definirExcluindoAnuncio(true);
-  //    //definirAguardandoExcluir(false);
-  //    //funcExcluir();
-  //    //alert('Anúncio excluído.');
-  //  }
-  //}
-
   return (
     <div id={anuncio.idDoAnuncio} className='cartaoAnuncio'>
       {contexto2.usuarioLogado && contexto2.usuarioLogado.id == anuncio.idDoUsuario &&
         <img className='botaoCopiar botaoFechar'
           src={aguardando ? carregando : iconeLixeira}
-          onClick={excluindo ? undefined : validarExclusaoDoAnuncio}
+          onClick={excluindo ? undefined : confirmarExclusaoDoAnuncio}
         />
       }
       {nomeDoJogo &&
@@ -127,16 +93,6 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
       <strong>{anuncio.tempoDeJogoEmAnos} ano{anuncio.tempoDeJogoEmAnos > 1 && "s"}</strong>
 
       <p>Disponibilidade</p>
-      {/*<strong className='cursorAjuda'
-        title={anuncio.diasQueJoga.map((dia,i)=>{
-          let d = dias[parseInt(dia)];
-          if (i == 0)
-            d = d[0].toUpperCase()+d.slice(1);
-          return d;
-        }).join(', ')}
-      >
-        {anuncio.diasQueJoga.length} dia{anuncio.diasQueJoga.length > 1 && "s"} • {anuncio.deHora} - {anuncio.ateHora}
-      </strong>*/}
       {anuncio.disponibilidades.map((disp,i)=>
         <strong key={i}>
           {disp.dias.join() == '0,1,2,3,4,5,6' ?
