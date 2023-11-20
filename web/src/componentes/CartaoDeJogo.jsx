@@ -6,7 +6,7 @@ export default function CartaoDeJogo({jogo, funcDefinirJogoProModal}) {
       <img className='imagemDoJogo' src={jogo.urlImagem} alt={`Imagem do jogo ${jogo.nome}`}/>
       <div className='gradientePretoEmbaixo'>
         <strong>{jogo.nome}</strong>
-        <p>{jogo._count.anuncios} anúncio{jogo._count.anuncios > 1 && 's'}</p>
+        <p>{jogo.qtdeAnuncios} anúncio{jogo.qtdeAnuncios > 1 && 's'}</p>
       </div>
     </div>
   )

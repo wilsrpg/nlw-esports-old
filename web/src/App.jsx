@@ -19,8 +19,8 @@ import { SERVIDOR } from '../../enderecoDoServidor';
 
 /*falta:
 -cadastrar jogo?
--no servidor, trocar jogos/anúncios por jogos2/anúncios2 (do banco de dados) e fazer as adaptações
 -ajeitar chamarAtencao
+-ajeitar layout da barra superior (colocar caixa de continuar conectado num lugar melhor)
 -unificar formulários de entrada
 -verificar sessão qd tentar fazer alterações
 -trocar verbos por categorias+métodos+params

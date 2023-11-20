@@ -199,6 +199,7 @@ async function iniciar() {
 }
 iniciar();
 
+/*/
 servidor.get('/jogos', async (req, resp)=>{
 	const db = await abrirBanco;
 	const jogos = await db.all(
@@ -219,13 +220,15 @@ servidor.get('/jogos', async (req, resp)=>{
 	jogos.map(jogo=>jogo._count = {anuncios: jogo.qtdeAnuncios});
 	return resp.json(jogos);
 });
+//*/
 
+//retorna a lista completa de jogos
 servidor.get('/jogos2', async (req, resp)=>{
 	const db = await abrirBanco;
 	const jogos = await db.all(
-		`SELECT Jogos2.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.jogoId) AS qtdeAnuncios
-		FROM Jogos2 LEFT JOIN Anuncios
-		ON Jogos2.id = jogoId
+		`SELECT Jogos2.id,nome,nomeUrl,urlImagem,COUNT(Anuncios2.idDoJogo) AS qtdeAnuncios
+		FROM Jogos2 LEFT JOIN Anuncios2
+		ON Jogos2.id = Anuncios2.idDoJogo
 		GROUP BY Jogos2.id
 		ORDER BY MAX(dataDeCriacao) DESC;`
 	);
@@ -237,10 +240,11 @@ servidor.get('/jogos2', async (req, resp)=>{
 	//	GROUP BY Jogos.id;`
 	//);
 	//jogos.map(jogo=>jogo._count = {anuncios: jogosQtde.find(j=>j.id==jogo.id).qtdeAnuncios});
-	jogos.map(jogo=>jogo._count = {anuncios: jogo.qtdeAnuncios});
+	//jogos.map(jogo=>jogo._count = {anuncios: jogo.qtdeAnuncios});
 	return resp.json(jogos);
 });
 
+/*/nunca é chamado (seria chamado numa página de informações de jogo, se eu implementasse)
 servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
 	const jogoNomeUrl = req.params.jogoNomeUrl;
 	const db = await abrirBanco;
@@ -248,23 +252,26 @@ servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
 	console.log("GET jogos/jogo="+jogo.nome+", ip="+req.ip);
 	return resp.json(jogo);
 });
+//*/
 
+//retorna a quantidade informada de jogos distintos que tiveram anúncios publicados mais recentemente
 servidor.get('/jogos-recentes/:qtde', async (req, resp)=>{
 	const db = await abrirBanco;
 	const qtde = parseInt(req.params.qtde);
 	console.log("GET jogos-recentes, qtde="+qtde+" ip="+req.ip);
 	const jogos = await db.all(
-		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.jogoId) AS qtdeAnuncios
-		FROM Jogos LEFT JOIN Anuncios
-		ON Jogos.id = jogoId
-		GROUP BY Jogos.id
-		ORDER BY MAX(dataDeCriacao) DESC
+		`SELECT Jogos2.id,nome,nomeUrl,urlImagem,COUNT(Anuncios2.idDoJogo) AS qtdeAnuncios
+		FROM Jogos2 LEFT JOIN Anuncios2
+		ON Jogos2.id = Anuncios2.idDoJogo
+		GROUP BY Jogos2.id
+		ORDER BY MAX(Anuncios2.dataDeCriacao) DESC
 		LIMIT '${qtde}';`
 	);
-	jogos.map(jogo=>jogo._count = {anuncios: jogo.qtdeAnuncios});
+	//jogos.map(jogo=>jogo._count = {anuncios: jogo.qtdeAnuncios});
 	return resp.json(jogos);
 });
 
+//pesquisa nos anúncios
 servidor.post('/anuncios', async (req, resp)=>{
 	const body = req.body;
 	//console.log("POST anuncios, ip="+req.ip+", body:");
@@ -568,7 +575,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 	}));
 });
 
-//só usado no modal de jogo selecionado, na antiga página inicial
+/*/só chamado no modal de jogo selecionado, na antiga página inicial
 servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 	const jogoNomeUrl = req.params.jogoNomeUrl;
 	const db = await abrirBanco;
@@ -589,8 +596,9 @@ servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 		};
 	}));
 });
+//*/
 
-//usado no modal conectar, nos cartões de anúncios
+//retorna o discord do anúncio do id informado (chamado no modal conectar, nos cartões de anúncios)
 servidor.get('/anuncios/:id/discord', async (req, resp)=>{
 	const anuncioId = req.params.id;
 	const db = await abrirBanco;
@@ -599,6 +607,7 @@ servidor.get('/anuncios/:id/discord', async (req, resp)=>{
 	return resp.json({discord: anuncio.discord});
 });
 
+/*/chamado no modal para criar anúncio, na antiga página inicial
 servidor.put('/jogos/:id/anuncios', async (req, resp)=>{
 	const jogoId = req.params.id;
 	const body = req.body;
@@ -653,18 +662,22 @@ servidor.put('/jogos/:id/anuncios', async (req, resp)=>{
 		return resp.status(500).json(erro);
 	});
 });
+//*/
 
+//para guardar no banco de dados
 function converterHoraStringParaMinutos(horaString) {
 	const [horas, minutos] = horaString.split(':').map(Number);
 	return horas*60 + minutos;
 }
 
+//para exibir no cliente
 function converterMinutosParaHoraString(minutos) {
 	const hora = Math.floor(minutos/60);
 	const minuto = minutos%60;
 	return String(hora).padStart(2,'0') + ":" + String(minuto).padStart(2,'0');
 }
 
+//cadastra usuário
 servidor.put('/usuarios', async (req, resp)=>{
 	try {
 		const body = req.body;
@@ -722,6 +735,7 @@ servidor.put('/usuarios', async (req, resp)=>{
 	}
 });
 
+//inicia uma nova sessão e retorna um token de autenticação
 servidor.put('/sessoes', async (req, resp)=>{
 	try {
 		const body = req.body;
@@ -773,7 +787,7 @@ servidor.put('/sessoes', async (req, resp)=>{
 	}
 });
 
-//se for manter sessão:
+//autentica sessão, atualiza o token e o retorna
 //servidor.post('/sessoes', async (req, resp)=>{
 servidor.get('/sessoes/:tokenDaSessao', async (req, resp)=>{
 	try {
@@ -831,7 +845,7 @@ servidor.get('/sessoes/:tokenDaSessao', async (req, resp)=>{
 	}
 });
 
-//se for manter sessão:
+//termina sessão
 servidor.delete('/sessoes/:tokenDaSessao', async (req, resp)=>{
 	try {
 		//const body = req.body;
@@ -860,7 +874,7 @@ servidor.delete('/sessoes/:tokenDaSessao', async (req, resp)=>{
 	}
 });
 
-//se for manter sessão:
+//termina todas as outras sessão do mesmo usuário e retorna o número de sessões terminadas
 servidor.delete('/outras-sessoes/:id/:tokenDaSessao', async (req, resp)=>{
 	try {
 		//const body = req.body;
@@ -891,6 +905,7 @@ servidor.delete('/outras-sessoes/:id/:tokenDaSessao', async (req, resp)=>{
 	}
 });
 
+//altera senha
 servidor.post('/usuarios/senha', async (req, resp)=>{
 	try {
 		const body = req.body;
@@ -952,6 +967,7 @@ servidor.post('/usuarios/senha', async (req, resp)=>{
 	}
 });
 
+//exclui conta de usuário
 servidor.delete('/usuarios/:id', async (req, resp)=>{
 	try {
 		const body = req.body;
@@ -1011,6 +1027,7 @@ servidor.delete('/usuarios/:id', async (req, resp)=>{
 	}
 });
 
+//exclui um anúncio
 servidor.delete('/anuncios/:id', async (req, resp)=>{
 	try {
 		//const body = req.body;
@@ -1018,6 +1035,10 @@ servidor.delete('/anuncios/:id', async (req, resp)=>{
 		//const id = parseInt(body.idDoAnuncio);
 		console.log("DELETE anuncios/id, id="+id+", ip="+req.ip);
 		const db = await abrirBanco;
+		const anuncioExiste = await db.get(`SELECT idDoAnuncio FROM Anuncios2 WHERE idDoAnuncio = ${id};`);
+		const disponibilidadeExiste = await db.run(`SELECT idDoAnuncio FROM Disponibilidades WHERE idDoAnuncio = ${id};`);
+		if (!anuncioExiste && !disponibilidadeExiste)
+			return resp.status(404).json({erro: 'Anúncio não encontrado.'});
 		await db.run(`DELETE FROM Anuncios2 WHERE idDoAnuncio = ${id};`);
 		await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = ${id};`);
 		//await new Promise(r=>setTimeout(r,1000));
@@ -1030,6 +1051,7 @@ servidor.delete('/anuncios/:id', async (req, resp)=>{
 	}
 });
 
+//publica um anúncio
 servidor.put('/anuncios', async (req, resp)=>{
 	try {
 		const body = req.body;
