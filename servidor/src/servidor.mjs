@@ -27,8 +27,10 @@ const bcryptSaltRounds = 10;
 
 const duracaoDoTokenDeSessao = 30*24*60*60*1000;
 
+//procedimentos iniciais
 async function iniciar() {
-	//const db = await abrirBanco;
+	const db = await abrirBanco;
+	await db.run(`DELETE FROM Sessoes WHERE dataDeExpiracao < ${Date.now()};`);
 	//await db.run(`PRAGMA foreign_keys = ON;`);
 	//const A = await db.get(`PRAGMA foreign_keys;`);
 	//console.log(A);
