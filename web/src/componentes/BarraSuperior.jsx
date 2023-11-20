@@ -10,8 +10,10 @@ export default function BarraSuperior() {
   const contexto2 = useContext(contexto);
   const paginaAtual = useLocation();
   const historico = useHistory();
-  const larguraDeColapso = 768;
+  const larguraDeColapso = 450;
   const [telaEstreita, definirTelaEstreita] = useState(window.innerWidth <= larguraDeColapso);
+  const larguraDeColapso2 = 900;
+  const [telaEstreita2, definirTelaEstreita2] = useState(window.innerWidth <= larguraDeColapso2);
   const [exibindoMenuDaPaginaSuspenso, definirExibindoMenuDaPaginaSuspenso] = useState(false);
   const [exibindoMenuDoUsuarioSuspenso, definirExibindoMenuDoUsuarioSuspenso] = useState(false);
 
@@ -21,6 +23,10 @@ export default function BarraSuperior() {
         definirTelaEstreita(true);
       else
         definirTelaEstreita(false);
+      if (window.innerWidth <= larguraDeColapso2)
+        definirTelaEstreita2(true);
+      else
+        definirTelaEstreita2(false);
     };
     window.onclick = fecharMenus;
     document.body.addEventListener("keydown",e=>fecharMenusPeloTeclado(e),{once:true});
@@ -28,7 +34,7 @@ export default function BarraSuperior() {
 
   useEffect(()=>{
     fecharMenus();
-  }, [paginaAtual,telaEstreita])
+  }, [paginaAtual,telaEstreita,telaEstreita2])
 
   function fecharMenusPeloTeclado(e) {
     if (e.repeat)
@@ -163,7 +169,7 @@ export default function BarraSuperior() {
           }
         </nav>
 
-        {telaEstreita || contexto2.usuarioLogado ?
+        {telaEstreita2 || contexto2.usuarioLogado ?
           <div className='flex'>
             {contexto2.usuarioLogado && <span className='nomeDoUsuario'>{contexto2.usuarioLogado.nome}</span>}
             <img className='botaoCopiar' src={iconeUsuario} onClick={e=>exibirMenuDoUsuario(e)}/>
