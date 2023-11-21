@@ -30,7 +30,7 @@ export default function NovoAnuncio() {
     //  historico.push('/entrar');
     //else
     if (contexto2.usuarioLogado)
-      fetch(SERVIDOR+`/jogos2`)
+      fetch(SERVIDOR+`/jogos`)
       .then(resp=>resp.json())
       .then(dados=>{
         if (componenteExiste) {

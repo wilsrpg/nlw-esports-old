@@ -35,6 +35,10 @@ async function iniciar() {
 	//const A = await db.get(`PRAGMA foreign_keys;`);
 	//console.log(A);
 	
+	//await db.run(`DROP TABLE Jogos;`);
+	//await db.run(`DROP TABLE Anuncios;`);
+	//await db.run(`ALTER TABLE Jogos2 RENAME TO Jogos;`);
+	//await db.run(`ALTER TABLE Anuncios2 RENAME TO Anuncios;`);
 	//await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = 35;`);
 	//await db.run(`INSERT INTO Disponibilidades(idDoAnuncio,dias,horaDeInicio,horaDeTermino) VALUES (34,2,3,4);`);
 	//await db.run(`DELETE FROM Sessoes WHERE id IN (1,2);`);
@@ -225,16 +229,16 @@ servidor.get('/jogos', async (req, resp)=>{
 //*/
 
 //retorna a lista completa de jogos
-servidor.get('/jogos2', async (req, resp)=>{
+servidor.get('/Jogos', async (req, resp)=>{
 	const db = await abrirBanco;
 	const jogos = await db.all(
-		`SELECT Jogos2.id,nome,nomeUrl,urlImagem,COUNT(Anuncios2.idDoJogo) AS qtdeAnuncios
-		FROM Jogos2 LEFT JOIN Anuncios2
-		ON Jogos2.id = Anuncios2.idDoJogo
-		GROUP BY Jogos2.id
+		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.idDoJogo) AS qtdeAnuncios
+		FROM Jogos LEFT JOIN Anuncios
+		ON Jogos.id = Anuncios.idDoJogo
+		GROUP BY Jogos.id
 		ORDER BY MAX(dataDeCriacao) DESC;`
 	);
-	console.log("GET jogos2, qtde="+jogos.length+", ip="+req.ip);
+	console.log("GET Jogos, qtde="+jogos.length+", ip="+req.ip);
 	//const jogosQtde = await db.all(
 	//	`SELECT Jogos.id, COUNT(Anuncios.jogoId) AS qtdeAnuncios
 	//	FROM Jogos LEFT JOIN Anuncios
@@ -262,11 +266,11 @@ servidor.get('/jogos-recentes/:qtde', async (req, resp)=>{
 	const qtde = parseInt(req.params.qtde);
 	console.log("GET jogos-recentes, qtde="+qtde+" ip="+req.ip);
 	const jogos = await db.all(
-		`SELECT Jogos2.id,nome,nomeUrl,urlImagem,COUNT(Anuncios2.idDoJogo) AS qtdeAnuncios
-		FROM Jogos2 LEFT JOIN Anuncios2
-		ON Jogos2.id = Anuncios2.idDoJogo
-		GROUP BY Jogos2.id
-		ORDER BY MAX(Anuncios2.dataDeCriacao) DESC
+		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.idDoJogo) AS qtdeAnuncios
+		FROM Jogos LEFT JOIN Anuncios
+		ON Jogos.id = Anuncios.idDoJogo
+		GROUP BY Jogos.id
+		ORDER BY MAX(Anuncios.dataDeCriacao) DESC
 		LIMIT '${qtde}';`
 	);
 	//jogos.map(jogo=>jogo._count = {anuncios: jogo.qtdeAnuncios});
@@ -345,10 +349,11 @@ servidor.post('/anuncios', async (req, resp)=>{
 
 	const db = await abrirBanco;
 	let anuncios = await db.all(
-		`SELECT idDoAnuncio, idDoJogo, idDoUsuario, Jogos2.nome AS nomeDoJogo, nomeNoJogo, tempoDeJogoEmMeses,
+		`SELECT idDoAnuncio, idDoJogo, idDoUsuario, Jogos.nome AS nomeDoJogo, nomeNoJogo, tempoDeJogoEmMeses,
 			usaChatDeVoz, dataDeCriacao
-		FROM Anuncios2 JOIN Jogos2 ON idDoJogo = Jogos2.id
-		WHERE Jogos2.nomeUrl LIKE (?)
+		FROM Anuncios JOIN Jogos
+		ON Anuncios.idDoJogo = Jogos.id
+		WHERE Jogos.nomeUrl ${body.jogo == '%' ? 'LIKE' : '=' } (?)
 		  AND idDoUsuario ${body.idDoUsuario == '%' ? 'LIKE' : '=' } (?)
 			AND nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
 			AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} (?)
@@ -604,7 +609,7 @@ servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 servidor.get('/anuncios/:id/discord', async (req, resp)=>{
 	const anuncioId = req.params.id;
 	const db = await abrirBanco;
-	const anuncio = await db.get(`SELECT discord FROM Anuncios2 WHERE idDoAnuncio = ${anuncioId};`);
+	const anuncio = await db.get(`SELECT discord FROM Anuncios WHERE idDoAnuncio = ${anuncioId};`);
 	console.log("GET anuncios/id/discord, discord="+anuncio.discord+", ip="+req.ip);
 	return resp.json({discord: anuncio.discord});
 });
@@ -1037,11 +1042,11 @@ servidor.delete('/anuncios/:id', async (req, resp)=>{
 		//const id = parseInt(body.idDoAnuncio);
 		console.log("DELETE anuncios/id, id="+id+", ip="+req.ip);
 		const db = await abrirBanco;
-		const anuncioExiste = await db.get(`SELECT idDoAnuncio FROM Anuncios2 WHERE idDoAnuncio = ${id};`);
+		const anuncioExiste = await db.get(`SELECT idDoAnuncio FROM Anuncios WHERE idDoAnuncio = ${id};`);
 		const disponibilidadeExiste = await db.run(`SELECT idDoAnuncio FROM Disponibilidades WHERE idDoAnuncio = ${id};`);
 		if (!anuncioExiste && !disponibilidadeExiste)
 			return resp.status(404).json({erro: 'Anúncio não encontrado.'});
-		await db.run(`DELETE FROM Anuncios2 WHERE idDoAnuncio = ${id};`);
+		await db.run(`DELETE FROM Anuncios WHERE idDoAnuncio = ${id};`);
 		await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = ${id};`);
 		//await new Promise(r=>setTimeout(r,1000));
 		return resp.status(200).json({ok: 'Anúncio excluído.'});
@@ -1070,7 +1075,7 @@ servidor.put('/anuncios', async (req, resp)=>{
 		//});
 
 		const db = await abrirBanco;
-		await db.run(`INSERT INTO Anuncios2
+		await db.run(`INSERT INTO Anuncios
 			(idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, discord, usaChatDeVoz, dataDeCriacao)
 			VALUES (?,?,?,?,?,?,?);`,
 			[body.idDoJogo, body.idDoUsuario, body.nomeNoJogo, body.tempoDeJogoEmMeses, body.discord, body.usaChatDeVoz,
@@ -1087,7 +1092,7 @@ servidor.put('/anuncios', async (req, resp)=>{
 			}
 		);
 		const anuncioPublicado = await db.get(
-			`SELECT idDoAnuncio FROM Anuncios2 WHERE dataDeCriacao = (SELECT MAX(dataDeCriacao) FROM Anuncios2);`
+			`SELECT idDoAnuncio FROM Anuncios WHERE dataDeCriacao = (SELECT MAX(dataDeCriacao) FROM Anuncios);`
 		);
 
 		let i = 0;

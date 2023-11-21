@@ -10,7 +10,7 @@ export default function Jogos() {
   const [jogos, definirJogos] = useState();
 
   useEffect(()=>{
-    fetch(SERVIDOR+`/jogos2`)
+    fetch(SERVIDOR+`/jogos`)
     .then(resp=>resp.json())
     .then(dados=>{
       if (componenteExiste) {

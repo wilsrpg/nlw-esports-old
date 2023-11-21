@@ -23,7 +23,7 @@ export default function FormularioDePesquisa({filtros}) {
   useEffect(()=>{
     //if (!contexto2)
     //  return;
-    fetch(SERVIDOR+`/jogos2`)
+    fetch(SERVIDOR+`/jogos`)
     .then(resp=>resp.json())
     .then(dados=>{
       if (componenteExiste) {
