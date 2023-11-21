@@ -39,13 +39,13 @@ export default function ResultadosDaPesquisa({filtros}) {
         definirAnuncios(dados);
         
         if (filtros.resultadosPorPagina) definirResultadosPorPagina(filtros.resultadosPorPagina);
-        //else definirResultadosPorPagina(10);
+        else definirResultadosPorPagina(10);
 
         if (filtros.ordenarPor) definirOrdenarPor(filtros.ordenarPor);
-        //else definirOrdenarPor('');
+        else definirOrdenarPor('');
 
         if (filtros.emOrdem) definirEmOrdem(filtros.emOrdem);
-        //else definirEmOrdem('');
+        else definirEmOrdem('');
       }
     })
     .catch(erro=>{
