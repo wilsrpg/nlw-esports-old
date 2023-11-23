@@ -23,9 +23,9 @@ const abrirBanco = open({
 	driver: sqlite3.Database
 });
 
-const bcryptSaltRounds = 10;
+const BCRYPT_SALT_ROUNDS = 10;
 
-const duracaoDoTokenDeSessao = 30*24*60*60*1000;
+const DURACAO_DO_TOKEN_DE_SESSAO = 30*24*60*60*1000;
 
 //procedimentos iniciais
 async function iniciar() {
@@ -40,7 +40,8 @@ async function iniciar() {
 	//await db.run(`ALTER TABLE Jogos2 RENAME TO Jogos;`);
 	//await db.run(`ALTER TABLE Anuncios2 RENAME TO Anuncios;`);
 	//await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = 35;`);
-	//await db.run(`INSERT INTO Disponibilidades(idDoAnuncio,dias,horaDeInicio,horaDeTermino) VALUES (34,2,3,4);`);
+	//await db.run(`INSERT INTO Disponibilidades(idDoAnuncio,dias,horaDeInicio,horaDeTermino)
+		//VALUES (34,2,3,4);`);
 	//await db.run(`DELETE FROM Sessoes WHERE id IN (1,2);`);
 	//await db.run(`ALTER TABLE Sessoes ADD COLUMN manterSessao BOOLEAN NOT NULL;`);
 	//await db.run(`ALTER TABLE SessoesAtivas RENAME TO Sessoes;`);
@@ -55,9 +56,12 @@ async function iniciar() {
 	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 12 WHERE idDoUsuario = -1 AND idDoAnuncio = 20;`);
 	//await db.run(`DELETE FROM Anuncios2 WHERE idDoAnuncio > 37;`);
 	//await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio > 37;`);
-	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 1 WHERE idDoUsuario = -1 AND idDoAnuncio IN (2,5,8,9,37);`);
-	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 10 WHERE idDoUsuario = -1 AND idDoAnuncio IN (15,19,36);`);
-	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 3 WHERE idDoUsuario = -1 AND idDoAnuncio IN (22,23,24,32);`);
+	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 1
+		//WHERE idDoUsuario = -1 AND idDoAnuncio IN (2,5,8,9,37);`);
+	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 10
+		//WHERE idDoUsuario = -1 AND idDoAnuncio IN (15,19,36);`);
+	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 3
+		//WHERE idDoUsuario = -1 AND idDoAnuncio IN (22,23,24,32);`);
 	//await db.run(`UPDATE Anuncios2 SET idDoUsuario = 2 WHERE idDoUsuario = -1 AND idDoAnuncio IN (6);`);
 
 	//await db.run(`CREATE TABLE IF NOT EXISTS Disponibilidades (
@@ -81,9 +85,10 @@ async function iniciar() {
 	//await db.run(`ALTER TABLE Anuncios2 DROP COLUMN horaDeInicio;`);
 	//await db.run(`ALTER TABLE Anuncios2 DROP COLUMN horaDeTermino;`);
 
+	//sqlite n dxa mudar tipo, então n adianta fazer isso... o jeito é recriar
 	//await db.run(`ALTER TABLE Jogos ADD COLUMN uuid TEXT DEFAULT 0;`);
 	//await db.run(`UPDATE Jogos SET uuid = id WHERE uuid = 0;`);
-	//await db.run(`UPDATE Jogos SET id = rowid WHERE uuid = 'id';`); //sqlite n dxa mudar tipo, então n adianta fazer isso... o jeito é recriar
+	//await db.run(`UPDATE Jogos SET id = rowid WHERE uuid = 'id';`);
 	//await db.run(`ALTER TABLE Jogos RENAME COLUMN id TO uuid;`);
 	//await db.run(`ALTER TABLE Anuncios RENAME COLUMN id TO uuid;`);
 	//await db.run(`ALTER TABLE Anuncios ADD COLUMN uuid ;`);
@@ -98,8 +103,10 @@ async function iniciar() {
 	//	dataDeCriacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP);`
 	//);
 	
-	//const ultimoAnuncio = await db.get('SELECT * FROM Anuncios WHERE dataDeCriacao = (SELECT MAX(dataDeCriacao) FROM Anuncios);');
-	//const anuncioEspecifico = await db.get('SELECT * FROM Anuncios WHERE id = "a4a5b098-7cde-4a45-842f-57ad0706ab12";');
+	//const ultimoAnuncio = await db.get('SELECT * FROM Anuncios
+		//WHERE dataDeCriacao = (SELECT MAX(dataDeCriacao) FROM Anuncios);');
+	//const anuncioEspecifico = await db.get('SELECT * FROM Anuncios
+		//WHERE id = "a4a5b098-7cde-4a45-842f-57ad0706ab12";');
 	//console.log(ultimoAnuncio.dataDeCriacao);
 	//const d = new Date(ultimoAnuncio.dataDeCriacao);
 	//console.log(d.getTime());
@@ -131,7 +138,8 @@ async function iniciar() {
 	//);
 
 	//const a = await db.all(`SELECT rowid,nome,nomeUrl,urlImagem,id FROM Jogos;`);
-	//const a = await db.all(`SELECT rowid,nomeDoUsuario,tempoDeJogoEmAnos,discord,diasQueJoga,deHora,ateHora,usaChatDeVoz,dataDeCriacao,id,jogoId FROM Anuncios;`);
+	//const a = await db.all(`SELECT rowid,nomeDoUsuario,tempoDeJogoEmAnos,discord,diasQueJoga,
+		//deHora,ateHora,usaChatDeVoz,dataDeCriacao,id,jogoId FROM Anuncios;`);
 	//const j = await db.all(`SELECT rowid,id,nome FROM Jogos;`);
 	//const u = await db.all(`SELECT * FROM Usuarios;`);
 	//a.map(anuncio=>{
@@ -152,17 +160,28 @@ async function iniciar() {
 	//let i=0;
 	//while(i < a.length) {
 	//	await db.run(`INSERT INTO Anuncios2
-	//		(idDoJogo, nomeDoJogo, idDoUsuario, nomeDoUsuario, tempoDeJogoEmAnos, tempoDeJogoEmMeses, discord, diasQueJoga, horaDeInicio, horaDeTermino, usaChatDeVoz, dataDeCriacao, uuid)
-	//		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`, [a[i].idDoJogo, a[i].nomeDoJogo, a[i].idDoUsuario, a[i].nomeDoUsuario, a[i].tempoDeJogoEmAnos, a[i].tempoDeJogoEmMeses, a[i].discord, a[i].diasQueJoga, a[i].horaDeInicio, a[i].horaDeTermino, a[i].usaChatDeVoz, a[i].dataDeCriacao, a[i].uuid]
+	//		(idDoJogo, nomeDoJogo, idDoUsuario, nomeDoUsuario, tempoDeJogoEmAnos, tempoDeJogoEmMeses, discord,
+	//			diasQueJoga, horaDeInicio, horaDeTermino, usaChatDeVoz, dataDeCriacao, uuid)
+	//		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`,
+	//		[a[i].idDoJogo, a[i].nomeDoJogo, a[i].idDoUsuario, a[i].nomeDoUsuario, a[i].tempoDeJogoEmAnos,
+	//		a[i].tempoDeJogoEmMeses, a[i].discord, a[i].diasQueJoga, a[i].horaDeInicio, a[i].horaDeTermino,
+	//		a[i].usaChatDeVoz, a[i].dataDeCriacao, a[i].uuid]
 	//	);
-	//	console.log('inseriu registro '+(i+1)+' (nome='+a[i].nomeDoUsuario+', discord='+a[i].discord+', jogo='+a[i].nomeDoJogo+')');
+	//	console.log('inseriu registro '+(i+1)+' (nome='+a[i].nomeDoUsuario+', discord='+a[i].discord+',
+	//		jogo='+a[i].nomeDoJogo+')');
 	//	i++;
 	//}
 	//a.map(async (an,i)=>{
-		//console.log([i, an.idDoJogo, an.nomeDoJogo, an.idDoUsuario, an.nomeDoUsuario, an.tempoDeJogoEmAnos, an.tempoDeJogoEmMeses, an.discord, an.diasQueJoga, an.horaDeInicio, an.horaDeTermino, an.usaChatDeVoz, an.dataDeCriacao].join(', '));
+		//console.log([i, an.idDoJogo, an.nomeDoJogo, an.idDoUsuario, an.nomeDoUsuario, an.tempoDeJogoEmAnos,
+		//	an.tempoDeJogoEmMeses, an.discord, an.diasQueJoga, an.horaDeInicio, an.horaDeTermino,
+		//	an.usaChatDeVoz, an.dataDeCriacao].join(', '));
 		//await db.run(`INSERT INTO Anuncios2
-		//	(idDoJogo, nomeDoJogo, idDoUsuario, nomeDoUsuario, tempoDeJogoEmAnos, tempoDeJogoEmMeses, discord, diasQueJoga, horaDeInicio, horaDeTermino, usaChatDeVoz, dataDeCriacao, uuid)
-		//	VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`, [an.idDoJogo, an.nomeDoJogo, an.idDoUsuario, an.nomeDoUsuario, an.tempoDeJogoEmAnos, an.tempoDeJogoEmMeses, an.discord, an.diasQueJoga, an.horaDeInicio, an.horaDeTermino, an.usaChatDeVoz, an.dataDeCriacao, an.uuid]
+		//	(idDoJogo, nomeDoJogo, idDoUsuario, nomeDoUsuario, tempoDeJogoEmAnos, tempoDeJogoEmMeses, discord,
+		//		diasQueJoga, horaDeInicio, horaDeTermino, usaChatDeVoz, dataDeCriacao, uuid)
+		//	VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`,
+		//	[an.idDoJogo, an.nomeDoJogo, an.idDoUsuario, an.nomeDoUsuario, an.tempoDeJogoEmAnos,
+		//	an.tempoDeJogoEmMeses, an.discord, an.diasQueJoga, an.horaDeInicio, an.horaDeTermino,
+		//	an.usaChatDeVoz, an.dataDeCriacao, an.uuid]
 		//);
 		//console.log('inseriu registro '+(i+1)+' (nome='+an.nomeDoUsuario+', discord='+an.discord+')');
 	//});
@@ -170,19 +189,22 @@ async function iniciar() {
 
 	//const anunciosCertos = await db.all('SELECT * FROM Anuncios WHERE dataDeCriacao > 1690864594730;');
 	//await db.run(`INSERT INTO Anuncios2 SELECT * FROM Anuncios WHERE dataDeCriacao > 1690864594730;`);
-	//anunciosCertos.map(anu=>db.run(`UPDATE Anuncios2 SET dataDeCriacao = (?) WHERE dataDeCriacao > 1690864594730;`,
+	//anunciosCertos.map(anu=>db.run(`UPDATE Anuncios2 SET dataDeCriacao = (?)
+	//	WHERE dataDeCriacao > 1690864594730;`,
 	//	[new Date(anu.dataDeCriacao).getTime()]
 	//));
-	//anunciosCertos.map(anu=>db.run(`UPDATE Anuncios2 SET dataDeCriacao = (?) WHERE dataDeCriacao > 1690864594730;`,
-	//	[new Date(anu.dataDeCriacao).getTime()]
-	//));
+	//anunciosCertos.map(anu=>db.run(`UPDATE Anuncios2 SET dataDeCriacao = (?)
+	//	WHERE dataDeCriacao > 1690864594730;`,
+	//	[new Date(anu.dataDeCriacao).getTime()])
+	//);
 
 	//anunciosCertos.map(an=>{an.dataDeCriacao = new Date(an.dataDeCriacao).getTime()});
 	//console.log(anunciosCertos);
 	//let anunciosStringInterrogacoes = anunciosCertos.map(()=>'(?)').join();
 	//anunciosCertos.map(async(an)=>{await db.run(`INSERT INTO Anuncios2 VALUES (?);`, an);});
 	//await db.run(`INSERT INTO Anuncios2
-	//	(id, jogoId, nomeDoUsuario, tempoDeJogoEmAnos, discord, diasQueJoga, deHora, ateHora, usaChatDeVoz, dataDeCriacao)
+	//	(id, jogoId, nomeDoUsuario, tempoDeJogoEmAnos, discord, diasQueJoga, deHora, ateHora, usaChatDeVoz,
+	//		dataDeCriacao)
 	//	VALUES `+anunciosStringInterrogacoes+';',
 	//	anunciosCertos,
 	//	function(err) {
@@ -254,7 +276,10 @@ servidor.get('/Jogos', async (req, resp)=>{
 servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
 	const jogoNomeUrl = req.params.jogoNomeUrl;
 	const db = await abrirBanco;
-	const jogo = await db.get(`SELECT id,nome,nomeUrl,urlImagem FROM Jogos WHERE nomeUrl = '${jogoNomeUrl}';`);
+	const jogo = await db.get(`SELECT id,nome,nomeUrl,urlImagem
+		FROM Jogos
+		WHERE nomeUrl = '${jogoNomeUrl}';`
+	);
 	console.log("GET jogos/jogo="+jogo.nome+", ip="+req.ip);
 	return resp.json(jogo);
 });
@@ -264,7 +289,7 @@ servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
 servidor.get('/jogos-recentes/:qtde', async (req, resp)=>{
 	const db = await abrirBanco;
 	const qtde = parseInt(req.params.qtde);
-	console.log("GET jogos-recentes, qtde="+qtde+" ip="+req.ip);
+	console.log("GET jogos-recentes/:qtde, qtde="+qtde+" ip="+req.ip);
 	const jogos = await db.all(
 		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.idDoJogo) AS qtdeAnuncios
 		FROM Jogos LEFT JOIN Anuncios
@@ -327,23 +352,23 @@ servidor.post('/anuncios', async (req, resp)=>{
 	//const {id: jogoId} = await db.get(`SELECT id FROM Jogos WHERE nomeUrl = (?);`, [body.jogo]);
 	//console.log(jogoId);
 
-	const b2 = {
-		//jogoId: jogoId,
-		jogo: body.jogo,
-		nome: body.nome,
-		naoContem: naoContem,
-		//discord: body.discord,
-		tempoDeJogoEmAnos: tempoDeJogoEmAnos,
-		noMaximo: noMaximo,
-		entre: entre,
-		tempoDeJogoEmAnos2: tempoDeJogoEmAnos2,
-		//emTodos: emTodos,
-		//diasQueJoga: diasQueJoga,
-		//deHora: deHora,
-		//ateHora: ateHora,
-		//virandoNoite: virandoNoite,
-		usaChatDeVoz: body.usaChatDeVoz
-	}
+	//const b2 = {
+	//	//jogoId: jogoId,
+	//	jogo: body.jogo,
+	//	nome: body.nome,
+	//	naoContem: naoContem,
+	//	//discord: body.discord,
+	//	tempoDeJogoEmAnos: tempoDeJogoEmAnos,
+	//	noMaximo: noMaximo,
+	//	entre: entre,
+	//	tempoDeJogoEmAnos2: tempoDeJogoEmAnos2,
+	//	//emTodos: emTodos,
+	//	//diasQueJoga: diasQueJoga,
+	//	//deHora: deHora,
+	//	//ateHora: ateHora,
+	//	//virandoNoite: virandoNoite,
+	//	usaChatDeVoz: body.usaChatDeVoz
+	//}
 	//console.log('body convertido:');
 	//console.log(b2);
 
@@ -379,7 +404,11 @@ servidor.post('/anuncios', async (req, resp)=>{
 	//console.log(anuncios);
 	let idsDosAnuncios = anuncios.map(an=>an.idDoAnuncio).join();
 	//console.log(idsDosAnuncios);
-	let disponibilidades = await db.all(`SELECT idDoAnuncio,dias,horaDeInicio,horaDeTermino FROM Disponibilidades WHERE idDoAnuncio IN (${idsDosAnuncios});`);
+	let disponibilidades = await db.all(
+		`SELECT idDoAnuncio,dias,horaDeInicio,horaDeTermino
+		FROM Disponibilidades
+		WHERE idDoAnuncio IN (${idsDosAnuncios});`
+	);
 	//console.log('qtde disp='+disponibilidades.length);
 	anuncios.map(an=>{
 		an.disponibilidades = disponibilidades.filter(disp=>disp.idDoAnuncio == an.idDoAnuncio);
@@ -487,8 +516,9 @@ servidor.post('/anuncios', async (req, resp)=>{
 						let duracaoBusca = (1440 + horaDeTermino - horaDeInicio) % 1440;
 						let duracaoAnuncio = (1440 + disp.horaDeTermino - disp.horaDeInicio) % 1440;
 						let diferencaInicio = (1440 - disp.horaDeInicio + horaDeInicio) % 1440;
-						//console.log('duracaoBusca,duracaoAnuncio,diferencaInicio= '+duracaoBusca+','+duracaoAnuncio+','+diferencaInicio);
-						
+						//console.log('duracaoBusca,duracaoAnuncio,diferencaInicio= '+duracaoBusca+','
+						//	+duracaoAnuncio+','+diferencaInicio);
+
 						if (duracaoAnuncio - diferencaInicio >= duracaoBusca && arrDisp.some(d=>d==dia)) {
 							dispEncontradas.push(dia);
 							dispEncontradas.sort();
@@ -512,7 +542,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 				}
 				return passou2;
 
-				let horaDeInicio = deHora || anuncio.disponibilidades[0].horaDeInicio;
+				/*let horaDeInicio = deHora || anuncio.disponibilidades[0].horaDeInicio;
 				let horaDeTermino = ateHora || anuncio.disponibilidades[0].horaDeTermino;
 				console.log('horaDeInicio~horaDeTermino= '+horaDeInicio+'~'+horaDeTermino);
 				//if (!body['de'+id])
@@ -524,11 +554,14 @@ servidor.post('/anuncios', async (req, resp)=>{
 				//let anuncioVirandoNoite = anuncio.horaDeInicio > anuncio.horaDeTermino;
 				let duracaoBusca = (1440 + horaDeTermino - horaDeInicio) % 1440;
 				//if (duracaoBusca < 0) duracaoBusca += 1440;
-				let duracaoAnuncio = (1440 + anuncio.disponibilidades[0].horaDeTermino - anuncio.disponibilidades[0].horaDeInicio) % 1440;
+				let duracaoAnuncio = (1440 + anuncio.disponibilidades[0].horaDeTermino
+					- anuncio.disponibilidades[0].horaDeInicio) % 1440;
 				//if (duracaoAnuncio < 0) duracaoAnuncio += 1440;
 				//console.log('duração busca/anúncio= '+duracaoBusca+'/'+duracaoAnuncio);
 				let diferencaInicio = (1440 - anuncio.disponibilidades[0].horaDeInicio + horaDeInicio) % 1440;
-				//duracaoAnuncio = anuncio.horaDeInicio > horaDeInicio ? anuncio.horaDeInicio + duracaoAnuncio - 1440 - horaDeInicio : duracaoAnuncio;
+				//duracaoAnuncio = anuncio.horaDeInicio > horaDeInicio ?
+				//	anuncio.horaDeInicio + duracaoAnuncio - 1440 - horaDeInicio :
+				//	duracaoAnuncio;
 				//console.log('duração anúncio2= '+duracaoAnuncio+', condições:');
 
 				//console.log('tá nos dias que joga='+anuncio.diasQueJoga.match(diasQueJoga) ? true : false);
@@ -541,7 +574,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 						anunciosOu.push(anuncio);
 					passou = !passou;
 				}
-				return passou;
+				return passou;*/
 			});
 			//console.log('dps do filtro '+i);
 			//console.log(anuncios);
@@ -606,11 +639,12 @@ servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 //*/
 
 //retorna o discord do anúncio do id informado (chamado no modal conectar, nos cartões de anúncios)
+//lembrete: mudar pra autenticar ants d retornar
 servidor.get('/anuncios/:id/discord', async (req, resp)=>{
 	const anuncioId = req.params.id;
 	const db = await abrirBanco;
 	const anuncio = await db.get(`SELECT discord FROM Anuncios WHERE idDoAnuncio = ${anuncioId};`);
-	console.log("GET anuncios/id/discord, discord="+anuncio.discord+", ip="+req.ip);
+	console.log("GET anuncios/:id/discord, discord="+anuncio.discord+", ip="+req.ip);
 	return resp.json({discord: anuncio.discord});
 });
 
@@ -633,14 +667,16 @@ servidor.put('/jogos/:id/anuncios', async (req, resp)=>{
 	//};
 	//console.log(Object.values(anuncio).join(' / '));
 	//const teste = 
-	await db.run(`INSERT INTO Anuncios
-		(id, jogoId, nomeDoUsuario, tempoDeJogoEmAnos, discord, diasQueJoga, deHora, ateHora, usaChatDeVoz, dataDeCriacao)
+	await db.run(
+		`INSERT INTO Anuncios (id, jogoId, nomeDoUsuario, tempoDeJogoEmAnos, discord, diasQueJoga,
+			deHora, ateHora, usaChatDeVoz, dataDeCriacao)
 		VALUES (?,?,?,?,?,?,?,?,?,?);`,
 		[uuidv4(), jogoId, body.nomeDoUsuario, body.tempoDeJogoEmAnos, body.discord, body.diasQueJoga,
 		converterHoraStringParaMinutos(body.deHora), converterHoraStringParaMinutos(body.ateHora),
 		body.usaChatDeVoz, Date.now()],
-		//[`${anuncio.id}, ${anuncio.jogoId}, ${anuncio.nomeDoUsuario}, ${anuncio.tempoDeJogoEmAnos}, ${anuncio.discord},
-		//${anuncio.diasQueJoga}, ${anuncio.deHora}, ${anuncio.ateHora}, ${anuncio.usaChatDeVoz}`],
+		//[`${anuncio.id}, ${anuncio.jogoId}, ${anuncio.nomeDoUsuario}, ${anuncio.tempoDeJogoEmAnos},
+		//${anuncio.discord}, ${anuncio.diasQueJoga}, ${anuncio.deHora}, ${anuncio.ateHora},
+		//${anuncio.usaChatDeVoz}`],
 		//[anuncio.id, anuncio.jogoId, anuncio.nomeDoUsuario, anuncio.tempoDeJogoEmAnos, anuncio.discord,
 		//anuncio.diasQueJoga, anuncio.deHora, anuncio.ateHora, anuncio.usaChatDeVoz],
 		function(erro) {
@@ -688,15 +724,17 @@ function converterMinutosParaHoraString(minutos) {
 servidor.put('/usuarios', async (req, resp)=>{
 	try {
 		const body = req.body;
-		console.log("PUT contas, usuário="+body.nomeDoUsuario+", ip="+req.ip);
+		console.log("PUT usuarios, usuário="+body.nomeDoUsuario+", ip="+req.ip);
 		//console.log("sql="+`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
 		const db = await abrirBanco;
-		//const usuarioJaExiste = await db.get(`SELECT nome FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-		const usuarioJaExiste = await db.get(`SELECT nome FROM Usuarios WHERE nome = (?);`, [body.nomeDoUsuario]);
+		const usuarioJaExiste = await db.get(
+			`SELECT nome FROM Usuarios WHERE nome = (?);`,
+			[body.nomeDoUsuario]
+		);
 		//console.log("já existe="+usuarioJaExiste);
 		if (usuarioJaExiste)
 			return resp.status(409).json({erro: 'Este nome de usuário não está disponível.'});
-		const senhaHash = await bcrypt.hash(body.senha, bcryptSaltRounds);
+		const senhaHash = await bcrypt.hash(body.senha, BCRYPT_SALT_ROUNDS);
 		//console.log("senhaHash="+senhaHash);
 		//await db.run(`INSERT INTO Usuarios (id, nome, senhaHash, dataDeCriacao) VALUES (?,?,?,?);`,
 			//[uuidv4(), body.nomeDoUsuario, senhaHash, Date.now()],
@@ -713,7 +751,9 @@ servidor.put('/usuarios', async (req, resp)=>{
 				return this.lastID;
 			}
 		);
-		const usuarioRegistrado = await db.get( `SELECT id,nome FROM Usuarios WHERE dataDeCriacao = (SELECT MAX(dataDeCriacao) FROM Usuarios;`);
+		const usuarioRegistrado = await db.get(
+			`SELECT id, nome FROM Usuarios WHERE dataDeCriacao = (SELECT MAX(dataDeCriacao) FROM Usuarios);`
+		);
 		//console.log(usuarioRegistrado);
 		//return resp.status(201).json({usuario: usuarioRegistrado});
 		return resp.status(201).json({id: usuarioRegistrado.id, nome: usuarioRegistrado.nome});
@@ -738,7 +778,7 @@ servidor.put('/usuarios', async (req, resp)=>{
 	catch (erro) {
 		console.log("entrou no catch");
 		console.log(erro);
-		return resp.status(500).json({erro});
+		return resp.status(500).json({erro: erro.toString()});
 	}
 });
 
@@ -746,10 +786,15 @@ servidor.put('/usuarios', async (req, resp)=>{
 servidor.put('/sessoes', async (req, resp)=>{
 	try {
 		const body = req.body;
-		console.log("PUT sessoes, usuário="+body.nomeDoUsuario+", manter sessão="+body.manterSessao+", ip="+req.ip);
+		console.log("PUT sessoes, usuário="+body.nomeDoUsuario+", manter sessão="+body.manterSessao
+			+", ip="+req.ip);
+		if (body.manterSessao !== true) body.manterSessao = 'false';
 		const db = await abrirBanco;
 		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-		const usuarioExiste = await db.get(`SELECT id,senhaHash,nome FROM Usuarios WHERE nome = (?);`, [body.nomeDoUsuario]);
+		const usuarioExiste = await db.get(
+			`SELECT id,senhaHash,nome FROM Usuarios WHERE nome = (?);`,
+			[body.nomeDoUsuario]
+		);
 		//console.log("existe="+usuarioExiste);
 		if (!usuarioExiste)
 			return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
@@ -757,55 +802,138 @@ servidor.put('/sessoes', async (req, resp)=>{
 		if (!senhaCorreta)
 			return resp.status(401).json({erro: 'Senha incorreta.'});
 		//return resp.status(201).json({id: usuarioExiste.id, nome: usuarioExiste.nome});
-		//se for manter sessão:
-		const resposta = {id: usuarioExiste.id, nome: usuarioExiste.nome, manterSessao: body.manterSessao};
-		//if (body.manterSessao) {
-			const seletor = crypto.randomBytes(4).toString('hex');
-			const tokenDaSessao = uuidv4();
-			resposta.tokenDaSessao = seletor + '-' + tokenDaSessao ;
-			//console.log("seletor,token="+seletor+','+tokenDaSessao);
-			const tokenDaSessaoHash = await bcrypt.hash(tokenDaSessao, bcryptSaltRounds);
-			const dataDeExpiracao = Date.now() + duracaoDoTokenDeSessao;
-			resposta.dataDeExpiracao = dataDeExpiracao;
-			await db.run(`INSERT INTO Sessoes (idDoUsuario, seletor, tokenDaSessaoHash, dataDeExpiracao, manterSessao)
-				VALUES (${resposta.id}, '${seletor}', '${tokenDaSessaoHash}', ${dataDeExpiracao}, ${body.manterSessao});`,
-				//[tokenDaSessaoHash, token.id, daquiAUmMes],
-			//const token = {id: usuarioExiste.id, nome: usuarioExiste.nome, token: uuidv4()};
-			//await db.run(`INSERT INTO Sessoes (id, nome, token) VALUES (?,?,?);`,
-			//	[token.id, token.nome, token.token],
-				function(erro) {
-					console.log('quando isso é executado?? - criando sessão');
-					if (erro) {
-						console.log('erro:');
-						console.log(erro);
-						return console.log(erro);
-					}
-					console.log(`A row has been inserted with rowid ${this.lastID}`);
-					return this.lastID;
+		const seletor = crypto.randomBytes(4).toString('hex');
+		const tokenDaSessao = uuidv4();
+		const resposta = {
+			id: usuarioExiste.id,
+			nome: usuarioExiste.nome,
+			tokenDaSessao: seletor + '-' + tokenDaSessao,
+			dataDeExpiracao: Date.now() + DURACAO_DO_TOKEN_DE_SESSAO,
+			manterSessao: body.manterSessao
+		};
+		//console.log("seletor,token="+seletor+','+tokenDaSessao);
+		const tokenDaSessaoHash = await bcrypt.hash(tokenDaSessao, BCRYPT_SALT_ROUNDS);
+		await db.run(
+			`INSERT INTO Sessoes (idDoUsuario, seletor, tokenDaSessaoHash, dataDeExpiracao, manterSessao)
+			VALUES (${resposta.id}, '${seletor}', '${tokenDaSessaoHash}', ${resposta.dataDeExpiracao},
+				${resposta.manterSessao});`,
+			//[tokenDaSessaoHash, token.id, daquiAUmMes],
+		//const token = {id: usuarioExiste.id, nome: usuarioExiste.nome, token: uuidv4()};
+		//await db.run(`INSERT INTO Sessoes (id, nome, token) VALUES (?,?,?);`,
+		//	[token.id, token.nome, token.token],
+			function(erro) {
+				console.log('quando isso é executado?? - criando sessão');
+				if (erro) {
+					console.log('erro:');
+					console.log(erro);
+					return console.log(erro);
 				}
-			);
-		//}
+				console.log(`A row has been inserted with rowid ${this.lastID}`);
+				return this.lastID;
+			}
+		);
 		return resp.status(201).json(resposta);
 	}
 	catch (erro) {
 		console.log("entrou no catch");
 		console.log(erro);
-		return resp.status(500).json({erro});
+		return resp.status(500).json({erro: erro.toString()});
 	}
 });
 
-//autentica sessão, atualiza o token e o retorna
+/*async function autenticarSessao(seletor,token){
+	console.log("entrou em autenticarSessao");
+	try {
+		const db = await abrirBanco;
+		const sessao = await db.get(
+			`SELECT Sessoes.id, idDoUsuario, tokenDaSessaoHash, dataDeExpiracao, manterSessao,
+				Usuarios.nome AS nomeDoUsuario
+			FROM Sessoes LEFT JOIN Usuarios
+			ON Sessoes.idDoUsuario = Usuarios.id
+			WHERE seletor = '${seletor}';`
+		);
+		if (!sessao)
+			throw 'Sessão inexistente.';
+		if(sessao.dataDeExpiracao < Date.now())
+			throw 'Sessão expirada.';
+		const sessaoValida = await bcrypt.compare(token, sessao.tokenDaSessaoHash);
+		if (!sessaoValida)
+			throw 'Sessão inválida.';
+			//cookie roubado? oq deve ser feito nesse caso?
+		return {
+			id: sessao.id,
+			idDoUsuario: sessao.idDoUsuario,
+			nomeDoUsuario: sessao.nomeDoUsuario,
+			manterSessao: sessao.manterSessao
+		};
+	} catch (erro) {
+		console.log("entrou no catch de autenticarToken");
+		console.log(erro);
+		return {erro};
+	}
+}
+
+async function atualizarSessao(idDaSessao){
+	console.log("entrou em atualizarSessao");
+	try {
+		const novoTokenDaSessao = uuidv4();
+		const novoTokenDaSessaoHash = await bcrypt.hash(novoTokenDaSessao, BCRYPT_SALT_ROUNDS);
+		const dataDeExpiracao = Date.now() + DURACAO_DO_TOKEN_DE_SESSAO;
+		const db = await abrirBanco;
+		await db.run(`
+			UPDATE Sessoes
+			SET tokenDaSessaoHash = '${novoTokenDaSessaoHash}', dataDeExpiracao = ${dataDeExpiracao}
+			WHERE id = ${idDaSessao};`,
+			//[tokenDaNovaSessaoHash, daquiAUmMes],
+		//const token = {id: usuarioExiste.id, nome: usuarioExiste.nome, token: uuidv4()};
+		//await db.run(`INSERT INTO Sessoes (id, nome, token) VALUES (?,?,?);`,
+		//	[token.id, token.nome, token.token],
+			function(erro) {
+				console.log('quando isso é executado??');
+				if (erro) {
+					console.log('erro:');
+					console.log(erro);
+					return console.log(erro);
+				}
+				console.log(`A row has been inserted with rowid ${this.lastID}`);
+				return this.lastID;
+			}
+		);
+		return {
+			novoTokenDaSessao,
+			dataDeExpiracao
+		};
+	} catch (erro) {
+		console.log("entrou no catch de atualizarToken");
+		console.log(erro);
+		return {erro};
+	}
+}*/
+
+//function separarToken(token) {
+//	return [token.slice(0,8), token.slice(9)];
+//}
+
+//chamado ao carregar a página; autentica sessão, atualiza o token e o retorna
 //servidor.post('/sessoes', async (req, resp)=>{
 servidor.get('/sessoes/:tokenDaSessao', async (req, resp)=>{
 	try {
 		//const body = req.body;
 		const tokenDaSessao = req.params.tokenDaSessao;
-		const db = await abrirBanco;
 		const seletor = tokenDaSessao.slice(0,8);
 		const token = tokenDaSessao.slice(9);
-		console.log('POST sessoes/tokenDaSessao, seletor='+seletor+', ip='+req.ip);
-		const sessaoExiste = await db.get(`SELECT id,idDoUsuario,tokenDaSessaoHash,dataDeExpiracao,manterSessao
-			FROM Sessoes WHERE seletor = '${seletor}';`);
+		//const [seletor,token] = separarToken(req.params.tokenDaSessao);
+		console.log('GET sessoes/:tokenDaSessao, seletor='+seletor+', ip='+req.ip);
+		//const sessao = await autenticarSessao(seletor,token);
+		//if (sessao.erro) throw sessao.erro;
+		const db = await abrirBanco;
+		const sessaoExiste = await db.get(
+			`SELECT Sessoes.id, idDoUsuario, tokenDaSessaoHash, dataDeExpiracao, manterSessao,
+				Usuarios.nome AS nomeDoUsuario
+			FROM Sessoes LEFT JOIN Usuarios
+			ON Sessoes.idDoUsuario = Usuarios.id
+			WHERE seletor = '${seletor}';`
+		);
 		if (!sessaoExiste)
 			return resp.status(404).json({erro: 'Sessão inexistente.'});
 		if(sessaoExiste.dataDeExpiracao < Date.now())
@@ -815,17 +943,26 @@ servidor.get('/sessoes/:tokenDaSessao', async (req, resp)=>{
 			return resp.status(404).json({erro: 'Sessão inválida.'});
 			//cookie roubado? oq deve ser feito nesse caso?
 
-		const usuarioExiste = await db.get(`SELECT nome FROM Usuarios WHERE id = ${sessaoExiste.idDoUsuario};`);
+		//const usuarioExiste = await db.get(`
+		//	SELECT nome FROM Usuarios WHERE id = ${sessaoExiste.idDoUsuario};`
+		//);
+		//const novoToken = await atualizarSessao(sessao.id);
+		//if (novoToken.erro) throw novoToken.erro;
 		const novoTokenDaSessao = uuidv4();
 		const resposta = {
 			id: sessaoExiste.idDoUsuario,
-			nome: usuarioExiste.nome,
+			//nome: usuarioExiste.nome,
+			nome: sessaoExiste.nomeDoUsuario,
 			tokenDaSessao: seletor + '-' + novoTokenDaSessao,
+			//tokenDaSessao: seletor + '-' + novoToken.novoTokenDaSessao,
+			dataDeExpiracao: Date.now() + DURACAO_DO_TOKEN_DE_SESSAO,
+			//dataDeExpiracao: novoToken.dataDeExpiracao,
 			manterSessao: sessaoExiste.manterSessao
 		};
-		const novoTokenDaSessaoHash = await bcrypt.hash(novoTokenDaSessao, bcryptSaltRounds);
-		resposta.dataDeExpiracao = Date.now() + duracaoDoTokenDeSessao;
-		await db.run(`UPDATE Sessoes
+		const novoTokenDaSessaoHash = await bcrypt.hash(novoTokenDaSessao, BCRYPT_SALT_ROUNDS);
+		//resposta.dataDeExpiracao = Date.now() + duracaoDoTokenDeSessao;
+		await db.run(`
+			UPDATE Sessoes
 			SET tokenDaSessaoHash = '${novoTokenDaSessaoHash}', dataDeExpiracao = ${resposta.dataDeExpiracao}
 			WHERE id = ${sessaoExiste.id};`,
 			//[tokenDaNovaSessaoHash, daquiAUmMes],
@@ -848,11 +985,11 @@ servidor.get('/sessoes/:tokenDaSessao', async (req, resp)=>{
 	catch (erro) {
 		console.log("entrou no catch");
 		console.log(erro);
-		return resp.status(500).json({erro});
+		return resp.status(500).json({erro: erro.toString()});
 	}
 });
 
-//termina sessão
+//chamado ao deslogar; exclui a sessão do dispositivo atual
 servidor.delete('/sessoes/:tokenDaSessao', async (req, resp)=>{
 	try {
 		//const body = req.body;
@@ -861,9 +998,12 @@ servidor.delete('/sessoes/:tokenDaSessao', async (req, resp)=>{
 		//const tokenDaSessao = body.tokenDaSessao.slice(9);
 		const seletor = tokenDaSessao.slice(0,8);
 		const token = tokenDaSessao.slice(9);
-		console.log('DELETE sessoes/tokenDaSessao, seletor='+seletor+', ip='+req.ip);
+		//const [seletor,token] = separarToken(req.params.tokenDaSessao);
+		console.log('DELETE sessoes/:tokenDaSessao, seletor='+seletor+', ip='+req.ip);
 		const db = await abrirBanco;
-		const sessaoExiste = await db.get(`SELECT id,tokenDaSessaoHash FROM Sessoes WHERE seletor = '${seletor}';`);
+		const sessaoExiste = await db.get(
+			`SELECT id, tokenDaSessaoHash FROM Sessoes WHERE seletor = '${seletor}';`
+		);
 		if (!sessaoExiste)
 			return resp.status(404).json({erro: 'Sessão inexistente.'});
 		const sessaoValida = await bcrypt.compare(token, sessaoExiste.tokenDaSessaoHash);
@@ -877,21 +1017,26 @@ servidor.delete('/sessoes/:tokenDaSessao', async (req, resp)=>{
 	catch (erro) {
 		console.log("entrou no catch");
 		console.log(erro);
-		return resp.status(500).json({erro});
+		return resp.status(500).json({erro: erro.toString()});
 	}
 });
 
-//termina todas as outras sessão do mesmo usuário e retorna o número de sessões terminadas
+//exclui todas as outras sessões do mesmo usuário e retorna o número de sessões excluídas
+//lembrete: criar rota que retorna informações dos outros dispositivos conectados
 servidor.delete('/outras-sessoes/:id/:tokenDaSessao', async (req, resp)=>{
 	try {
 		//const body = req.body;
 		const id = req.params.id;
+		//const [seletor,token] = separarToken(req.params.tokenDaSessao);
 		const tokenDaSessao = req.params.tokenDaSessao;
 		const seletor = tokenDaSessao.slice(0,8);
 		const token = tokenDaSessao.slice(9);
-		console.log('POST outras-sessoes/id/tokenDaSessao, id do usuário='+id+', seletor='+seletor+', ip='+req.ip);
+		console.log('POST outras-sessoes/:id/:tokenDaSessao, id do usuário='+id+', seletor='+seletor
+			+', ip='+req.ip);
 		const db = await abrirBanco;
-		const sessaoExiste = await db.get(`SELECT id,tokenDaSessaoHash FROM Sessoes WHERE idDoUsuario = ${id} AND seletor = '${seletor}';`);
+		const sessaoExiste = await db.get(
+			`SELECT id, tokenDaSessaoHash FROM Sessoes WHERE idDoUsuario = ${id} AND seletor = '${seletor}';`
+		);
 		if (!sessaoExiste)
 			return resp.status(404).json({erro: 'Sessão inexistente.'});
 		const sessaoValida = await bcrypt.compare(token, sessaoExiste.tokenDaSessaoHash);
@@ -899,7 +1044,9 @@ servidor.delete('/outras-sessoes/:id/:tokenDaSessao', async (req, resp)=>{
 			return resp.status(404).json({erro: 'Sessão inválida.'});
 			//cookie roubado? oq deve ser feito nesse caso?
 		
-		const sessoesConectadas = await db.get(`SELECT COUNT(*) AS qtde FROM Sessoes WHERE idDoUsuario = ${id} AND seletor != '${seletor}';`);
+		const sessoesConectadas = await db.get(
+			`SELECT COUNT(*) AS qtde FROM Sessoes WHERE idDoUsuario = ${id} AND seletor != '${seletor}';`
+		);
 		//if (!qtde)
 		//	qtde = 0;
 		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${id} AND seletor != '${seletor}';`);
@@ -908,7 +1055,7 @@ servidor.delete('/outras-sessoes/:id/:tokenDaSessao', async (req, resp)=>{
 	catch (erro) {
 		console.log("entrou no catch");
 		console.log(erro);
-		return resp.status(500).json({erro});
+		return resp.status(500).json({erro: erro.toString()});
 	}
 });
 
@@ -916,8 +1063,11 @@ servidor.delete('/outras-sessoes/:id/:tokenDaSessao', async (req, resp)=>{
 servidor.post('/usuarios/senha', async (req, resp)=>{
 	try {
 		const body = req.body;
-		const id = parseInt(body.id);
 		console.log("POST usuarios/senha, id do usuário="+body.id+", ip="+req.ip);
+		const id = parseInt(body.id);
+		const tokenDaSessao = body.tokenDaSessao;
+		const seletor = tokenDaSessao.slice(0,8);
+		const token = tokenDaSessao.slice(9);
 		const db = await abrirBanco;
 		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
 		const usuarioExiste = await db.get(`SELECT id,senhaHash FROM Usuarios WHERE id = ${id};`,
@@ -937,10 +1087,15 @@ servidor.post('/usuarios/senha', async (req, resp)=>{
 		const senhaCorreta = await bcrypt.compare(body.senha, usuarioExiste.senhaHash);
 		if (!senhaCorreta)
 			return resp.status(401).json({erro: 'Senha incorreta.'});
-		const novaSenhaHash = await bcrypt.hash(body.novaSenha, bcryptSaltRounds);
+		const novaSenhaIgual = await bcrypt.compare(body.novaSenha, usuarioExiste.senhaHash);
+		if (novaSenhaIgual)
+			return resp.status(401).json({erro: 'A nova senha não pode ser igual à atual.'});
+		const novaSenhaHash = await bcrypt.hash(body.novaSenha, BCRYPT_SALT_ROUNDS);
 		//await db.run(`INSERT INTO Usuarios (id, nome, senhaHash, dataDeCriacao) VALUES (?,?,?,?);`,
 			//[uuidv4(), body.nomeDoUsuario, senhaHash, Date.now()],
-		//await db.run(`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE nome = '${body.nomeDoUsuario}';`);
+		//await db.run(
+		//	`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE nome = '${body.nomeDoUsuario}';`
+		//);
 		await db.run(`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE id = ${id};`,
 			function(erro) {
 				console.log('quando isso é executado?? - atualizando senha');
@@ -953,7 +1108,7 @@ servidor.post('/usuarios/senha', async (req, resp)=>{
 				return this.lastID;
 			}
 		);
-		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${id};`,
+		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${id} AND seletor != '${seletor}';`,
 			function(erro) {
 				console.log('quando isso é executado?? - excluindo sessões');
 				if (erro) {
@@ -970,7 +1125,7 @@ servidor.post('/usuarios/senha', async (req, resp)=>{
 	catch (erro) {
 		console.log("entrou no catch");
 		console.log(erro);
-		return resp.status(500).json({erro});
+		return resp.status(500).json({erro: erro.toString()});
 	}
 });
 
@@ -980,7 +1135,7 @@ servidor.delete('/usuarios/:id', async (req, resp)=>{
 		const body = req.body;
 		const id = parseInt(req.params.id);
 		//const id = parseInt(body.id);
-		console.log("DELETE contas, id do usuário="+id+", ip="+req.ip);
+		console.log("DELETE usuarios/:id, id do usuário="+id+", ip="+req.ip);
 		const db = await abrirBanco;
 		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
 		const usuarioExiste = await db.get(`SELECT id,senhaHash FROM Usuarios WHERE id = ${id};`,
@@ -1025,12 +1180,13 @@ servidor.delete('/usuarios/:id', async (req, resp)=>{
 				return this.lastID;
 			}
 		);
+		//lembrete: excluir anúncios tbm
 		return resp.status(200).json({ok: 'Conta excluída.'});
 	}
 	catch (erro) {
 		console.log("entrou no catch");
 		console.log(erro);
-		return resp.status(500).json({erro});
+		return resp.status(500).json({erro: erro.toString()});
 	}
 });
 
@@ -1040,10 +1196,12 @@ servidor.delete('/anuncios/:id', async (req, resp)=>{
 		//const body = req.body;
 		const id = parseInt(req.params.id);
 		//const id = parseInt(body.idDoAnuncio);
-		console.log("DELETE anuncios/id, id="+id+", ip="+req.ip);
+		console.log("DELETE anuncios/:id, id="+id+", ip="+req.ip);
 		const db = await abrirBanco;
 		const anuncioExiste = await db.get(`SELECT idDoAnuncio FROM Anuncios WHERE idDoAnuncio = ${id};`);
-		const disponibilidadeExiste = await db.run(`SELECT idDoAnuncio FROM Disponibilidades WHERE idDoAnuncio = ${id};`);
+		const disponibilidadeExiste = await db.run(
+			`SELECT idDoAnuncio FROM Disponibilidades WHERE idDoAnuncio = ${id};`
+		);
 		if (!anuncioExiste && !disponibilidadeExiste)
 			return resp.status(404).json({erro: 'Anúncio não encontrado.'});
 		await db.run(`DELETE FROM Anuncios WHERE idDoAnuncio = ${id};`);
@@ -1054,7 +1212,7 @@ servidor.delete('/anuncios/:id', async (req, resp)=>{
 	catch (erro) {
 		console.log("entrou no catch");
 		console.log(erro);
-		return resp.status(500).json({erro});
+		return resp.status(500).json({erro: erro.toString()});
 	}
 });
 
@@ -1075,11 +1233,13 @@ servidor.put('/anuncios', async (req, resp)=>{
 		//});
 
 		const db = await abrirBanco;
-		await db.run(`INSERT INTO Anuncios
-			(idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, discord, usaChatDeVoz, dataDeCriacao)
+		await db.run(
+			`INSERT INTO Anuncios (idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, discord, usaChatDeVoz,
+				dataDeCriacao)
 			VALUES (?,?,?,?,?,?,?);`,
-			[body.idDoJogo, body.idDoUsuario, body.nomeNoJogo, body.tempoDeJogoEmMeses, body.discord, body.usaChatDeVoz,
-				Date.now()],
+			[body.idDoJogo, body.idDoUsuario, body.nomeNoJogo, body.tempoDeJogoEmMeses, body.discord,
+				body.usaChatDeVoz, Date.now()
+			],
 			function(erro) {
 				console.log('quando isso é executado??');
 				if (erro) {
@@ -1097,8 +1257,8 @@ servidor.put('/anuncios', async (req, resp)=>{
 
 		let i = 0;
 		while (i < body.disponibilidades.length) {
-			await db.run(`INSERT INTO Disponibilidades
-				(idDoAnuncio, dias, horaDeInicio, horaDeTermino)
+			await db.run(
+				`INSERT INTO Disponibilidades (idDoAnuncio, dias, horaDeInicio, horaDeTermino)
 				VALUES (?,?,?,?);`,
 				[anuncioPublicado.idDoAnuncio, body.disponibilidades[i].dias,
 					converterHoraStringParaMinutos(body.disponibilidades[i].horaDeInicio),
@@ -1124,7 +1284,7 @@ servidor.put('/anuncios', async (req, resp)=>{
 	catch (erro) {
 		console.log("entrou no catch");
 		console.log(erro);
-		return resp.status(500).json({erro});
+		return resp.status(500).json({erro: erro.toString()});
 	}
 });
 
