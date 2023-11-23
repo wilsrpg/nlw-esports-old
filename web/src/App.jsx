@@ -18,6 +18,9 @@ import MeusAnuncios from './paginas/MeusAnuncios'
 import { SERVIDOR } from '../../enderecoDoServidor';
 
 /*falta:
+-não reutilizar id no banco de dados
+-excluir anúncios qd usuário deletar conta
+-qd filtros mudam, a pesquisa eh feita 2x; ajeitar
 -cadastrar jogo?
 -ajeitar chamarAtencao
 -ajeitar layout da barra superior (colocar caixa de continuar conectado num lugar melhor)
@@ -104,6 +107,7 @@ export default function App() {
     })
     .catch(erro=>{
       console.log(erro);
+      alert('Erro ao autenticar sessão. Verifique o console de seu navegador para mais detalhes.');
       //if (componenteExiste)
       //  definirErroAoObterDados(true);
     })

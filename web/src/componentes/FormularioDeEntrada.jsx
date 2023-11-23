@@ -23,6 +23,8 @@ export default function FormularioDeEntrada() {
 
   function validarEntrada(e) {
     e.preventDefault();
+    if (aguardando)
+      return;
     const dados = Object.fromEntries(new FormData(e.target));
     if (!dados.nomeDoUsuario) {
       document.getElementById("nomeDoUsuario").focus();
@@ -76,7 +78,7 @@ export default function FormularioDeEntrada() {
       }
     })
     .catch(erro=>{
-      console.log(erro);
+      //console.log(erro);
       if (componenteExiste) {
         definirMensagem(''+erro);
         definirAguardando(false);

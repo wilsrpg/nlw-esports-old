@@ -23,6 +23,8 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
 
   function validarEntrada(e) {
     e.preventDefault();
+    if (aguardando)
+      return;
     const dados = Object.fromEntries(new FormData(e.target));
     if (!dados.nomeDoUsuario) {
       document.getElementById("nomeDoUsuarioCabecalho").focus();
@@ -91,13 +93,6 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
       //if (componenteExiste)
       //  definirAguardando(false);
     });
-  }
-
-  function setCookie(cname, cvalue, exdays) {
-    const d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    let expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";samesite=lax;path=/";
   }
 
   return (

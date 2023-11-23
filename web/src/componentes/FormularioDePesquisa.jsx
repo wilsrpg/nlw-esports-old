@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom';
-//import carregando from '../imagens/loading.svg'
+import carregando from '../imagens/loading.svg'
 import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function FormularioDePesquisa({filtros}) {
@@ -13,7 +13,7 @@ export default function FormularioDePesquisa({filtros}) {
   const [diasDisponiveis, definirDiasDisponiveis] = useState(['']);
   const [aplicandoDisponilibidade, definirAplicandoDisponilibidade] = useState(false);
   const historico = useHistory();
-  //const [aguardando, definirAguardando] = useState(false);
+  const [aguardando, definirAguardando] = useState(false);
   const urlAtual = useLocation();
 
   useEffect(()=>{
@@ -68,11 +68,6 @@ export default function FormularioDePesquisa({filtros}) {
     const arr = [''];
     for (let i = 1; i < filtros.qtdeFiltrosDisponibilidade; i++)
       arr.push('');
-    if (componenteExiste) {
-      definirDiasDisponiveis(arr);
-      definirAplicandoDisponilibidade(true);
-      //definirAguardando(false);
-    }
     if (filtros.usaChatDeVoz)
       document.getElementById('usaChatDeVoz').value = filtros.usaChatDeVoz;
     if (filtros.resultadosPorPagina)
@@ -81,6 +76,11 @@ export default function FormularioDePesquisa({filtros}) {
       document.getElementById('emOrdem').value = filtros.emOrdem;
     if (filtros.ordenarPor)
       document.getElementById('ordenarPor').value = filtros.ordenarPor;
+    if (componenteExiste) {
+      definirDiasDisponiveis(arr);
+      definirAplicandoDisponilibidade(true);
+      definirAguardando(false);
+    }
   }, [filtros])
 
   useEffect(()=>{
@@ -115,6 +115,8 @@ export default function FormularioDePesquisa({filtros}) {
 
   function pesquisar(e) {
     e.preventDefault();
+    if (aguardando)
+      return;
     if (erroAoObterDados)
       return;
     
@@ -189,12 +191,18 @@ export default function FormularioDePesquisa({filtros}) {
     if (!dados.ordenarPor)
       delete dados.ordenarPor;
     
-    //console.log(dados);
-    let destino = '/anuncios?'+new URLSearchParams(dados);
-    if (destino != urlAtual.pathname+urlAtual.search)
-      historico.push('/anuncios?'+new URLSearchParams(dados));
-    //if (componenteExiste)
-    //  definirAguardando(false);
+    const qtdeFiltros = Object.keys(dados).length;
+    //console.log(qtdeFiltros);
+    let destino = '/anuncios' + (qtdeFiltros == 0 ? '' : '?'+new URLSearchParams(dados));
+    if (destino != urlAtual.pathname+urlAtual.search) {
+      if (componenteExiste)
+        definirAguardando(true);
+      carregarPesquisa(dados);
+    }
+  }
+
+  function carregarPesquisa(dados) {
+    historico.push('/anuncios?'+new URLSearchParams(dados));    
   }
 
   return (
@@ -371,8 +379,7 @@ export default function FormularioDePesquisa({filtros}) {
           <button type="submit" className='botaoPublicarAnuncio' disabled={erroAoObterDados}
           //onClick={()=>definirAguardando(true)}
           >
-            {/*{!aguardando ? 'Pesquisar' : <img className='carregando' src={carregando}/>}*/}
-            Pesquisar
+            {!aguardando ? 'Pesquisar' : <img className='carregando' src={carregando}/>}
           </button>
         </div>
 

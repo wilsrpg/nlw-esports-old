@@ -25,6 +25,8 @@ export default function Configuracoes() {
 
   function validarAlteracaoDeSenha(e) {
     e.preventDefault();
+    if (aguardando)
+      return;
     definirErroAoValidar(true);
     const dados = Object.fromEntries(new FormData(e.target));
     if (!dados.senhaAtual) {
@@ -58,10 +60,11 @@ export default function Configuracoes() {
   }
 
   function tentarAlterarSenha(senha,novaSenha) {
+    const tokenDaSessao = getCookie('tokenDaSessao');
     const dados = {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({id: contexto2.usuarioLogado.id, senha, novaSenha}),
+      body: JSON.stringify({id: contexto2.usuarioLogado.id, senha, novaSenha, tokenDaSessao}),
     };
     fetch(SERVIDOR+`/usuarios/senha`, dados)
     .then(resp=>resp.json())
@@ -74,7 +77,7 @@ export default function Configuracoes() {
       }
     })
     .catch(erro=>{
-      console.log(erro);
+      //console.log(erro);
       if (componenteExiste)
         definirMensagem(''+erro);
     })
@@ -136,7 +139,6 @@ export default function Configuracoes() {
     fetch(SERVIDOR+`/outras-sessoes/${contexto2.usuarioLogado.id}/${tokenDaSessao}`, dados)
     .then(resp=>resp.json())
     .then(resp=>{
-      console.log(resp.qtdeSessoesDesconectadas)
       if (resp.erro)
         throw resp.erro;
       else if (componenteExiste) {
@@ -148,6 +150,8 @@ export default function Configuracoes() {
     })
     .catch(erro=>{
       console.log(erro);
+      alert('Erro ao tentar desconectar outros dispositivos. Verifique o console de seu navegador para mais\
+        detalhes.');
     });
   }
   

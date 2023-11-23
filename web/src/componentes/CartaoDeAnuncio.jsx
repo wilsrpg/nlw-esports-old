@@ -57,7 +57,7 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
     })
     .catch(erro=>{
       console.log(erro);
-      alert('Erro ao excluir anúncio. Verifique o console do navegador para mais detalhes.\n'+erro);
+      alert('Erro ao excluir anúncio. Verifique o console de seu navegador para mais detalhes.');
       if (document.getElementById(anuncio.idDoAnuncio))
         document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
       if (componenteExiste)
@@ -66,7 +66,7 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
     .finally(()=>{
       if (componenteExiste) {
         definirExcluindo(false);
-        definirAguardando(false);
+        //definirAguardando(false); //aqui causa memory leak
       }
     });
   }

@@ -105,6 +105,11 @@ export default function NovoAnuncio() {
         disponibilidades.push({dias: diasd.join(), horaDeInicio: dados['de'+id], horaDeTermino: dados['ate'+id]});
     });
 
+    if (dados.usaChatDeVoz == 'on')
+      dados.usaChatDeVoz = true;
+    else
+      dados.usaChatDeVoz = false;
+
     const novoAnuncio = {
       idDoJogo: dados.idDoJogo*1,
       idDoUsuario: contexto2.usuarioLogado.id*1,
