@@ -27,13 +27,13 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
       return;
     const dados = Object.fromEntries(new FormData(e.target));
     if (!dados.nomeDoUsuario) {
-      document.getElementById("nomeDoUsuarioCabecalho").focus();
+      document.getElementById('nomeDoUsuarioCabecalho').focus();
       //if (componenteExiste)
         definirMensagem('Digite seu nome de usuário.');
       return;
     }
     if (!dados.senha) {
-      document.getElementById("senhaCabecalho").focus();
+      document.getElementById('senhaCabecalho').focus();
       //if (componenteExiste)
         definirMensagem('Digite sua senha.');
       return;
@@ -53,8 +53,8 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
 
   function tentarEntrar(nomeDoUsuario, senha, manterSessao) {
     const dados = {
-      method: "PUT",
-      headers: {"Content-Type": "application/json"},
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({nomeDoUsuario, senha, manterSessao}),
     };
     fetch(SERVIDOR+`/sessoes`, dados)
@@ -64,8 +64,8 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
         throw resp.erro;
       else {
         funcFecharMenu();
-        //localStorage.setItem("idDoUsuarioLogado", resp.id);
-        //localStorage.setItem("usuarioLogado", resp.nome);
+        //localStorage.setItem('idDoUsuarioLogado', resp.id);
+        //localStorage.setItem('usuarioLogado', resp.nome);
         //if (manterSessao)
         //  setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
           document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao
@@ -101,8 +101,8 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
         <input id='nomeDoUsuarioCabecalho' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
         <input id='senhaCabecalho' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
         <div className='manterSessao'>
-          <input id="manterSessaoCabecalho" name="manterSessao" type="checkbox"/>
-          <label htmlFor="manterSessaoCabecalho">Continuar conectado</label>
+          <input id='manterSessaoCabecalho' name='manterSessao' type='checkbox'/>
+          <label htmlFor='manterSessaoCabecalho'>Continuar conectado</label>
         </div>
         <div className={horizontal ? 'flex' : 'formularioDeEntradaSuspenso'}>
           <button className='botaoEntrar alturaBase' type='submit'>

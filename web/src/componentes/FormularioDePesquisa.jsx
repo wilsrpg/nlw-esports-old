@@ -213,12 +213,12 @@ export default function FormularioDePesquisa({filtros}) {
         <div className='jogosPagina formularioDePesquisa'>
           <div className='flex flexColumn'>
             <label>Jogo</label>
-            <select disabled={!jogos} id="jogo" name="jogo">
-              <option value="">
+            <select disabled={!jogos} id='jogo' name='jogo'>
+              <option value=''>
                 {!jogos ?
-                  (!erroAoObterDados ? "Buscando jogos..." : "Erro ao obter dados dos jogos do servidor.")
+                  (!erroAoObterDados ? 'Buscando jogos...' : 'Erro ao obter dados dos jogos do servidor.')
                 :
-                  "Qualquer um"
+                  'Qualquer um'
                 }
               </option>
               {jogos && jogos.map((jogo,i)=>{
@@ -229,21 +229,21 @@ export default function FormularioDePesquisa({filtros}) {
 
           <div className='flex flexColumn'>
             <div className='flex flexWrap'>
-              <label htmlFor="nome">Nome no jogo</label>
-              <select id="opcoesNome" name="opcoesNome">
-                <option value="">contém</option>
-                <option value="comecaCom">começa com</option>
-                <option value="terminaCom">termina com</option>
-                <option value="exatamente">exatamente</option>
-                <option value="naoContem">não contém</option>
+              <label htmlFor='nome'>Nome no jogo</label>
+              <select id='opcoesNome' name='opcoesNome'>
+                <option value=''>contém</option>
+                <option value='comecaCom'>começa com</option>
+                <option value='terminaCom'>termina com</option>
+                <option value='exatamente'>exatamente</option>
+                <option value='naoContem'>não contém</option>
               </select>
             </div>
-            <input id="nome" name="nome"/>
+            <input id='nome' name='nome'/>
           </div>
 
           {/*<div className='flex flexColumn'>
-            <label htmlFor="discord">Discord</label>
-            <input id="discord" name="discord"
+            <label htmlFor='discord'>Discord</label>
+            <input id='discord' name='discord'
 //onChange={e=>{if(e.target.value.match(document.getElementById('nome').value))definirOpcoesTempo('noMaximo');else definirOpcoesTempo('');}}
             />
           </div>*/}
@@ -251,25 +251,25 @@ export default function FormularioDePesquisa({filtros}) {
           <div className='flex flexColumn'>
             <div className='flex flexWrap'>
               <label>Joga há quanto tempo?</label>
-              <select id="opcoesTempo" name="opcoesTempo" value={opcoesTempo} onChange={e=>definirOpcoesTempo(e.target.value)}>
-                <option value="">no mínimo</option>
-                <option value="noMaximo">no máximo</option>
-                <option value="entre">entre</option>
+              <select id='opcoesTempo' name='opcoesTempo' value={opcoesTempo} onChange={e=>definirOpcoesTempo(e.target.value)}>
+                <option value=''>no mínimo</option>
+                <option value='noMaximo'>no máximo</option>
+                <option value='entre'>entre</option>
               </select>
             </div>
             <div className='flex flexColumn'>
               <div className='flex flexWrap'>
-                <input id="tempoDeJogoAnos" className='tempoDeJogo' name="tempoDeJogoAnos" type="tel" maxLength="2" pattern='\d*'/>
-                <label htmlFor="tempoDeJogoAnos">ano(s)</label>
-                <input id="tempoDeJogoMeses" className='tempoDeJogo' name="tempoDeJogoMeses" type="tel" maxLength="2" pattern='\d*'/>
-                <label htmlFor="tempoDeJogoMeses">mês(es)</label>
+                <input id='tempoDeJogoAnos' className='tempoDeJogo' name='tempoDeJogoAnos' type='tel' maxLength='2' pattern='\d*'/>
+                <label htmlFor='tempoDeJogoAnos'>ano(s)</label>
+                <input id='tempoDeJogoMeses' className='tempoDeJogo' name='tempoDeJogoMeses' type='tel' maxLength='2' pattern='\d*'/>
+                <label htmlFor='tempoDeJogoMeses'>mês(es)</label>
               </div>
               {opcoesTempo == 'entre' &&
                 <div className='flex flexWrap'>
-                  <input id="tempoDeJogoAnos2" className='tempoDeJogo' name="tempoDeJogoAnos2" type="tel" maxLength="2" pattern='\d*'/>
-                  <label htmlFor="tempoDeJogoAnos2">ano(s)</label>
-                  <input id="tempoDeJogoMeses2" className='tempoDeJogo' name="tempoDeJogoMeses2" type="tel" maxLength="2" pattern='\d*'/>
-                  <label htmlFor="tempoDeJogoMeses2">mês(es)</label>
+                  <input id='tempoDeJogoAnos2' className='tempoDeJogo' name='tempoDeJogoAnos2' type='tel' maxLength='2' pattern='\d*'/>
+                  <label htmlFor='tempoDeJogoAnos2'>ano(s)</label>
+                  <input id='tempoDeJogoMeses2' className='tempoDeJogo' name='tempoDeJogoMeses2' type='tel' maxLength='2' pattern='\d*'/>
+                  <label htmlFor='tempoDeJogoMeses2'>mês(es)</label>
                 </div>
               }
             </div>
@@ -282,9 +282,9 @@ export default function FormularioDePesquisa({filtros}) {
                 +
               </button>
               {diasDisponiveis.length > 1 &&
-                <select id="opcoesDisponibilidade" name="opcoesDisponibilidade">
-                  <option value="">Em pelo menos um</option>
-                  <option value="emTodos">Em todos</option>
+                <select id='opcoesDisponibilidade' name='opcoesDisponibilidade'>
+                  <option value=''>Em pelo menos um</option>
+                  <option value='emTodos'>Em todos</option>
                 </select>
               }
             </div>
@@ -293,10 +293,10 @@ export default function FormularioDePesquisa({filtros}) {
               return (
                 <div key={i} className='flex flexWrap'>
                   <select id={'quando'+id} name={'quando'+id}>
-                    <option value="qualquerDia">Qualquer dia</option>
-                    <option value="todoDia">Todo dia</option>
-                    <option value="semana">De segunda a sexta</option>
-                    <option value="finsDeSemana">Fins de semana</option>
+                    <option value='qualquerDia'>Qualquer dia</option>
+                    <option value='todoDia'>Todo dia</option>
+                    <option value='semana'>De segunda a sexta</option>
+                    <option value='finsDeSemana'>Fins de semana</option>
                     {dias.map((dia,j)=>
                       <option key={j} value={dia}>{dia[0].toUpperCase()+dia.slice(1)}</option>
                     )}
@@ -304,11 +304,11 @@ export default function FormularioDePesquisa({filtros}) {
                   <div className='flex flexWrap'>
                     <div className='flex'>
                       <label htmlFor={'de'+id}>De</label>
-                      <input id={'de'+id} name={'de'+id} type="time"/>
+                      <input id={'de'+id} name={'de'+id} type='time'/>
                     </div>
                     <div className='flex flexWrap'>
                       <label htmlFor={'ate'+id}>Até</label>
-                      <input id={'ate'+id} name={'ate'+id} type="time"/>
+                      <input id={'ate'+id} name={'ate'+id} type='time'/>
                       {diasDisponiveis.length > 1 &&
                         <button className='carregando' type='button'
                           onClick={()=>{
@@ -334,49 +334,49 @@ export default function FormularioDePesquisa({filtros}) {
 
           <div className='flex flexColumn'>
             <label>Usa chat de voz</label>
-            <select id="usaChatDeVoz" name="usaChatDeVoz">
-              <option value="">Tanto faz</option>
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
+            <select id='usaChatDeVoz' name='usaChatDeVoz'>
+              <option value=''>Tanto faz</option>
+              <option value='sim'>Sim</option>
+              <option value='não'>Não</option>
             </select>
           </div>
 
           <div className='flex flexColumn'>
-            <label htmlFor="resultadosPorPagina">Resultados por página</label>
-            <input id="resultadosPorPagina" name="resultadosPorPagina" type="tel" maxLength="3" pattern='\d*' defaultValue='10'/>
+            <label htmlFor='resultadosPorPagina'>Resultados por página</label>
+            <input id='resultadosPorPagina' name='resultadosPorPagina' type='tel' maxLength='3' pattern='\d*' defaultValue='10'/>
           </div>
 
           <div className='flex flexColumn'>
             <div className='flex flexWrap'>
               <label>Ordenar por</label>
-              <select id="ordenarPor" name="ordenarPor">
-                <option value="">Data de publicação</option>
-                <option value="nomeDoJogo">Nome do jogo</option>
-                <option value="nomeDoUsuario">Nome do jogador</option>
-                <option value="tempoDeJogoEmAnos">Tempo de jogo</option>
-                <option value="diasQueJoga">Dia que joga</option>
-                <option value="deHora">Hora que começa</option>
-                <option value="ateHora">Hora que termina</option>
-                <option value="usaChatDeVoz">Chat de voz</option>
+              <select id='ordenarPor' name='ordenarPor'>
+                <option value=''>Data de publicação</option>
+                <option value='nomeDoJogo'>Nome do jogo</option>
+                <option value='nomeDoUsuario'>Nome do jogador</option>
+                <option value='tempoDeJogoEmAnos'>Tempo de jogo</option>
+                <option value='diasQueJoga'>Dia que joga</option>
+                <option value='deHora'>Hora que começa</option>
+                <option value='ateHora'>Hora que termina</option>
+                <option value='usaChatDeVoz'>Chat de voz</option>
               </select>
             </div>
-            <select id="emOrdem" name="emOrdem">
-              <option value="">Em ordem decrescente</option>
-              <option value="crescente">Em ordem crescente</option>
+            <select id='emOrdem' name='emOrdem'>
+              <option value=''>Em ordem decrescente</option>
+              <option value='crescente'>Em ordem crescente</option>
             </select>
           </div>
 
         </div>
 
         <div className='botoes'>
-          <button type="reset" className='botaoPublicarAnuncio' onClick={()=>{
+          <button type='reset' className='botaoPublicarAnuncio' onClick={()=>{
               definirOpcoesTempo('');
               definirDiasDisponiveis(['']);
             }}
           >
             Limpar
           </button>
-          <button type="submit" className='botaoPublicarAnuncio' disabled={erroAoObterDados}
+          <button type='submit' className='botaoPublicarAnuncio' disabled={erroAoObterDados}
           //onClick={()=>definirAguardando(true)}
           >
             {!aguardando ? 'Pesquisar' : <img className='carregando' src={carregando}/>}

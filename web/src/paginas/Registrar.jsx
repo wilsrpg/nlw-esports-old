@@ -22,17 +22,17 @@ export default function Registrar() {
     e.preventDefault();
     const dados = Object.fromEntries(new FormData(e.target));
     if (!dados.nomeDoUsuario) {
-      document.getElementById("nomeDoUsuario").focus();
+      document.getElementById('nomeDoUsuario').focus();
       definirMensagem('Digite seu nome de usuário.');
       return;
     }
     if (!dados.senha) {
-      document.getElementById("senha").focus();
+      document.getElementById('senha').focus();
       definirMensagem('Digite sua senha.');
       return;
     }
     if (!dados.confirmarSenha) {
-      document.getElementById("confirmarSenha").focus();
+      document.getElementById('confirmarSenha').focus();
       definirMensagem('Confirme sua senha.');
       return;
     }
@@ -47,8 +47,8 @@ export default function Registrar() {
 
   function tentarRegistrar(nomeDoUsuario, senha) {
     const dados = {
-      method: "PUT",
-      headers: {"Content-Type": "application/json"},
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({nomeDoUsuario, senha}),
     };
     fetch(SERVIDOR+`/usuarios`, dados)
@@ -57,8 +57,8 @@ export default function Registrar() {
       if (resp.erro)
         throw resp.erro;
       else {
-        //localStorage.setItem("idDoUsuarioLogado", resp.id);
-        //localStorage.setItem("usuarioLogado", resp.nome);
+        //localStorage.setItem('idDoUsuarioLogado', resp.id);
+        //localStorage.setItem('usuarioLogado', resp.nome);
         //setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
         contexto2.definirUsuarioLogado(resp);
         historico.push('/conta');

@@ -25,8 +25,8 @@ export default function ResultadosDaPesquisa({filtros}) {
 
   useEffect(()=>{
     const dados = {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(filtros),
     };
     //console.log(filtros);
@@ -139,8 +139,8 @@ export default function ResultadosDaPesquisa({filtros}) {
         <div className='flex flexColumn'>
           <div className='flex flexWrap opcoesDePagina'>
             <div className='flex'>
-              <label htmlFor="resultadosPorPagina2">Resultados por página</label>
-              <input  id="resultadosPorPagina2" type="tel" maxLength="3" size='1' pattern='\d+' required
+              <label htmlFor='resultadosPorPagina2'>Resultados por página</label>
+              <input  id='resultadosPorPagina2' type='tel' maxLength='3' size='1' pattern='\d+' required
                 defaultValue={resultadosPorPagina}
                 onBlur={e=>{
                   let n = e.target.value;
@@ -197,18 +197,18 @@ export default function ResultadosDaPesquisa({filtros}) {
           <div className='flex flexWrap opcoesDePagina'>
             <label>Ordenar por</label>
             <select value={ordenarPor} onChange={e=>definirOrdenarPor(e.target.value)}>
-              <option value="">Data de publicação</option>
-              <option value="nomeDoJogo">Nome do jogo</option>
-              <option value="nomeDoUsuario">Nome do jogador</option>
-              <option value="tempoDeJogoEmAnos">Tempo de jogo</option>
-              <option value="diasQueJoga">Dia que joga</option>
-              <option value="deHora">Hora que começa</option>
-              <option value="ateHora">Hora que termina</option>
-              <option value="usaChatDeVoz">Chat de voz</option>
+              <option value=''>Data de publicação</option>
+              <option value='nomeDoJogo'>Nome do jogo</option>
+              <option value='nomeDoUsuario'>Nome do jogador</option>
+              <option value='tempoDeJogoEmAnos'>Tempo de jogo</option>
+              <option value='diasQueJoga'>Dia que joga</option>
+              <option value='deHora'>Hora que começa</option>
+              <option value='ateHora'>Hora que termina</option>
+              <option value='usaChatDeVoz'>Chat de voz</option>
             </select>
             <select value={emOrdem} onChange={e=>definirEmOrdem(e.target.value)}>
-              <option value="">Decrescente</option>
-              <option value="crescente">Crescente</option>
+              <option value=''>Decrescente</option>
+              <option value='crescente'>Crescente</option>
             </select>
           </div>
         </div>

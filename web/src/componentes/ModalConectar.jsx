@@ -21,7 +21,7 @@ export default function ModalConectar({discord, funcFechar}) {
   function fechar(e) {
     if (e.repeat)
       return;
-    if (e.key == "Escape")
+    if (e.key == 'Escape')
       funcFechar();
   }
 
@@ -31,9 +31,9 @@ export default function ModalConectar({discord, funcFechar}) {
   }
 
   return (
-    <div className="modalAnuncioFora" onClick={funcFechar}>
+    <div className='modalAnuncioFora' onClick={funcFechar}>
       {/*{carregou &&*/}
-      <div className="modalAnuncio" style={{visibility: !carregou ? 'hidden' : 'visible'}} onClick={e=>e.stopPropagation()}>
+      <div className='modalAnuncio' style={{visibility: !carregou ? 'hidden' : 'visible'}} onClick={e=>e.stopPropagation()}>
 
         <img className='botaoCopiar botaoFechar' src={iconeFechar} onClick={funcFechar} onLoad={()=>definirImagensCarregadas(imagensCarregadas+1)}/>
         <div className='modalConectarInterior'>

@@ -27,12 +27,12 @@ export default function FormularioDeEntrada() {
       return;
     const dados = Object.fromEntries(new FormData(e.target));
     if (!dados.nomeDoUsuario) {
-      document.getElementById("nomeDoUsuario").focus();
+      document.getElementById('nomeDoUsuario').focus();
       definirMensagem('Digite seu nome de usuário.');
       return;
     }
     if (!dados.senha) {
-      document.getElementById("senha").focus();
+      document.getElementById('senha').focus();
       definirMensagem('Digite sua senha.');
       return;
     }
@@ -48,8 +48,8 @@ export default function FormularioDeEntrada() {
 
   function tentarEntrar(nomeDoUsuario, senha, manterSessao) {
     const dados = {
-      method: "PUT",
-      headers: {"Content-Type": "application/json"},
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({nomeDoUsuario, senha, manterSessao}),
     };
     fetch(SERVIDOR+`/sessoes`, dados)
@@ -58,8 +58,8 @@ export default function FormularioDeEntrada() {
       if (resp.erro)
         throw resp.erro;
       else {
-        //localStorage.setItem("idDoUsuarioLogado", resp.id);
-        //localStorage.setItem("usuarioLogado", resp.nome);
+        //localStorage.setItem('idDoUsuarioLogado', resp.id);
+        //localStorage.setItem('usuarioLogado', resp.nome);
         //if (manterSessao)
           document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao
                             //+ ';expires=' + new Date(resp.dataDeExpiracao).toUTCString()
@@ -89,8 +89,8 @@ export default function FormularioDeEntrada() {
   function setCookie(cname, cvalue, exdays) {
     const d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    let expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";samesite=lax;path=/";
+    let expires = 'expires='+ d.toUTCString();
+    document.cookie = cname + '=' + cvalue + ';' + expires + ';samesite=lax;path=/';
   }
 
   return (
@@ -101,8 +101,8 @@ export default function FormularioDeEntrada() {
           <input id='nomeDoUsuario' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
           <input id='senha' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
           <div className='manterSessao'>
-            <input id="manterSessao" name="manterSessao" type="checkbox"/>
-            <label htmlFor="manterSessao">Continuar conectado</label>
+            <input id='manterSessao' name='manterSessao' type='checkbox'/>
+            <label htmlFor='manterSessao'>Continuar conectado</label>
           </div>
           <button className='alturaBase' type='submit'>
             {aguardando ? <img className='carregando' src={carregando}/> : 'Entrar'}

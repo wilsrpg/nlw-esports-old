@@ -30,27 +30,27 @@ export default function Configuracoes() {
     definirErroAoValidar(true);
     const dados = Object.fromEntries(new FormData(e.target));
     if (!dados.senhaAtual) {
-      document.getElementById("senhaAtual").focus();
+      document.getElementById('senhaAtual').focus();
       definirMensagem('Digite sua senha atual.');
       return;
     }
     if (!dados.novaSenha) {
-      document.getElementById("novaSenha").focus();
+      document.getElementById('novaSenha').focus();
       definirMensagem('Digite sua nova senha.');
       return;
     }
     if (!dados.confirmarNovaSenha) {
-      document.getElementById("confirmarNovaSenha").focus();
+      document.getElementById('confirmarNovaSenha').focus();
       definirMensagem('Repita sua nova senha.');
       return;
     }
     if (dados.novaSenha != dados.confirmarNovaSenha) {
-      //document.getElementById("confirmarSenha").focus();
+      //document.getElementById('confirmarSenha').focus();
       definirMensagem('As senhas digitadas não são iguais.');
       return;
     }
     if (dados.senhaAtual == dados.novaSenha) {
-      //document.getElementById("confirmarSenha").focus();
+      //document.getElementById('confirmarSenha').focus();
       definirMensagem('A nova senha não pode ser igual à atual.');
       return;
     }
@@ -62,8 +62,8 @@ export default function Configuracoes() {
   function tentarAlterarSenha(senha,novaSenha) {
     const tokenDaSessao = getCookie('tokenDaSessao');
     const dados = {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({id: contexto2.usuarioLogado.id, senha, novaSenha, tokenDaSessao}),
     };
     fetch(SERVIDOR+`/usuarios/senha`, dados)
@@ -103,8 +103,8 @@ export default function Configuracoes() {
   function tentarExcluirConta(senha) {
     const tokenDaSessao = getCookie('tokenDaSessao');
     const dados = {
-      method: "DELETE",
-      headers: {"Content-Type": "application/json"},
+      method: 'DELETE',
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({id: contexto2.usuarioLogado.id, senha, tokenDaSessao}),
     };
     fetch(SERVIDOR+`/usuarios/${contexto2.usuarioLogado.id}`, dados)
@@ -113,9 +113,9 @@ export default function Configuracoes() {
       if (resp.erro)
         throw resp.erro;
       else if (componenteExiste) {
-        //localStorage.removeItem("usuarioLogado");
-        //localStorage.removeItem("idDoUsuarioLogado");
-        document.cookie = "tokenDaSessao=0;expires=0;samesite=lax;path=/";
+        //localStorage.removeItem('usuarioLogado');
+        //localStorage.removeItem('idDoUsuarioLogado');
+        document.cookie = 'tokenDaSessao=0;expires=0;samesite=lax;path=/';
         contexto2.definirUsuarioLogado();
         alert('Conta excluída.');
         historico.push('/entrar');
@@ -133,8 +133,8 @@ export default function Configuracoes() {
       return;
     const tokenDaSessao = getCookie('tokenDaSessao');
     const dados = {
-      method: "DELETE",
-      headers: {"Content-Type": "application/json"},
+      method: 'DELETE',
+      headers: {'Content-Type': 'application/json'},
       //body: JSON.stringify({id: contexto2.usuarioLogado.id, tokenDaSessao}),
     };
     fetch(SERVIDOR+`/outras-sessoes/${contexto2.usuarioLogado.id}/${tokenDaSessao}`, dados)

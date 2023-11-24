@@ -29,7 +29,7 @@ export default function BarraSuperior() {
         definirTelaEstreita2(false);
     };
     window.onclick = fecharMenus;
-    document.body.addEventListener("keydown",e=>fecharMenusPeloTeclado(e),{once:true});
+    document.body.addEventListener('keydown',e=>fecharMenusPeloTeclado(e),{once:true});
   }, [])
 
   useEffect(()=>{
@@ -39,7 +39,7 @@ export default function BarraSuperior() {
   function fecharMenusPeloTeclado(e) {
     if (e.repeat)
       return;
-    if (e.key == "Escape")
+    if (e.key == 'Escape')
       fecharMenus();
   }
 
@@ -66,9 +66,9 @@ export default function BarraSuperior() {
 
   function sair() {
     definirExibindoMenuDoUsuarioSuspenso(false);
-    //localStorage.removeItem("usuarioLogado");
-    //localStorage.removeItem("idDoUsuarioLogado");
-    //document.cookie = "tokenDaSessao=;expires=0;path=/";
+    //localStorage.removeItem('usuarioLogado');
+    //localStorage.removeItem('idDoUsuarioLogado');
+    //document.cookie = 'tokenDaSessao=;expires=0;path=/';
     //contexto2.definirUsuarioLogado();
     //historico.push('/entrar');
     const tokenDaSessao = getCookie('tokenDaSessao');
@@ -78,8 +78,8 @@ export default function BarraSuperior() {
       historico.push('/entrar');
     } else {
       const dados = {
-        method: "DELETE",
-        headers: {"Content-Type": "application/json"},
+        method: 'DELETE',
+        headers: {'Content-Type': 'application/json'},
         //body: JSON.stringify({tokenDaSessao}),
       };
       //fetch(SERVIDOR+`/excluir-sessao`, dados)
@@ -89,10 +89,10 @@ export default function BarraSuperior() {
         if (resp.erro)
           definirMensagem(resp.erro);
         else {
-          //localStorage.removeItem("idDoUsuarioLogado");
-          //localStorage.removeItem("usuarioLogado");
-          //document.cookie = "tokenDaSessao=0;expires=0;samesite=lax;httponly=true;path=/";
-          document.cookie = "tokenDaSessao=0;expires=0;samesite=lax;path=/";
+          //localStorage.removeItem('idDoUsuarioLogado');
+          //localStorage.removeItem('usuarioLogado');
+          //document.cookie = 'tokenDaSessao=0;expires=0;samesite=lax;httponly=true;path=/';
+          document.cookie = 'tokenDaSessao=0;expires=0;samesite=lax;path=/';
           contexto2.definirUsuarioLogado();
           historico.push('/entrar');
         }

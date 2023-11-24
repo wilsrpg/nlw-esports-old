@@ -37,7 +37,7 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
   function fechar(e) {
     if (e.repeat)
       return;
-    if (e.key == "Escape")
+    if (e.key == 'Escape')
       funcFechar();
   }
 
@@ -59,7 +59,7 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
 
   return (
     <div className={`modalAnuncioFora ${discord && ' semFundo'}`} onClick={funcFechar}>
-      <div className="modalAnuncio" onClick={e=>e.stopPropagation()}>
+      <div className='modalAnuncio' onClick={e=>e.stopPropagation()}>
 
         <img className='botaoCopiar botaoFechar' src={iconeFechar} onClick={funcFechar}/>
         <div className='jogoSelecionado'>

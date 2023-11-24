@@ -222,7 +222,7 @@ async function iniciar() {
 	//await db.migrate();
 	//servidor.listen(
 	//	process.env.PORTA_DO_SERVIDOR,
-	//	()=>console.log("iniciou server, ouvindo porta "+process.env.PORTA_DO_SERVIDOR)
+	//	()=>console.log('iniciou server, ouvindo porta '+process.env.PORTA_DO_SERVIDOR)
 	//);
 }
 iniciar();
@@ -237,7 +237,7 @@ servidor.get('/jogos', async (req, resp)=>{
 		GROUP BY Jogos.id
 		ORDER BY MAX(dataDeCriacao) DESC;`
 	);
-	console.log("GET jogos, qtde="+jogos.length+", ip="+req.ip);
+	console.log('GET jogos, qtde='+jogos.length+', ip='+req.ip);
 	//const jogosQtde = await db.all(
 	//	`SELECT Jogos.id, COUNT(Anuncios.jogoId) AS qtdeAnuncios
 	//	FROM Jogos LEFT JOIN Anuncios
@@ -260,7 +260,7 @@ servidor.get('/jogos', async (req, resp)=>{
 		GROUP BY Jogos.id
 		ORDER BY MAX(dataDeCriacao) DESC;`
 	);
-	console.log("GET Jogos, qtde="+jogos.length+", ip="+req.ip);
+	console.log('GET jogos, qtde='+jogos.length+', ip='+req.ip);
 	//const jogosQtde = await db.all(
 	//	`SELECT Jogos.id, COUNT(Anuncios.jogoId) AS qtdeAnuncios
 	//	FROM Jogos LEFT JOIN Anuncios
@@ -280,7 +280,7 @@ servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
 		FROM Jogos
 		WHERE nomeUrl = '${jogoNomeUrl}';`
 	);
-	console.log("GET jogos/jogo="+jogo.nome+", ip="+req.ip);
+	console.log('GET jogos/jogo='+jogo.nome+', ip='+req.ip);
 	return resp.json(jogo);
 });
 //*/
@@ -289,7 +289,7 @@ servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
 servidor.get('/jogos-recentes/:qtde', async (req, resp)=>{
 	const db = await abrirBanco;
 	const qtde = parseInt(req.params.qtde);
-	console.log("GET jogos-recentes/:qtde, qtde="+qtde+" ip="+req.ip);
+	console.log('GET jogos-recentes/:qtde, qtde='+qtde+' ip='+req.ip);
 	const jogos = await db.all(
 		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.idDoJogo) AS qtdeAnuncios
 		FROM Jogos LEFT JOIN Anuncios
@@ -305,11 +305,11 @@ servidor.get('/jogos-recentes/:qtde', async (req, resp)=>{
 //pesquisa nos anúncios
 servidor.post('/anuncios', async (req, resp)=>{
 	const body = req.body;
-	//console.log("POST anuncios, ip="+req.ip+", body:");
+	//console.log('POST anuncios, ip='+req.ip+', body:');
 	if (!body.jogo) body.jogo = '%';
 
 	if (!body.idDoUsuario) body.idDoUsuario = '%';
-	//console.log("body.idDoUsuario="+body.idDoUsuario);
+	//console.log('body.idDoUsuario='+body.idDoUsuario);
 	
 	let naoContem = false, exatamente = false;
 	if (!body.nome) body.nome = '%';
@@ -420,13 +420,13 @@ servidor.post('/anuncios', async (req, resp)=>{
 	//console.log(disponibilidades);
 	//console.log(anuncios);
 
-	//console.log("ants do filtro d tempoDeJogoEntre, qtde= "+anuncios.length);
+	//console.log('ants do filtro d tempoDeJogoEntre, qtde= '+anuncios.length);
 
 	if (entre)
 		//anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmAnos <= tempoDeJogoEmAnos2);
 		anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmMeses <= tempoDeJogoEmAnos2*12);
 	
-	//console.log("dps do filtro d tempoDeJogoEntre e ants do d disponibilidade, qtde= "+anuncios.length);
+	//console.log('dps do filtro d tempoDeJogoEntre e ants do d disponibilidade, qtde= '+anuncios.length);
 		
 	if (body.qtdeFiltrosDisponibilidade) {
 		//const disponibilidades = [];
@@ -584,7 +584,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 			
 		//console.log(disponibilidades);
 	}
-	//console.log("dps do filtro d disponibilidade, qtde="+anuncios.length);
+	//console.log('dps do filtro d disponibilidade, qtde='+anuncios.length);
 
 	//console.log({
 	//	diasQueJoga: anuncios[0].diasQueJoga.split(','),
@@ -600,7 +600,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 		});
 	});
 
-	console.log("POST anuncios, qtde="+anuncios.length+", ip="+req.ip);
+	console.log('POST anuncios, qtde='+anuncios.length+', ip='+req.ip);
 	return resp.json(anuncios.map(anuncio=>{
 		return {...anuncio,
 			nomeDoUsuario: anuncio.nomeNoJogo,
@@ -628,7 +628,7 @@ servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 		WHERE jogoId = ${jogo.id}
 		ORDER BY dataDeCriacao DESC;`
 	);
-	console.log("GET jogos/"+jogoNomeUrl+"/anuncios, qtde="+anuncios.length+", ip="+req.ip);
+	console.log('GET jogos/'+jogoNomeUrl+'/anuncios, qtde='+anuncios.length+', ip='+req.ip);
 	return resp.json(anuncios.map(anuncio=>{
 		return {...anuncio,
 			diasQueJoga: anuncio.diasQueJoga.split(','),
@@ -645,7 +645,7 @@ servidor.get('/anuncios/:id/discord', async (req, resp)=>{
 	const anuncioId = req.params.id;
 	const db = await abrirBanco;
 	const anuncio = await db.get(`SELECT discord FROM Anuncios WHERE idDoAnuncio = ${anuncioId};`);
-	console.log("GET anuncios/:id/discord, discord="+anuncio.discord+", ip="+req.ip);
+	console.log('GET anuncios/:id/discord, discord='+anuncio.discord+', ip='+req.ip);
 	return resp.json({discord: anuncio.discord});
 });
 
@@ -653,7 +653,7 @@ servidor.get('/anuncios/:id/discord', async (req, resp)=>{
 servidor.put('/jogos/:id/anuncios', async (req, resp)=>{
 	const jogoId = req.params.id;
 	const body = req.body;
-	console.log("PUT anuncio, usuário="+body.nomeDoUsuario+", ip="+req.ip);
+	console.log('PUT anuncio, usuário='+body.nomeDoUsuario+', ip='+req.ip);
 	const db = await abrirBanco;
 	//const anuncio = {
 	//	id: uuid(),
@@ -692,7 +692,7 @@ servidor.put('/jogos/:id/anuncios', async (req, resp)=>{
 		}
 	)
 	.then(async dados=>{
-		//console.log("dados:");
+		//console.log('dados:');
 		//console.log(dados);
 		const anuncioPublicado = await db.get(
 			`SELECT * FROM Anuncios WHERE dataDeCriacao = (SELECT MAX(dataDeCriacao) FROM Anuncios);`
@@ -701,7 +701,7 @@ servidor.put('/jogos/:id/anuncios', async (req, resp)=>{
 		return resp.status(201).json(anuncioPublicado);
 	})
 	.catch(erro=>{
-		console.log("entrou no catch");
+		console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json(erro);
 	});
@@ -718,25 +718,25 @@ function converterHoraStringParaMinutos(horaString) {
 function converterMinutosParaHoraString(minutos) {
 	const hora = Math.floor(minutos/60);
 	const minuto = minutos%60;
-	return String(hora).padStart(2,'0') + ":" + String(minuto).padStart(2,'0');
+	return String(hora).padStart(2,'0') + ':' + String(minuto).padStart(2,'0');
 }
 
 //cadastra usuário
 servidor.put('/usuarios', async (req, resp)=>{
 	try {
 		const body = req.body;
-		console.log("PUT usuarios, usuário="+body.nomeDoUsuario+", ip="+req.ip);
-		//console.log("sql="+`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
+		console.log('PUT usuarios, usuário='+body.nomeDoUsuario+', ip='+req.ip);
+		//console.log('sql='+`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
 		const db = await abrirBanco;
 		const usuarioJaExiste = await db.get(
 			`SELECT nome FROM Usuarios WHERE nome = (?);`,
 			[body.nomeDoUsuario]
 		);
-		//console.log("já existe="+usuarioJaExiste);
+		//console.log('já existe='+usuarioJaExiste);
 		if (usuarioJaExiste)
 			return resp.status(409).json({erro: 'Este nome de usuário não está disponível.'});
 		const senhaHash = await bcrypt.hash(body.senha, BCRYPT_SALT_ROUNDS);
-		//console.log("senhaHash="+senhaHash);
+		//console.log('senhaHash='+senhaHash);
 		//await db.run(`INSERT INTO Usuarios (id, nome, senhaHash, dataDeCriacao) VALUES (?,?,?,?);`,
 			//[uuidv4(), body.nomeDoUsuario, senhaHash, Date.now()],
 		const timeStampDoRegistro = Date.now();
@@ -778,7 +778,7 @@ servidor.put('/usuarios', async (req, resp)=>{
 		//return resp.status(201).json(token);
 	}
 	catch (erro) {
-		console.log("entrou no catch");
+		console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -788,8 +788,8 @@ servidor.put('/usuarios', async (req, resp)=>{
 servidor.put('/sessoes', async (req, resp)=>{
 	try {
 		const body = req.body;
-		console.log("PUT sessoes, usuário="+body.nomeDoUsuario+", manter sessão="+body.manterSessao
-			+", ip="+req.ip);
+		console.log('PUT sessoes, usuário='+body.nomeDoUsuario+', manter sessão='+body.manterSessao
+			+', ip='+req.ip);
 		if (body.manterSessao !== true) body.manterSessao = 'false';
 		const db = await abrirBanco;
 		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
@@ -797,7 +797,7 @@ servidor.put('/sessoes', async (req, resp)=>{
 			`SELECT id,senhaHash,nome FROM Usuarios WHERE nome = (?);`,
 			[body.nomeDoUsuario]
 		);
-		//console.log("existe="+usuarioExiste);
+		//console.log('existe='+usuarioExiste);
 		if (!usuarioExiste)
 			return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
 		const senhaCorreta = await bcrypt.compare(body.senha, usuarioExiste.senhaHash);
@@ -813,7 +813,7 @@ servidor.put('/sessoes', async (req, resp)=>{
 			dataDeExpiracao: Date.now() + DURACAO_DO_TOKEN_DE_SESSAO,
 			manterSessao: body.manterSessao
 		};
-		//console.log("seletor,token="+seletor+','+tokenDaSessao);
+		//console.log('seletor,token='+seletor+','+tokenDaSessao);
 		const tokenDaSessaoHash = await bcrypt.hash(tokenDaSessao, BCRYPT_SALT_ROUNDS);
 		await db.run(
 			`INSERT INTO Sessoes (idDoUsuario, seletor, tokenDaSessaoHash, dataDeExpiracao, manterSessao)
@@ -837,14 +837,14 @@ servidor.put('/sessoes', async (req, resp)=>{
 		return resp.status(201).json(resposta);
 	}
 	catch (erro) {
-		console.log("entrou no catch");
+		console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
 });
 
 /*async function autenticarSessao(seletor,token){
-	console.log("entrou em autenticarSessao");
+	console.log('entrou em autenticarSessao');
 	try {
 		const db = await abrirBanco;
 		const sessao = await db.get(
@@ -869,14 +869,14 @@ servidor.put('/sessoes', async (req, resp)=>{
 			manterSessao: sessao.manterSessao
 		};
 	} catch (erro) {
-		console.log("entrou no catch de autenticarToken");
+		console.log('entrou no catch de autenticarToken');
 		console.log(erro);
 		return {erro};
 	}
 }
 
 async function atualizarSessao(idDaSessao){
-	console.log("entrou em atualizarSessao");
+	console.log('entrou em atualizarSessao');
 	try {
 		const novoTokenDaSessao = uuidv4();
 		const novoTokenDaSessaoHash = await bcrypt.hash(novoTokenDaSessao, BCRYPT_SALT_ROUNDS);
@@ -906,7 +906,7 @@ async function atualizarSessao(idDaSessao){
 			dataDeExpiracao
 		};
 	} catch (erro) {
-		console.log("entrou no catch de atualizarToken");
+		console.log('entrou no catch de atualizarToken');
 		console.log(erro);
 		return {erro};
 	}
@@ -985,7 +985,7 @@ servidor.get('/sessoes/:tokenDaSessao', async (req, resp)=>{
 		return resp.status(201).json(resposta);
 	}
 	catch (erro) {
-		console.log("entrou no catch");
+		console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -1019,7 +1019,7 @@ servidor.delete('/sessoes/:tokenDaSessao', async (req, resp)=>{
 		return resp.status(200).json({ok: 'Sessão excluída.'});
 	}
 	catch (erro) {
-		console.log("entrou no catch");
+		console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -1059,7 +1059,7 @@ servidor.delete('/outras-sessoes/:id/:tokenDaSessao', async (req, resp)=>{
 		return resp.status(200).json({qtdeSessoesDesconectadas: sessoesConectadas.qtde});
 	}
 	catch (erro) {
-		console.log("entrou no catch");
+		console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -1069,12 +1069,12 @@ servidor.delete('/outras-sessoes/:id/:tokenDaSessao', async (req, resp)=>{
 servidor.post('/usuarios/senha', async (req, resp)=>{
 	try {
 		const body = req.body;
-		//console.log("POST usuarios/senha, id do usuário="+body.id+", ip="+req.ip);
+		//console.log('POST usuarios/senha, id do usuário='+body.id+', ip='+req.ip);
 		//const idDoUsuario = parseInt(body.id);
 		const tokenDaSessao = body.tokenDaSessao;
 		const seletor = tokenDaSessao.slice(0,8);
 		const token = tokenDaSessao.slice(9);
-		console.log("POST usuarios/senha, seletor="+seletor+", ip="+req.ip);
+		console.log('POST usuarios/senha, seletor='+seletor+', ip='+req.ip);
 		const db = await abrirBanco;
 		const sessaoExiste = await db.get(
 			`SELECT id, tokenDaSessaoHash, dataDeExpiracao, idDoUsuario FROM Sessoes WHERE seletor = '${seletor}';`
@@ -1143,7 +1143,7 @@ servidor.post('/usuarios/senha', async (req, resp)=>{
 		return resp.status(200).json({ok: 'Senha alterada com sucesso.'});
 	}
 	catch (erro) {
-		console.log("entrou no catch");
+		console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -1155,11 +1155,11 @@ servidor.delete('/usuarios/:id', async (req, resp)=>{
 		const body = req.body;
 		//const id = parseInt(req.params.id);
 		//const id = parseInt(body.id);
-		//console.log("DELETE usuarios/:id, id do usuário="+id+", ip="+req.ip);
+		//console.log('DELETE usuarios/:id, id do usuário='+id+', ip='+req.ip);
 		const tokenDaSessao = body.tokenDaSessao;
 		const seletor = tokenDaSessao.slice(0,8);
 		const token = tokenDaSessao.slice(9);
-		console.log("DELETE usuarios/:id, seletor="+seletor+", ip="+req.ip);
+		console.log('DELETE usuarios/:id, seletor='+seletor+', ip='+req.ip);
 		const db = await abrirBanco;
 		const sessaoExiste = await db.get(
 			`SELECT id, tokenDaSessaoHash, dataDeExpiracao, idDoUsuario FROM Sessoes WHERE seletor = '${seletor}';`
@@ -1225,7 +1225,7 @@ servidor.delete('/usuarios/:id', async (req, resp)=>{
 		return resp.status(200).json({ok: 'Conta excluída.'});
 	}
 	catch (erro) {
-		console.log("entrou no catch");
+		console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -1237,11 +1237,11 @@ servidor.delete('/anuncios/:id', async (req, resp)=>{
 		const body = req.body;
 		const idDoAnuncio = parseInt(req.params.id);
 		//const idDoAnuncio = body.idDoAnuncio;
-		//console.log("DELETE anuncios/:id, id="+id+", ip="+req.ip);
+		//console.log('DELETE anuncios/:id, id='+id+', ip='+req.ip);
 		const tokenDaSessao = body.tokenDaSessao;
 		const seletor = tokenDaSessao.slice(0,8);
 		const token = tokenDaSessao.slice(9);
-		console.log("DELETE anuncios/:id, seletor="+seletor+", ip="+req.ip);
+		console.log('DELETE anuncios/:id, seletor='+seletor+', ip='+req.ip);
 		const db = await abrirBanco;
 		const sessaoExiste = await db.get(
 			`SELECT id, tokenDaSessaoHash, dataDeExpiracao, idDoUsuario FROM Sessoes WHERE seletor = '${seletor}';`
@@ -1267,7 +1267,7 @@ servidor.delete('/anuncios/:id', async (req, resp)=>{
 		return resp.status(200).json({ok: 'Anúncio excluído.'});
 	}
 	catch (erro) {
-		console.log("entrou no catch");
+		console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -1279,9 +1279,9 @@ servidor.put('/anuncios', async (req, resp)=>{
 		const tokenDaSessao = req.body.tokenDaSessao;
 		const seletor = tokenDaSessao.slice(0,8);
 		const token = tokenDaSessao.slice(9);
-		console.log("PUT anuncios, seletor="+seletor+", ip="+req.ip);
+		console.log('PUT anuncios, seletor='+seletor+', ip='+req.ip);
 		const anuncio = req.body.anuncio;
-		//console.log("PUT anuncios, usuário="+body.idDoUsuario+", ip="+req.ip);
+		//console.log('PUT anuncios, usuário='+body.idDoUsuario+', ip='+req.ip);
 
 		//console.log(anuncio);
 		//console.log(body.disponibilidades);
@@ -1357,10 +1357,10 @@ servidor.put('/anuncios', async (req, resp)=>{
 		return resp.status(201).json(anuncioPublicado);
 	}
 	catch (erro) {
-		console.log("entrou no catch");
+		console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
 });
 
-servidor.listen(PORTA, ()=>console.log("iniciou server, ouvindo porta "+PORTA));
+servidor.listen(PORTA, ()=>console.log('iniciou server, ouvindo porta '+PORTA));

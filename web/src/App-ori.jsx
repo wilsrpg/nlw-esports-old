@@ -42,7 +42,7 @@ export default function App() {
   return (
     <div className='conteudo'>
       <img src={logo}/>
-      <h1>Seu <span className="gradienteNlwGay">duo</span> está aqui.</h1>
+      <h1>Seu <span className='gradienteNlwGay'>duo</span> está aqui.</h1>
 
       <div className='jogos'>
         {!jogos ?

@@ -21,8 +21,8 @@ export default function App() {
 
   useEffect(()=>{
     //const dados = {
-    //  method: "POST",
-    //  headers: {"Content-Type": "application/json"},
+    //  method: 'POST',
+    //  headers: {'Content-Type': 'application/json'},
     //  body: JSON.stringify({qtde: 3}),
     //};
     //fetch(SERVIDOR+`/jogos-recentes`, dados)
@@ -37,8 +37,8 @@ export default function App() {
       return;
     const qtdeJogosExibidos = 4;
     //const dados = {
-    //  method: "POST",
-    //  headers: {"Content-Type": "application/json"},
+    //  method: 'POST',
+    //  headers: {'Content-Type': 'application/json'},
     //  body: JSON.stringify({qtde: qtdeJogosExibidos}),
     //};
     //fetch(SERVIDOR+`/jogos-recentes`, dados)
@@ -65,7 +65,7 @@ export default function App() {
     <>
     <div className='conteudo'>
       <img src={logo}/>
-      <h1>Seu <span className="gradienteNlwGay">duo</span> está aqui.</h1>
+      <h1>Seu <span className='gradienteNlwGay'>duo</span> está aqui.</h1>
 
       <div className='jogos'>
         {!jogos ?
