@@ -47,8 +47,10 @@ export default function FormularioDePesquisa({filtros}) {
     if (filtros.nome)
       document.getElementById('nome').value = filtros.nome;
     if (componenteExiste) {
-      if (filtros.opcoesTempo && (filtros.tempoDeJogoAnos || filtros.tempoDeJogoMeses
-                                  || filtros.tempoDeJogoAnos2 || filtros.tempoDeJogoMeses2)) {
+      if (filtros.opcoesTempo
+        //&& (filtros.tempoDeJogoAnos || filtros.tempoDeJogoMeses
+        //|| filtros.tempoDeJogoAnos2 || filtros.tempoDeJogoMeses2)
+      ) {
         document.getElementById('opcoesTempo').value = filtros.opcoesTempo;
         if (filtros.opcoesTempo == 'entre')
           definirOpcoesTempoEntre(true);
@@ -129,7 +131,7 @@ export default function FormularioDePesquisa({filtros}) {
       delete dados.opcoesNome;
     if (!dados.nome)
       delete dados.nome;
-    
+
     if (!dados.opcoesTempo)
       delete dados.opcoesTempo;
     if (!dados.tempoDeJogoAnos)
@@ -140,7 +142,7 @@ export default function FormularioDePesquisa({filtros}) {
       delete dados.tempoDeJogoAnos2;
     if (!dados.tempoDeJogoMeses2)
       delete dados.tempoDeJogoMeses2;
-    
+
     let l = 2;
     while (dados['quando'+l]) {
       if (!dados['de'+l])
@@ -191,9 +193,9 @@ export default function FormularioDePesquisa({filtros}) {
     if (!dados.ordenarPor)
       delete dados.ordenarPor;
     
-    const qtdeFiltros = Object.keys(dados).length;
-    //console.log(qtdeFiltros);
-    let destino = '/anuncios' + (qtdeFiltros == 0 ? '' : '?'+new URLSearchParams(dados));
+    const qtdeCampos = Object.entries(dados).length;
+    //console.log(dados);
+    let destino = '/anuncios' + (qtdeCampos == 0 ? '' : '?'+new URLSearchParams(dados));
     if (destino != urlAtual.pathname+urlAtual.search) {
       if (componenteExiste)
         definirAguardando(true);
