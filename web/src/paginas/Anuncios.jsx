@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom';
 import FormularioDePesquisa from '../componentes/FormularioDePesquisa';
 import ResultadosDaPesquisa from '../componentes/ResultadosDaPesquisa';
+import BotaoParaPublicarAnuncio from '../componentes/BotaoParaPublicarAnuncio';
 
 export default function Anuncios() {
   let componenteExiste = true;
@@ -54,6 +55,7 @@ export default function Anuncios() {
     <div className='conteudo'>
       {filtros &&
         <>
+        <BotaoParaPublicarAnuncio/>
         <FormularioDePesquisa filtros={filtros}/>
         <ResultadosDaPesquisa filtros={filtros}/>
         </>

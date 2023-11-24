@@ -26,7 +26,6 @@ import { SERVIDOR } from '../../enderecoDoServidor';
 -ajeitar layout da barra superior (colocar caixa de continuar conectado num lugar melhor)
 -adicionar página atual ao título
 -unificar formulários de entrada
--adicionar botão de publicar anúncio na página de anúncios
 */
 
 export const contexto = createContext();
