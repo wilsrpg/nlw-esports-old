@@ -251,7 +251,7 @@ servidor.get('/jogos', async (req, resp)=>{
 //*/
 
 //retorna a lista completa de jogos
-servidor.get('/Jogos', async (req, resp)=>{
+servidor.get('/jogos', async (req, resp)=>{
 	const db = await abrirBanco;
 	const jogos = await db.all(
 		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.idDoJogo) AS qtdeAnuncios
@@ -605,6 +605,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 		return {...anuncio,
 			nomeDoUsuario: anuncio.nomeNoJogo,
 			tempoDeJogoEmAnos: anuncio.tempoDeJogoEmMeses/12,
+			tempoDeJogoEmMeses: anuncio.tempoDeJogoEmMeses,
 			//diasQueJoga: anuncio.diasQueJoga.split(','),
 			diasQueJoga: anuncio.disponibilidades[0].dias,
 			//deHora: converterMinutosParaHoraString(anuncio.disponibilidades[0].horaDeInicio),
@@ -738,8 +739,9 @@ servidor.put('/usuarios', async (req, resp)=>{
 		//console.log("senhaHash="+senhaHash);
 		//await db.run(`INSERT INTO Usuarios (id, nome, senhaHash, dataDeCriacao) VALUES (?,?,?,?);`,
 			//[uuidv4(), body.nomeDoUsuario, senhaHash, Date.now()],
+		const timeStampDoRegistro = Date.now();
 		await db.run(`INSERT INTO Usuarios (nome, senhaHash, dataDeCriacao) VALUES (?,?,?);`,
-			[body.nomeDoUsuario, senhaHash, Date.now()],
+			[body.nomeDoUsuario, senhaHash, timeStampDoRegistro],
 			function(erro) {
 				console.log('quando isso é executado??');
 				if (erro) {
@@ -752,7 +754,7 @@ servidor.put('/usuarios', async (req, resp)=>{
 			}
 		);
 		const usuarioRegistrado = await db.get(
-			`SELECT id, nome FROM Usuarios WHERE dataDeCriacao = (SELECT MAX(dataDeCriacao) FROM Usuarios);`
+			`SELECT id, nome FROM Usuarios WHERE dataDeCriacao = ${timeStampDoRegistro};`
 		);
 		//console.log(usuarioRegistrado);
 		//return resp.status(201).json({usuario: usuarioRegistrado});
@@ -1002,10 +1004,12 @@ servidor.delete('/sessoes/:tokenDaSessao', async (req, resp)=>{
 		console.log('DELETE sessoes/:tokenDaSessao, seletor='+seletor+', ip='+req.ip);
 		const db = await abrirBanco;
 		const sessaoExiste = await db.get(
-			`SELECT id, tokenDaSessaoHash FROM Sessoes WHERE seletor = '${seletor}';`
+			`SELECT id, tokenDaSessaoHash, dataDeExpiracao FROM Sessoes WHERE seletor = '${seletor}';`
 		);
 		if (!sessaoExiste)
 			return resp.status(404).json({erro: 'Sessão inexistente.'});
+		if(sessaoExiste.dataDeExpiracao < Date.now())
+			return resp.status(404).json({erro: 'Sessão expirada.'});
 		const sessaoValida = await bcrypt.compare(token, sessaoExiste.tokenDaSessaoHash);
 		if (!sessaoValida)
 			return resp.status(404).json({erro: 'Sessão inválida.'});
@@ -1035,15 +1039,17 @@ servidor.delete('/outras-sessoes/:id/:tokenDaSessao', async (req, resp)=>{
 			+', ip='+req.ip);
 		const db = await abrirBanco;
 		const sessaoExiste = await db.get(
-			`SELECT id, tokenDaSessaoHash FROM Sessoes WHERE idDoUsuario = ${id} AND seletor = '${seletor}';`
+			`SELECT id, tokenDaSessaoHash, dataDeExpiracao FROM Sessoes WHERE seletor = '${seletor}';`
 		);
 		if (!sessaoExiste)
 			return resp.status(404).json({erro: 'Sessão inexistente.'});
+		if(sessaoExiste.dataDeExpiracao < Date.now())
+			return resp.status(404).json({erro: 'Sessão expirada.'});
 		const sessaoValida = await bcrypt.compare(token, sessaoExiste.tokenDaSessaoHash);
 		if (!sessaoValida)
 			return resp.status(404).json({erro: 'Sessão inválida.'});
 			//cookie roubado? oq deve ser feito nesse caso?
-		
+
 		const sessoesConectadas = await db.get(
 			`SELECT COUNT(*) AS qtde FROM Sessoes WHERE idDoUsuario = ${id} AND seletor != '${seletor}';`
 		);
@@ -1063,14 +1069,27 @@ servidor.delete('/outras-sessoes/:id/:tokenDaSessao', async (req, resp)=>{
 servidor.post('/usuarios/senha', async (req, resp)=>{
 	try {
 		const body = req.body;
-		console.log("POST usuarios/senha, id do usuário="+body.id+", ip="+req.ip);
-		const id = parseInt(body.id);
+		//console.log("POST usuarios/senha, id do usuário="+body.id+", ip="+req.ip);
+		//const idDoUsuario = parseInt(body.id);
 		const tokenDaSessao = body.tokenDaSessao;
 		const seletor = tokenDaSessao.slice(0,8);
 		const token = tokenDaSessao.slice(9);
+		console.log("POST usuarios/senha, seletor="+seletor+", ip="+req.ip);
 		const db = await abrirBanco;
-		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-		const usuarioExiste = await db.get(`SELECT id,senhaHash FROM Usuarios WHERE id = ${id};`,
+		const sessaoExiste = await db.get(
+			`SELECT id, tokenDaSessaoHash, dataDeExpiracao, idDoUsuario FROM Sessoes WHERE seletor = '${seletor}';`
+		);
+		if (!sessaoExiste)
+			return resp.status(404).json({erro: 'Sessão inexistente.'});
+		if(sessaoExiste.dataDeExpiracao < Date.now())
+			return resp.status(404).json({erro: 'Sessão expirada.'});
+		const sessaoValida = await bcrypt.compare(token, sessaoExiste.tokenDaSessaoHash);
+		if (!sessaoValida)
+			return resp.status(404).json({erro: 'Sessão inválida.'});
+			//cookie roubado? oq deve ser feito nesse caso?
+
+		const usuarioExiste = await db.get(
+			`SELECT senhaHash FROM Usuarios WHERE id = ${sessaoExiste.idDoUsuario};`,
 			function(erro) {
 				console.log('quando isso é executado?? - buscando usuário');
 				if (erro) {
@@ -1096,7 +1115,7 @@ servidor.post('/usuarios/senha', async (req, resp)=>{
 		//await db.run(
 		//	`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE nome = '${body.nomeDoUsuario}';`
 		//);
-		await db.run(`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE id = ${id};`,
+		await db.run(`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE id = ${sessaoExiste.idDoUsuario};`,
 			function(erro) {
 				console.log('quando isso é executado?? - atualizando senha');
 				if (erro) {
@@ -1108,7 +1127,8 @@ servidor.post('/usuarios/senha', async (req, resp)=>{
 				return this.lastID;
 			}
 		);
-		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${id} AND seletor != '${seletor}';`,
+		await db.run(
+			`DELETE FROM Sessoes WHERE idDoUsuario = ${sessaoExiste.idDoUsuario} AND seletor != '${seletor}';`,
 			function(erro) {
 				console.log('quando isso é executado?? - excluindo sessões');
 				if (erro) {
@@ -1133,12 +1153,28 @@ servidor.post('/usuarios/senha', async (req, resp)=>{
 servidor.delete('/usuarios/:id', async (req, resp)=>{
 	try {
 		const body = req.body;
-		const id = parseInt(req.params.id);
+		//const id = parseInt(req.params.id);
 		//const id = parseInt(body.id);
-		console.log("DELETE usuarios/:id, id do usuário="+id+", ip="+req.ip);
+		//console.log("DELETE usuarios/:id, id do usuário="+id+", ip="+req.ip);
+		const tokenDaSessao = body.tokenDaSessao;
+		const seletor = tokenDaSessao.slice(0,8);
+		const token = tokenDaSessao.slice(9);
+		console.log("DELETE usuarios/:id, seletor="+seletor+", ip="+req.ip);
 		const db = await abrirBanco;
-		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-		const usuarioExiste = await db.get(`SELECT id,senhaHash FROM Usuarios WHERE id = ${id};`,
+		const sessaoExiste = await db.get(
+			`SELECT id, tokenDaSessaoHash, dataDeExpiracao, idDoUsuario FROM Sessoes WHERE seletor = '${seletor}';`
+		);
+		if (!sessaoExiste)
+			return resp.status(404).json({erro: 'Sessão inexistente.'});
+		if(sessaoExiste.dataDeExpiracao < Date.now())
+			return resp.status(404).json({erro: 'Sessão expirada.'});
+		const sessaoValida = await bcrypt.compare(token, sessaoExiste.tokenDaSessaoHash);
+		if (!sessaoValida)
+			return resp.status(404).json({erro: 'Sessão inválida.'});
+			//cookie roubado? oq deve ser feito nesse caso?
+
+		const usuarioExiste = await db.get(
+			`SELECT senhaHash FROM Usuarios WHERE id = ${sessaoExiste.idDoUsuario};`,
 			function(erro) {
 				console.log('quando isso é executado?? - buscando usuário');
 				if (erro) {
@@ -1151,12 +1187,12 @@ servidor.delete('/usuarios/:id', async (req, resp)=>{
 			}
 		);
 		if (!usuarioExiste)
-			return resp.status(404).json({erro: 'Este nome de usuário não está registrado.'});
+			return resp.status(404).json({erro: 'Usuário não encontrado.'});
 		const senhaCorreta = await bcrypt.compare(body.senha, usuarioExiste.senhaHash);
 		if (!senhaCorreta)
 			return resp.status(401).json({erro: 'Senha incorreta.'});
-		//await db.run(`DELETE FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-		await db.run(`DELETE FROM Usuarios WHERE id = ${id};`,
+		
+		await db.run(`DELETE FROM Usuarios WHERE id = ${sessaoExiste.idDoUsuario};`,
 			function(erro) {
 				console.log('quando isso é executado?? - excluindo usuário');
 				if (erro) {
@@ -1168,7 +1204,8 @@ servidor.delete('/usuarios/:id', async (req, resp)=>{
 				return this.lastID;
 			}
 		);
-		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${id};`,
+		//exclui as sessões do usuário
+		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${sessaoExiste.idDoUsuario};`,
 			function(erro) {
 				console.log('quando isso é executado?? - excluindo sessões');
 				if (erro) {
@@ -1180,7 +1217,11 @@ servidor.delete('/usuarios/:id', async (req, resp)=>{
 				return this.lastID;
 			}
 		);
-		//lembrete: excluir anúncios tbm
+		//exclui os anúncios do usuário
+		const idsDosAnuncios = await db.all(`SELECT idDoAnuncio FROM Anuncios WHERE idDoUsuario = ${sessaoExiste.idDoUsuario};`);
+		console.log(idsDosAnuncios.join());
+		await db.run(`DELETE FROM Anuncios WHERE idDoUsuario = ${sessaoExiste.idDoUsuario};`);
+		await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio IN (${idsDosAnuncios.join()});`);
 		return resp.status(200).json({ok: 'Conta excluída.'});
 	}
 	catch (erro) {
@@ -1193,19 +1234,35 @@ servidor.delete('/usuarios/:id', async (req, resp)=>{
 //exclui um anúncio
 servidor.delete('/anuncios/:id', async (req, resp)=>{
 	try {
-		//const body = req.body;
-		const id = parseInt(req.params.id);
-		//const id = parseInt(body.idDoAnuncio);
-		console.log("DELETE anuncios/:id, id="+id+", ip="+req.ip);
+		const body = req.body;
+		const idDoAnuncio = parseInt(req.params.id);
+		//const idDoAnuncio = body.idDoAnuncio;
+		//console.log("DELETE anuncios/:id, id="+id+", ip="+req.ip);
+		const tokenDaSessao = body.tokenDaSessao;
+		const seletor = tokenDaSessao.slice(0,8);
+		const token = tokenDaSessao.slice(9);
+		console.log("DELETE anuncios/:id, seletor="+seletor+", ip="+req.ip);
 		const db = await abrirBanco;
-		const anuncioExiste = await db.get(`SELECT idDoAnuncio FROM Anuncios WHERE idDoAnuncio = ${id};`);
+		const sessaoExiste = await db.get(
+			`SELECT id, tokenDaSessaoHash, dataDeExpiracao, idDoUsuario FROM Sessoes WHERE seletor = '${seletor}';`
+		);
+		if (!sessaoExiste)
+			return resp.status(404).json({erro: 'Sessão inexistente.'});
+		if(sessaoExiste.dataDeExpiracao < Date.now())
+			return resp.status(404).json({erro: 'Sessão expirada.'});
+		const sessaoValida = await bcrypt.compare(token, sessaoExiste.tokenDaSessaoHash);
+		if (!sessaoValida)
+			return resp.status(404).json({erro: 'Sessão inválida.'});
+			//cookie roubado? oq deve ser feito nesse caso?
+
+		const anuncioExiste = await db.get(`SELECT idDoAnuncio FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`);
 		const disponibilidadeExiste = await db.run(
-			`SELECT idDoAnuncio FROM Disponibilidades WHERE idDoAnuncio = ${id};`
+			`SELECT idDoAnuncio FROM Disponibilidades WHERE idDoAnuncio = ${idDoAnuncio};`
 		);
 		if (!anuncioExiste && !disponibilidadeExiste)
 			return resp.status(404).json({erro: 'Anúncio não encontrado.'});
-		await db.run(`DELETE FROM Anuncios WHERE idDoAnuncio = ${id};`);
-		await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = ${id};`);
+		await db.run(`DELETE FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`);
+		await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = ${idDoAnuncio};`);
 		//await new Promise(r=>setTimeout(r,1000));
 		return resp.status(200).json({ok: 'Anúncio excluído.'});
 	}
@@ -1219,10 +1276,14 @@ servidor.delete('/anuncios/:id', async (req, resp)=>{
 //publica um anúncio
 servidor.put('/anuncios', async (req, resp)=>{
 	try {
-		const body = req.body;
-		console.log("PUT anuncios, usuário="+body.idDoUsuario+", ip="+req.ip);
+		const tokenDaSessao = req.body.tokenDaSessao;
+		const seletor = tokenDaSessao.slice(0,8);
+		const token = tokenDaSessao.slice(9);
+		console.log("PUT anuncios, seletor="+seletor+", ip="+req.ip);
+		const anuncio = req.body.anuncio;
+		//console.log("PUT anuncios, usuário="+body.idDoUsuario+", ip="+req.ip);
 
-		//console.log(body);
+		//console.log(anuncio);
 		//console.log(body.disponibilidades);
 		//return resp.status(200).json({ok: 'Anúncio recebido, mas não registrado.'});
 		//const disponibilidade = [];
@@ -1231,14 +1292,28 @@ servidor.put('/anuncios', async (req, resp)=>{
 		//	horarioDeInicio: converterHoraStringParaMinutos(body.deHora),
 		//	horarioDeTermino: converterHoraStringParaMinutos(body.ateHora)
 		//});
-
 		const db = await abrirBanco;
+		const sessaoExiste = await db.get(
+			`SELECT tokenDaSessaoHash, dataDeExpiracao, idDoUsuario FROM Sessoes WHERE seletor = '${seletor}';`
+		);
+		if (!sessaoExiste)
+			return resp.status(404).json({erro: 'Sessão inexistente.'});
+		if(sessaoExiste.dataDeExpiracao < Date.now())
+			return resp.status(404).json({erro: 'Sessão expirada.'});
+		const sessaoValida = await bcrypt.compare(token, sessaoExiste.tokenDaSessaoHash);
+		if (!sessaoValida)
+			return resp.status(404).json({erro: 'Sessão inválida.'});
+			//cookie roubado? oq deve ser feito nesse caso?
+		//if (sessaoExiste.idDoUsuario != anuncio.idDoUsuario) //é possível isso?
+		//	return resp.status(401).json({erro: 'Erro ao validar usuário.'});
+
+		const timeStampDaPublicacao = Date.now();
 		await db.run(
 			`INSERT INTO Anuncios (idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, discord, usaChatDeVoz,
 				dataDeCriacao)
 			VALUES (?,?,?,?,?,?,?);`,
-			[body.idDoJogo, body.idDoUsuario, body.nomeNoJogo, body.tempoDeJogoEmMeses, body.discord,
-				body.usaChatDeVoz, Date.now()
+			[anuncio.idDoJogo, sessaoExiste.idDoUsuario, anuncio.nomeNoJogo, anuncio.tempoDeJogoEmMeses,
+				anuncio.discord, anuncio.usaChatDeVoz, timeStampDaPublicacao
 			],
 			function(erro) {
 				console.log('quando isso é executado??');
@@ -1252,17 +1327,17 @@ servidor.put('/anuncios', async (req, resp)=>{
 			}
 		);
 		const anuncioPublicado = await db.get(
-			`SELECT idDoAnuncio FROM Anuncios WHERE dataDeCriacao = (SELECT MAX(dataDeCriacao) FROM Anuncios);`
+			`SELECT idDoAnuncio FROM Anuncios WHERE dataDeCriacao = ${timeStampDaPublicacao};`
 		);
 
 		let i = 0;
-		while (i < body.disponibilidades.length) {
+		while (i < anuncio.disponibilidades.length) {
 			await db.run(
 				`INSERT INTO Disponibilidades (idDoAnuncio, dias, horaDeInicio, horaDeTermino)
 				VALUES (?,?,?,?);`,
-				[anuncioPublicado.idDoAnuncio, body.disponibilidades[i].dias,
-					converterHoraStringParaMinutos(body.disponibilidades[i].horaDeInicio),
-					converterHoraStringParaMinutos(body.disponibilidades[i].horaDeTermino)
+				[anuncioPublicado.idDoAnuncio, anuncio.disponibilidades[i].dias,
+					converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeInicio),
+					converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeTermino)
 				],
 				function(err) {
 					console.log('quando isso é executado??');

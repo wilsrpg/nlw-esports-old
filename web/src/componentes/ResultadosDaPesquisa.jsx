@@ -17,7 +17,7 @@ export default function ResultadosDaPesquisa({filtros}) {
   const [anunciosPorPagina, definirAnunciosPorPagina] = useState();
   const [discord, definirDiscord] = useState('');
   const urlAtual = useLocation();
-  const [excluindoAnuncio, definirExcluindoAnuncio] = useState(false);
+  const [botoesDeExcluirDesabilitados, definirBotoesDeExcluirDesabilitados] = useState(false);
 
   useEffect(()=>{
     return ()=>componenteExiste = false;
@@ -53,7 +53,8 @@ export default function ResultadosDaPesquisa({filtros}) {
       if (componenteExiste)
         definirErroAoObterDados(true);
     });
-  }, [urlAtual,filtros])
+  //}, [urlAtual,filtros])
+  }, [filtros])
 
   useEffect(()=>{
     if (!anuncios)
@@ -224,18 +225,18 @@ export default function ResultadosDaPesquisa({filtros}) {
       {anunciosPorPagina &&
         anunciosPorPagina.map((anuncio,i)=>
           <CartaoDeAnuncio
-            key={i}
+            key={anuncio.idDoAnuncio}
             nomeDoJogo={anuncio.nomeDoJogo}
             anuncio={anuncio}
             funcConectar={()=>obterDiscord(anuncio.idDoAnuncio)}
-            funcExcluir={()=>{
+            funcRecarregarAnuncios={()=>{
               if (componenteExiste)
                 //definirAnuncioPraExcluir(anuncio.id);
                 //definirIdDoAnuncioPraExcluir(anuncio.id);
                 definirAnuncios(anuncios.filter(an=>an.idDoAnuncio != anuncio.idDoAnuncio));
             }}
-            excluindo={excluindoAnuncio}
-            definirExcluindo={definirExcluindoAnuncio}
+            excluindo={botoesDeExcluirDesabilitados}
+            definirExcluindo={definirBotoesDeExcluirDesabilitados}
           />
         )
       }

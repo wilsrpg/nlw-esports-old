@@ -101,10 +101,11 @@ export default function Configuracoes() {
   }
 
   function tentarExcluirConta(senha) {
+    const tokenDaSessao = getCookie('tokenDaSessao');
     const dados = {
       method: "DELETE",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({id: contexto2.usuarioLogado.id, senha}),
+      body: JSON.stringify({id: contexto2.usuarioLogado.id, senha, tokenDaSessao}),
     };
     fetch(SERVIDOR+`/usuarios/${contexto2.usuarioLogado.id}`, dados)
     .then(resp=>resp.json())

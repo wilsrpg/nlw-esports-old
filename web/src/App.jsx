@@ -19,14 +19,14 @@ import { SERVIDOR } from '../../enderecoDoServidor';
 
 /*falta:
 -não reutilizar id no banco de dados
--excluir anúncios qd usuário deletar conta
--qd filtros mudam, a pesquisa eh feita 2x; ajeitar
+-não atualizar token ao atualizar página (pq invalida as outras abas; pq, se o cookie eh alterado?)
+-passar envio d tokens pro header da requisição
 -cadastrar jogo?
 -ajeitar chamarAtencao
 -ajeitar layout da barra superior (colocar caixa de continuar conectado num lugar melhor)
+-adicionar página atual ao título
 -unificar formulários de entrada
--verificar sessão qd tentar fazer alterações
--trocar verbos por categorias+métodos+params
+-adicionar botão de publicar anúncio na página de anúncios
 */
 
 export const contexto = createContext();

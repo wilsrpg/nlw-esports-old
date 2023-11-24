@@ -4,14 +4,20 @@ import { contexto } from '../App';
 import iconeLixeira from '../imagens/icons8-trash vermelha.svg'
 import carregando from '../imagens/loading.svg'
 
-export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, funcExcluir, excluindo, definirExcluindo}) {
+export default function CartaoDeAnuncio({
+  nomeDoJogo, anuncio, funcConectar, funcRecarregarAnuncios, excluindo, definirExcluindo
+}) {
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
   const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
-  const [aguardando, definirAguardando] = useState(false);
+  //const [aguardando, definirAguardando] = useState(false);
   const [confirmandoExclusaoDoAnuncio, definirConfirmandoExclusaoDoAnuncio] = useState(false);
 
   useEffect(()=>{
+    //definirExcluindo(false);
+    //definirAguardando(false);
+    //definirConfirmandoExclusaoDoAnuncio(false);
+
     return ()=>componenteExiste = false;
   }, [])
 
@@ -25,12 +31,11 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
       if (confirm('Confirma exclusão do anúncio?')) {
         if (componenteExiste) {
           definirExcluindo(true);
-          definirAguardando(true);
+          //definirAguardando(true);
         }
         excluirAnuncio();
       } else {
-        if (document.getElementById(anuncio.idDoAnuncio))
-          document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
+        document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
         if (componenteExiste)
           definirConfirmandoExclusaoDoAnuncio(false);
       }
@@ -38,10 +43,11 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
   }, [confirmandoExclusaoDoAnuncio])
 
   async function excluirAnuncio() {
+    const tokenDaSessao = getCookie('tokenDaSessao');
     const dados = {
-      method: "DELETE",
-      headers: {"Content-Type": "application/json"},
-      //body: JSON.stringify({idDoAnuncio: anuncio.idDoAnuncio}),
+      method: 'DELETE',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({idDoAnuncio: anuncio.idDoAnuncio, tokenDaSessao}),
     };
     //fetch(SERVIDOR+`/excluir-anuncio`, dados)
     fetch(SERVIDOR+`/anuncios/${anuncio.idDoAnuncio}`, dados)
@@ -52,7 +58,7 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
       if (document.getElementById(anuncio.idDoAnuncio))
         document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
       if (componenteExiste)
-        funcExcluir();
+        funcRecarregarAnuncios();
       alert('Anúncio excluído.');
     })
     .catch(erro=>{
@@ -65,17 +71,35 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
     })
     .finally(()=>{
       if (componenteExiste) {
+        //definirAguardando(false);
+        //definirConfirmandoExclusaoDoAnuncio(false);
         definirExcluindo(false);
-        //definirAguardando(false); //aqui causa memory leak
+        //    //definirAguardando(false); //aqui causa memory leak
       }
     });
+  }
+
+  function getCookie(cname) {
+    let name = cname + '=';
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return '';
   }
 
   return (
     <div id={anuncio.idDoAnuncio} className='cartaoAnuncio'>
       {contexto2.usuarioLogado && contexto2.usuarioLogado.id == anuncio.idDoUsuario &&
         <img className='botaoCopiar botaoFechar'
-          src={aguardando ? carregando : iconeLixeira}
+          src={excluindo ? carregando : iconeLixeira}
           onClick={excluindo ? undefined : confirmarExclusaoDoAnuncio}
         />
       }
@@ -90,7 +114,14 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
       <strong>{anuncio.nomeDoUsuario}</strong>
 
       <p>Tempo de jogo</p>
-      <strong>{anuncio.tempoDeJogoEmAnos} ano{anuncio.tempoDeJogoEmAnos > 1 && "s"}</strong>
+      <strong>
+        {anuncio.tempoDeJogoEmMeses >= 12 &&
+          (Math.floor(anuncio.tempoDeJogoEmMeses/12) + ' ano' + (anuncio.tempoDeJogoEmMeses >= 24 ? 's' : ''))}
+        {anuncio.tempoDeJogoEmMeses >= 12 && anuncio.tempoDeJogoEmMeses%12 > 0 && ' e '}
+        {anuncio.tempoDeJogoEmMeses % 12 > 0 &&
+          anuncio.tempoDeJogoEmMeses % 12 + (anuncio.tempoDeJogoEmMeses % 12 > 1 ? ' meses' : ' mês')}
+        {anuncio.tempoDeJogoEmMeses == 0 && 'Zero'}
+      </strong>
 
       <p>Disponibilidade</p>
       {anuncio.disponibilidades.map((disp,i)=>
@@ -119,9 +150,9 @@ export default function CartaoDeAnuncio({nomeDoJogo, anuncio, funcConectar, func
       )}
 
       <p>Chamada de voz</p>
-      <strong>{anuncio.usaChatDeVoz ? "Sim" : "Não"}</strong>
+      <strong>{anuncio.usaChatDeVoz ? 'Sim' : 'Não'}</strong>
 
-      <button onClick={funcConectar} className="botaoPublicarAnuncio roxinho">
+      <button onClick={funcConectar} className='botaoPublicarAnuncio roxinho'>
         Conectar
       </button>
     </div>

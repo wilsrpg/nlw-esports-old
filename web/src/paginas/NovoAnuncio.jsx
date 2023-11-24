@@ -126,18 +126,21 @@ export default function NovoAnuncio() {
   }
 
   function tentarPublicar(anuncio) {
+    const tokenDaSessao = getCookie('tokenDaSessao');
     const dados = {
       method: 'PUT',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(anuncio)
+      body: JSON.stringify({anuncio, tokenDaSessao})
       //body: anuncio
     };
     fetch(SERVIDOR+`/anuncios`, dados)
     .then(resp=>{
       if (resp.ok) {
         alert('Anúncio publicado com sucesso!');
-      } else
+      } else {
+        console.log(erro);
         alert('Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.');
+      }
     })
     .catch(erro=>{
       console.log(erro);
@@ -147,6 +150,22 @@ export default function NovoAnuncio() {
       if (componenteExiste)
         definirPublicando(false);
     });
+  }
+
+  function getCookie(cname) {
+    let name = cname + '=';
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return '';
   }
 
   return (
