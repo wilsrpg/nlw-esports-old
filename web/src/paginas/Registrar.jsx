@@ -56,13 +56,13 @@ export default function Registrar() {
     .then(resp=>{
       if (resp.erro)
         throw resp.erro;
-      else {
-        //localStorage.setItem('idDoUsuarioLogado', resp.id);
-        //localStorage.setItem('usuarioLogado', resp.nome);
-        //setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
-        contexto2.definirUsuarioLogado(resp);
-        historico.push('/conta');
-      }
+      //localStorage.setItem('idDoUsuarioLogado', resp.id);
+      //localStorage.setItem('usuarioLogado', resp.nome);
+      //setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
+      //contexto2.definirUsuarioLogado(resp);
+      //historico.push('/conta');
+      alert('Conta criada com sucesso. Entre com seu nome de usuário e senha para acessar o sistema.');
+      historico.push('/entrar');
     })
     .catch(erro=>{
       console.log(erro);
