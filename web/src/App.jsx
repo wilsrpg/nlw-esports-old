@@ -20,7 +20,6 @@ import { SERVIDOR } from '../../enderecoDoServidor';
 /*falta:
 -não reutilizar id no banco de dados
 -não atualizar token ao atualizar página (pq invalida as outras abas; pq, se o cookie eh alterado?)
--passar envio d tokens pro header da requisição
 -cadastrar jogo?
 -ajeitar chamarAtencao
 -ajeitar layout da barra superior (colocar caixa de continuar conectado num lugar melhor)
@@ -79,19 +78,18 @@ export default function App() {
   }
 
   function autenticarSessao(tokenDaSessao) {
-    //const dados = {
-    //  method: 'POST',
-    //  headers: {'Content-Type': 'application/json'},
-    //  body: JSON.stringify({tokenDaSessao})
-    //};
+    const dados = {
+      method: 'GET',
+      headers: {'Authorization': tokenDaSessao},
+      //body: JSON.stringify({tokenDaSessao})
+    };
     //let usuarioLogado;
-    //fetch(SERVIDOR+`/sessoes`, dados)
-    fetch(SERVIDOR+`/sessoes/${tokenDaSessao}`)
+    fetch(SERVIDOR+`/sessoes`, dados)
+    //fetch(SERVIDOR+`/sessoes/${tokenDaSessao}`)
     .then(resp=>resp.json())
     .then(resp=>{
       if (resp.erro)
         throw resp.erro;
-      //console.log(resp);
       //if (componenteExiste) {
       definirUsuarioLogado({
         id: resp.id,

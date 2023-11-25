@@ -46,8 +46,9 @@ export default function CartaoDeAnuncio({
     const tokenDaSessao = getCookie('tokenDaSessao');
     const dados = {
       method: 'DELETE',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({idDoAnuncio: anuncio.idDoAnuncio, tokenDaSessao}),
+      //headers: {'Content-Type': 'application/json'},
+      headers: {'Authorization': tokenDaSessao},
+      //body: JSON.stringify({idDoAnuncio: anuncio.idDoAnuncio}),
     };
     //fetch(SERVIDOR+`/excluir-anuncio`, dados)
     fetch(SERVIDOR+`/anuncios/${anuncio.idDoAnuncio}`, dados)

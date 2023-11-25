@@ -129,18 +129,16 @@ export default function NovoAnuncio() {
     const tokenDaSessao = getCookie('tokenDaSessao');
     const dados = {
       method: 'PUT',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({anuncio, tokenDaSessao})
-      //body: anuncio
+      //headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'Authorization': tokenDaSessao},
+      body: JSON.stringify({anuncio})
     };
     fetch(SERVIDOR+`/anuncios`, dados)
+    .then(resp=>resp.json())
     .then(resp=>{
-      if (resp.ok) {
-        alert('Anúncio publicado com sucesso!');
-      } else {
-        console.log(erro);
-        alert('Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.');
-      }
+      if (resp.erro)
+        throw resp.erro;
+      alert('Anúncio publicado com sucesso!');
     })
     .catch(erro=>{
       console.log(erro);

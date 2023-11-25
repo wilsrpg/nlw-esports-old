@@ -63,15 +63,16 @@ export default function Configuracoes() {
     const tokenDaSessao = getCookie('tokenDaSessao');
     const dados = {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({id: contexto2.usuarioLogado.id, senha, novaSenha, tokenDaSessao}),
+      //headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'Authorization': tokenDaSessao},
+      body: JSON.stringify({id: contexto2.usuarioLogado.id, senha, novaSenha}),
     };
     fetch(SERVIDOR+`/usuarios/senha`, dados)
     .then(resp=>resp.json())
     .then(resp=>{
       if (resp.erro)
         throw resp.erro;
-      else if (componenteExiste) {
+      if (componenteExiste) {
         definirErroAoValidar(false);
         definirMensagem('Senha alterada com sucesso.');
       }
@@ -104,15 +105,16 @@ export default function Configuracoes() {
     const tokenDaSessao = getCookie('tokenDaSessao');
     const dados = {
       method: 'DELETE',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({id: contexto2.usuarioLogado.id, senha, tokenDaSessao}),
+      //headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'Authorization': tokenDaSessao},
+      body: JSON.stringify({senha}),
     };
     fetch(SERVIDOR+`/usuarios/${contexto2.usuarioLogado.id}`, dados)
     .then(resp=>resp.json())
     .then(resp=>{
       if (resp.erro)
         throw resp.erro;
-      else if (componenteExiste) {
+      if (componenteExiste) {
         //localStorage.removeItem('usuarioLogado');
         //localStorage.removeItem('idDoUsuarioLogado');
         document.cookie = 'tokenDaSessao=0;expires=0;samesite=lax;path=/';
@@ -134,15 +136,17 @@ export default function Configuracoes() {
     const tokenDaSessao = getCookie('tokenDaSessao');
     const dados = {
       method: 'DELETE',
-      headers: {'Content-Type': 'application/json'},
+      //headers: {'Content-Type': 'application/json'},
+      headers: {'Authorization': tokenDaSessao},
       //body: JSON.stringify({id: contexto2.usuarioLogado.id, tokenDaSessao}),
     };
-    fetch(SERVIDOR+`/outras-sessoes/${contexto2.usuarioLogado.id}/${tokenDaSessao}`, dados)
+    fetch(SERVIDOR+`/outras-sessoes/${contexto2.usuarioLogado.id}`, dados)
+    //fetch(SERVIDOR+`/outras-sessoes/${contexto2.usuarioLogado.id}/${tokenDaSessao}`, dados)
     .then(resp=>resp.json())
     .then(resp=>{
       if (resp.erro)
         throw resp.erro;
-      else if (componenteExiste) {
+      if (componenteExiste) {
         if (resp.qtdeSessoesDesconectadas == 0)
           alert('Esta conta não está conectada em outros dispositivos.');
         else

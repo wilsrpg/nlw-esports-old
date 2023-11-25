@@ -79,23 +79,22 @@ export default function BarraSuperior() {
     } else {
       const dados = {
         method: 'DELETE',
-        headers: {'Content-Type': 'application/json'},
+        //headers: {'Content-Type': 'application/json'},
+        headers: {'Authorization': tokenDaSessao},
         //body: JSON.stringify({tokenDaSessao}),
       };
-      //fetch(SERVIDOR+`/excluir-sessao`, dados)
-      fetch(SERVIDOR+`/sessoes/${tokenDaSessao}`, dados)
+      fetch(SERVIDOR+`/sessoes`, dados)
+      //fetch(SERVIDOR+`/sessoes/${tokenDaSessao}`, dados)
       .then(resp=>resp.json())
       .then(resp=>{
         if (resp.erro)
-          definirMensagem(resp.erro);
-        else {
-          //localStorage.removeItem('idDoUsuarioLogado');
-          //localStorage.removeItem('usuarioLogado');
-          //document.cookie = 'tokenDaSessao=0;expires=0;samesite=lax;httponly=true;path=/';
-          document.cookie = 'tokenDaSessao=0;expires=0;samesite=lax;path=/';
-          contexto2.definirUsuarioLogado();
-          historico.push('/entrar');
-        }
+          throw resp.erro;
+        //localStorage.removeItem('idDoUsuarioLogado');
+        //localStorage.removeItem('usuarioLogado');
+        //document.cookie = 'tokenDaSessao=0;expires=0;samesite=lax;httponly=true;path=/';
+        document.cookie = 'tokenDaSessao=0;expires=0;samesite=lax;path=/';
+        contexto2.definirUsuarioLogado();
+        historico.push('/entrar');
       })
       .catch(erro=>{
         console.log(erro);
