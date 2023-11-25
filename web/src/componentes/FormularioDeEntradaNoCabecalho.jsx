@@ -62,26 +62,24 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
     .then(resp=>{
       if (resp.erro)
         throw resp.erro;
-      else {
-        funcFecharMenu();
-        //localStorage.setItem('idDoUsuarioLogado', resp.id);
-        //localStorage.setItem('usuarioLogado', resp.nome);
-        //if (manterSessao)
-        //  setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
-          document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao
-                            //+ ';expires=' + new Date(resp.dataDeExpiracao).toUTCString()
-                            + (resp.manterSessao ? ';expires=' + new Date(resp.dataDeExpiracao).toUTCString() : '')
-                            + ';samesite=lax;path=/';
-        //else
-        //  document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao + ';samesite=lax;path=/';
-        //if (componenteExiste)
-        contexto2.definirUsuarioLogado({
-          id: resp.id,
-          nome: resp.nome
-        });
-        if (urlAtual.pathname == '/entrar' || urlAtual.pathname == '/registrar')
-          historico.push('/conta');
-      }
+      funcFecharMenu();
+      //localStorage.setItem('idDoUsuarioLogado', resp.id);
+      //localStorage.setItem('usuarioLogado', resp.nome);
+      //if (manterSessao)
+      //  setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
+        document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao
+                          //+ ';expires=' + new Date(resp.dataDeExpiracao).toUTCString()
+                          + (resp.manterSessao ? ';expires=' + new Date(resp.dataDeExpiracao).toUTCString() : '')
+                          + ';samesite=lax;path=/';
+      //else
+      //  document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao + ';samesite=lax;path=/';
+      //if (componenteExiste)
+      contexto2.definirUsuarioLogado({
+        id: resp.id,
+        nome: resp.nome
+      });
+      if (urlAtual.pathname == '/entrar' || urlAtual.pathname == '/registrar')
+        historico.push('/conta');
     })
     .catch(erro=>{
       console.log(erro);

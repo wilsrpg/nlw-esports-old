@@ -57,25 +57,23 @@ export default function FormularioDeEntrada() {
     .then(resp=>{
       if (resp.erro)
         throw resp.erro;
-      else {
-        //localStorage.setItem('idDoUsuarioLogado', resp.id);
-        //localStorage.setItem('usuarioLogado', resp.nome);
-        //if (manterSessao)
-          document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao
-                            //+ ';expires=' + new Date(resp.dataDeExpiracao).toUTCString()
-                            + (resp.manterSessao ? ';expires=' + new Date(resp.dataDeExpiracao).toUTCString() : '')
-                            + ';samesite=lax;path=/';
-          //setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
-        //else
-        //  document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao + ';samesite=lax;path=/';
-        contexto2.definirUsuarioLogado({
-          id: resp.id,
-          nome: resp.nome
-        });
-        if (paginaAtual.pathname == '/entrar' || paginaAtual.pathname == '/registrar')
-          historico.push('/conta');
-        //historico.refresh();
-      }
+      //localStorage.setItem('idDoUsuarioLogado', resp.id);
+      //localStorage.setItem('usuarioLogado', resp.nome);
+      //if (manterSessao)
+        document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao
+                          //+ ';expires=' + new Date(resp.dataDeExpiracao).toUTCString()
+                          + (resp.manterSessao ? ';expires=' + new Date(resp.dataDeExpiracao).toUTCString() : '')
+                          + ';samesite=lax;path=/';
+        //setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
+      //else
+      //  document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao + ';samesite=lax;path=/';
+      contexto2.definirUsuarioLogado({
+        id: resp.id,
+        nome: resp.nome
+      });
+      if (paginaAtual.pathname == '/entrar' || paginaAtual.pathname == '/registrar')
+        historico.push('/conta');
+      //historico.refresh();
     })
     .catch(erro=>{
       //console.log(erro);
