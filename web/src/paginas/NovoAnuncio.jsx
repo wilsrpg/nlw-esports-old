@@ -2,8 +2,8 @@ import React, { useContext, useEffect, useState } from 'react'
 import { contexto } from '../App';
 import carregando from '../imagens/loading.svg'
 import { SERVIDOR } from '../../../enderecoDoServidor';
-//import { useHistory } from 'react-router-dom';
-import FormularioDeEntrada from '../componentes/FormularioDeEntrada';
+import { useHistory } from 'react-router-dom';
+//import FormularioDeEntrada from '../componentes/FormularioDeEntrada';
 
 export default function NovoAnuncio() {
   let componenteExiste = true;
@@ -22,13 +22,13 @@ export default function NovoAnuncio() {
   //];
   //const [usaChatDeVoz, definirUsaChatDeVoz] = useState(false);
   const [publicando, definirPublicando] = useState(false);
-  //const historico = useHistory();
+  const historico = useHistory();
   const [diasDisponiveis, definirDiasDisponiveis] = useState([[false,false,false,false,false,false,false]]);
 
   useEffect(()=>{
-    //if (!contexto2.usuarioLogado)
-    //  historico.push('/entrar');
-    //else
+    if (!contexto2.usuarioLogado)
+      historico.push('/entrar?redir=novoanuncio');
+    else
     if (contexto2.usuarioLogado)
       fetch(SERVIDOR+`/jogos`)
       .then(resp=>resp.json())
@@ -168,10 +168,10 @@ export default function NovoAnuncio() {
 
   return (
     <div className='conteudo'>
-      {!contexto2.usuarioLogado ?
+      {/*{!contexto2.usuarioLogado ?
         <FormularioDeEntrada/>
       :
-        <>
+        <>*/}
         <h2>Publique seu anúncio</h2>
         <form className='flex flexColumn fundoSemitransparente' onSubmit={publicarAnuncio}>
 
@@ -314,8 +314,8 @@ export default function NovoAnuncio() {
           </button>
 
         </form>
-        </>
-      }
+        {/*</>
+      }*/}
 
     </div>
   )

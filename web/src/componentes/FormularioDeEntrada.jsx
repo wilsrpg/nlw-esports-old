@@ -9,8 +9,9 @@ export default function FormularioDeEntrada() {
   const contexto2 = useContext(contexto);
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
-  const paginaAtual = useLocation();
+  const urlAtual = useLocation();
   const historico = useHistory();
+  const urlParams = new URLSearchParams(urlAtual.search);
 
   useEffect(()=>{
 
@@ -71,7 +72,10 @@ export default function FormularioDeEntrada() {
         id: resp.id,
         nome: resp.nome
       });
-      if (paginaAtual.pathname == '/entrar' || paginaAtual.pathname == '/registrar')
+      if (urlParams.get('redir'))
+        historico.push('/'+urlParams.get('redir'));
+      else
+      //if (urlAtual.pathname == '/entrar' || urlAtual.pathname == '/registrar')
         historico.push('/conta');
       //historico.refresh();
     })
@@ -82,13 +86,6 @@ export default function FormularioDeEntrada() {
         definirAguardando(false);
       }
     });
-  }
-
-  function setCookie(cname, cvalue, exdays) {
-    const d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    let expires = 'expires='+ d.toUTCString();
-    document.cookie = cname + '=' + cvalue + ';' + expires + ';samesite=lax;path=/';
   }
 
   return (

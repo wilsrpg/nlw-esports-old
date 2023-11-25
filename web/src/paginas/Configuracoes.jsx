@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { contexto } from '../App';
 import carregando from '../imagens/loading.svg'
 import { SERVIDOR } from '../../../enderecoDoServidor';
-import FormularioDeEntrada from '../componentes/FormularioDeEntrada';
+//import FormularioDeEntrada from '../componentes/FormularioDeEntrada';
 
 export default function Configuracoes() {
   let componenteExiste = true;
@@ -17,8 +17,8 @@ export default function Configuracoes() {
   const historico = useHistory();
 
   useEffect(()=>{
-    //if (!contexto2.usuarioLogado)
-    //  historico.push('/entrar');
+    if (!contexto2.usuarioLogado)
+      historico.push('/entrar?redir=configuracoes');
 
     return ()=>componenteExiste = false;
   }, [])
@@ -178,10 +178,10 @@ export default function Configuracoes() {
 
   return (
     <div className='conteudo'>
-      {!contexto2.usuarioLogado ?
+      {/*{!contexto2.usuarioLogado ?
         <FormularioDeEntrada/>
       :
-        <>
+        <>*/}
         <h2>Configurações</h2>
         <strong>Alterar senha</strong>
         <div>
@@ -224,8 +224,8 @@ export default function Configuracoes() {
           </div>
           </>
         }
-        </>
-      }
+        {/*</>
+      }*/}
     </div>
   )
 }

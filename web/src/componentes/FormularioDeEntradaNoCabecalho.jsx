@@ -11,6 +11,7 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
   const urlAtual = useLocation();
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
+  const urlParams = new URLSearchParams(urlAtual.search);
 
   //useEffect(()=>{
   //  return ()=>componenteExiste = false;
@@ -78,7 +79,10 @@ export default function FormularioDeEntradaNoCabecalho({funcFecharMenu, horizont
         id: resp.id,
         nome: resp.nome
       });
-      if (urlAtual.pathname == '/entrar' || urlAtual.pathname == '/registrar')
+      if (urlParams.get('redir'))
+        historico.push('/'+urlParams.get('redir'));
+      else
+      //if (urlAtual.pathname == '/entrar' || urlAtual.pathname == '/registrar')
         historico.push('/conta');
     })
     .catch(erro=>{

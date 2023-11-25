@@ -8,7 +8,7 @@ import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function BarraSuperior() {
   const contexto2 = useContext(contexto);
-  const paginaAtual = useLocation();
+  const urlAtual = useLocation();
   const historico = useHistory();
   const larguraDeColapso = 450;
   const [telaEstreita, definirTelaEstreita] = useState(window.innerWidth <= larguraDeColapso);
@@ -34,7 +34,7 @@ export default function BarraSuperior() {
 
   useEffect(()=>{
     fecharMenus();
-  }, [paginaAtual,telaEstreita,telaEstreita2])
+  }, [urlAtual,telaEstreita,telaEstreita2])
 
   function fecharMenusPeloTeclado(e) {
     if (e.repeat)
