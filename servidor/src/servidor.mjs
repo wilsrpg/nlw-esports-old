@@ -232,7 +232,7 @@ servidor.get('/jogos', async (req, resp)=>{
 	const db = await abrirBanco;
 	const jogos = await db.all(
 		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.jogoId) AS qtdeAnuncios
-		FROM Jogos LEFT JOIN Anuncios
+		FROM Jogos JOIN Anuncios
 		ON Jogos.id = jogoId
 		GROUP BY Jogos.id
 		ORDER BY MAX(dataDeCriacao) DESC;`
@@ -240,7 +240,7 @@ servidor.get('/jogos', async (req, resp)=>{
 	console.log('GET jogos, qtde='+jogos.length+', ip='+req.ip);
 	//const jogosQtde = await db.all(
 	//	`SELECT Jogos.id, COUNT(Anuncios.jogoId) AS qtdeAnuncios
-	//	FROM Jogos LEFT JOIN Anuncios
+	//	FROM Jogos JOIN Anuncios
 	//	ON Jogos.id=Anuncios.jogoId
 	//	GROUP BY Jogos.id;`
 	//);
@@ -255,7 +255,7 @@ servidor.get('/jogos', async (req, resp)=>{
 	const db = await abrirBanco;
 	const jogos = await db.all(
 		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.idDoJogo) AS qtdeAnuncios
-		FROM Jogos LEFT JOIN Anuncios
+		FROM Jogos JOIN Anuncios
 		ON Jogos.id = Anuncios.idDoJogo
 		GROUP BY Jogos.id
 		ORDER BY MAX(dataDeCriacao) DESC;`
@@ -263,7 +263,7 @@ servidor.get('/jogos', async (req, resp)=>{
 	console.log('GET jogos, qtde='+jogos.length+', ip='+req.ip);
 	//const jogosQtde = await db.all(
 	//	`SELECT Jogos.id, COUNT(Anuncios.jogoId) AS qtdeAnuncios
-	//	FROM Jogos LEFT JOIN Anuncios
+	//	FROM Jogos JOIN Anuncios
 	//	ON Jogos.id=Anuncios.jogoId
 	//	GROUP BY Jogos.id;`
 	//);
@@ -291,7 +291,7 @@ servidor.get('/jogos-recentes/:qtde', async (req, resp)=>{
 	const qtde = parseInt(req.params.qtde);
 	const jogos = await db.all(
 		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.idDoJogo) AS qtdeAnuncios
-		FROM Jogos LEFT JOIN Anuncios
+		FROM Jogos JOIN Anuncios
 		ON Jogos.id = Anuncios.idDoJogo
 		GROUP BY Jogos.id
 		ORDER BY MAX(Anuncios.dataDeCriacao) DESC
@@ -354,6 +354,14 @@ servidor.post('/anuncios', async (req, resp)=>{
 	if (!body.usaChatDeVoz) body.usaChatDeVoz = '%';
 	else if (body.usaChatDeVoz == 'sim') body.usaChatDeVoz = 1;
 	else if (body.usaChatDeVoz == 'não') body.usaChatDeVoz = 0;
+
+	let pagina = 1;
+	let resultadosPorPagina = 10;
+	if (body.resultadosPorPagina)
+		resultadosPorPagina = parseInt(body.resultadosPorPagina);
+	if (body.pagina)
+		pagina = parseInt(body.pagina);
+	console.log('resultadosPorPagina='+resultadosPorPagina+', pagina='+pagina);
 
 	//console.log(body);
 
@@ -548,6 +556,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 						anunciosOu.push(anuncio);
 					passou2 = !passou2;
 				}
+				//console.log('anuncio '+anuncio.idDoAnuncio+'='+passou2);
 				return passou2;
 
 				/*let horaDeInicio = deHora || anuncio.disponibilidades[0].horaDeInicio;
@@ -906,7 +915,7 @@ async function autenticarSessao(token){
 		const sessaoExiste = await db.get(
 			`SELECT Sessoes.id, idDoUsuario, tokenDaSessaoHash, dataDeExpiracao, manterSessao,
 				Usuarios.nome AS nomeDoUsuario
-			FROM Sessoes LEFT JOIN Usuarios
+			FROM Sessoes JOIN Usuarios
 			ON Sessoes.idDoUsuario = Usuarios.id
 			WHERE seletor = '${seletor}';`
 		);
@@ -997,7 +1006,7 @@ servidor.get('/sessoes', async (req, resp)=>{
 		/*const sessaoExiste = await db.get(
 			`SELECT Sessoes.id, idDoUsuario, tokenDaSessaoHash, dataDeExpiracao, manterSessao,
 				Usuarios.nome AS nomeDoUsuario
-			FROM Sessoes LEFT JOIN Usuarios
+			FROM Sessoes JOIN Usuarios
 			ON Sessoes.idDoUsuario = Usuarios.id
 			WHERE seletor = '${seletor}';`
 		);
