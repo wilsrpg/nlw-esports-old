@@ -25,7 +25,7 @@ const abrirBanco = open({
 
 const BCRYPT_SALT_ROUNDS = 10;
 
-const DURACAO_DO_TOKEN_DE_SESSAO = 30*24*60*60*1000;
+const DURACAO_DO_TOKEN_DE_SESSAO = 7 * 24*60*60*1000; //uma semana
 
 //procedimentos iniciais
 async function iniciar() {
