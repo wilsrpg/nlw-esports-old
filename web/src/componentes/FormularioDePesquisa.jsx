@@ -67,6 +67,17 @@ export default function FormularioDePesquisa({filtros}) {
       document.getElementById('de').value = filtros.de;
     if (filtros.ate)
       document.getElementById('ate').value = filtros.ate;
+    const ate = document.getElementById('ate');
+    if (ate.value && document.getElementById('de').value
+    && ate.value <= document.getElementById('de').value) {
+      //ate.style.backgroundColor = 'lightgray';
+      ate.style.cursor = 'help';
+      ate.title = 'Do dia seguinte';
+    } else {
+      //ate.style.backgroundColor = '';
+      ate.style.cursor = 'default';
+      ate.title = '';
+    }
     const arr = [''];
     for (let i = 1; i < filtros.qtdeFiltrosDisponibilidade; i++)
       arr.push('');
@@ -109,6 +120,17 @@ export default function FormularioDePesquisa({filtros}) {
         document.getElementById('quando'+i).value = filtros['quando'+i];
         document.getElementById('de'+i).value = filtros['de'+i];
         document.getElementById('ate'+i).value = filtros['ate'+i];
+        const ate = document.getElementById('ate'+i);
+        if (ate.value && document.getElementById('de'+i).value
+        && ate.value <= document.getElementById('de'+i).value) {
+          //ate.style.backgroundColor = 'lightgray';
+          ate.style.cursor = 'help';
+          ate.title = 'Do dia seguinte';
+        } else {
+          //ate.style.backgroundColor = '';
+          ate.style.cursor = 'default';
+          ate.title = '';
+        }
       }
       if (componenteExiste)
         definirAplicandoDisponilibidade(false);
@@ -306,11 +328,34 @@ export default function FormularioDePesquisa({filtros}) {
                   <div className='flex flexWrap'>
                     <div className='flex'>
                       <label htmlFor={'de'+id}>De</label>
-                      <input id={'de'+id} name={'de'+id} type='time'/>
+                      <input id={'de'+id} name={'de'+id} type='time' onChange={()=>{
+                      const ate = document.getElementById('ate'+id);
+                      if (ate.value && ate.value <= document.getElementById('de'+id).value) {
+                        //ate.style.backgroundColor = 'lightgray';
+                        ate.style.cursor = 'help';
+                        ate.title = 'Do dia seguinte';
+                      } else {
+                        //ate.style.backgroundColor = '';
+                        ate.style.cursor = 'default';
+                        ate.title = '';
+                      }
+                    }}/>
                     </div>
                     <div className='flex flexWrap'>
                       <label htmlFor={'ate'+id}>Até</label>
-                      <input id={'ate'+id} name={'ate'+id} type='time'/>
+                      <input id={'ate'+id} name={'ate'+id} type='time' onChange={()=>{
+                        const ate = document.getElementById('ate'+id);
+                        //console.log(ate.value);
+                        if (ate.value && ate.value <= document.getElementById('de'+id).value) {
+                          //ate.style.backgroundColor = 'lightgray';
+                          ate.style.cursor = 'help';
+                          ate.title = 'Do dia seguinte';
+                        } else {
+                          //ate.style.backgroundColor = '';
+                          ate.style.cursor = 'default';
+                          ate.title = '';
+                        }
+                      }}/>
                       {diasDisponiveis.length > 1 &&
                         <button className='carregando' type='button'
                           onClick={()=>{

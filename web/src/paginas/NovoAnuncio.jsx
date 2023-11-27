@@ -263,11 +263,33 @@ export default function NovoAnuncio() {
                 <div className='flex' key={i*2+1}>
                   <div className='flex'>
                     <label htmlFor={'de'+id}>De</label>
-                    <input id={'de'+id} name={'de'+id} type='time' required/>
+                    <input id={'de'+id} name={'de'+id} type='time' required onChange={()=>{
+                      const ate = document.getElementById('ate'+id);
+                      if (ate.value && ate.value <= document.getElementById('de'+id).value) {
+                        //ate.style.backgroundColor = 'lightgray';
+                        ate.style.cursor = 'help';
+                        ate.title = 'Do dia seguinte';
+                      } else {
+                        //ate.style.backgroundColor = '';
+                        ate.style.cursor = 'default';
+                        ate.title = '';
+                      }
+                    }}/>
                   </div>
                   <div className='flex'>
                     <label htmlFor={'ate'+id}>Até</label>
-                    <input id={'ate'+id} name={'ate'+id} type='time' required/>
+                    <input id={'ate'+id} name={'ate'+id} type='time' required onChange={()=>{
+                      const ate = document.getElementById('ate'+id);
+                      if (ate.value && ate.value <= document.getElementById('de'+id).value) {
+                        //ate.style.backgroundColor = 'lightgray';
+                        ate.style.cursor = 'help';
+                        ate.title = 'Do dia seguinte';
+                      } else {
+                        //ate.style.backgroundColor = '';
+                        ate.style.cursor = 'default';
+                        ate.title = '';
+                      }
+                    }}/>
                     {diasDisponiveis.length == 1 &&
                       <div className='carregando'/>
                     }
