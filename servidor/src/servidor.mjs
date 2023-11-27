@@ -305,14 +305,15 @@ servidor.get('/jogos-recentes/:qtde', async (req, resp)=>{
 //pesquisa nos anúncios
 servidor.post('/anuncios', async (req, resp)=>{
 	const body = req.body;
+	console.log(body);
 
-	const campos = {};
+	const camposPesquisados = {};
 	for (let c in body)
 		if(body[c])
-			campos[c] = body[c];
-	if (campos.qtdeFiltrosDisponibilidade)
-		delete campos.qtdeFiltrosDisponibilidade;
-	const qtdeCampos = Object.entries(campos).length;
+			camposPesquisados[c] = body[c];
+	if (camposPesquisados.qtdeFiltrosDisponibilidade)
+		delete camposPesquisados.qtdeFiltrosDisponibilidade;
+	const qtdeCampos = Object.entries(camposPesquisados).length;
 	
 	if (!body.jogo) body.jogo = '%';
 
@@ -350,6 +351,10 @@ servidor.post('/anuncios', async (req, resp)=>{
 				tempoDeJogoEmAnos2 += parseInt(body.tempoDeJogoMeses2)/12;
 		}
 	}
+
+	let disponivelEmTodos = false;
+	if (body.opcoesDisponibilidade && body.opcoesDisponibilidade == 'emTodos')
+		disponivelEmTodos = true;
 
 	if (!body.usaChatDeVoz) body.usaChatDeVoz = '%';
 	else if (body.usaChatDeVoz == 'sim') body.usaChatDeVoz = 1;
@@ -402,6 +407,29 @@ servidor.post('/anuncios', async (req, resp)=>{
 		ORDER BY dataDeCriacao DESC;`,
 		[body.jogo, body.idDoUsuario, body.nome, tempoDeJogoEmAnos*12, body.usaChatDeVoz]
 	);
+
+	//////////////////////////////
+
+	let jogo;
+	if(body.jogo != '%') //colocar id do jogo no <select> na pesquisa de anúncios em vez do nomeUrl
+		jogo = await db.get(`SELECT id FROM Jogos WHERE nomeUrl = ${body.jogo}`);
+
+	let anuncios2 = await db.all(
+		`SELECT Anuncios.idDoAnuncio, idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses,
+			usaChatDeVoz, dataDeCriacao, dias, horaDeInicio, horaDeTermino
+		FROM Anuncios JOIN Disponibilidades
+		ON Anuncios.idDoAnuncio = Disponibilidades.idDoAnuncio
+		WHERE idDoUsuario ${body.idDoUsuario == '%' ? 'LIKE' : '=' } (?)
+		  ${jogo ? `AND idDoJogo = ${jogo.id}` : ''}
+		  AND nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
+			AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} (?)
+			AND usaChatDeVoz LIKE (?)
+		ORDER BY dataDeCriacao DESC;`,
+		[body.idDoUsuario, body.nome, tempoDeJogoEmAnos*12, body.usaChatDeVoz]
+	);
+	
+	//////////////////////////////
+	
 	//let anuncios = await db.all(
 	//	`SELECT Anuncios.id, jogoId, Jogos.nome AS nomeDoJogo, nomeDoUsuario, tempoDeJogoEmAnos,
 	//		diasQueJoga, deHora, ateHora, usaChatDeVoz, dataDeCriacao
@@ -443,15 +471,14 @@ servidor.post('/anuncios', async (req, resp)=>{
 		anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmMeses <= tempoDeJogoEmAnos2*12);
 	
 	//console.log('dps do filtro d tempoDeJogoEntre e ants do d disponibilidade, qtde= '+anuncios.length);
-		
+	
 	if (body.qtdeFiltrosDisponibilidade) {
 		//const disponibilidades = [];
+		let qualquerDia = false;
 		let diasQueJoga;
 		const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
 		let deHora;
 		let ateHora;
-		//let virandoNoite = false;
-		let disponivelEmTodos = false;
 		let anunciosOu = [];
 
 		for (let i = 0; i < body.qtdeFiltrosDisponibilidade; i++) {
@@ -460,9 +487,11 @@ servidor.post('/anuncios', async (req, resp)=>{
 			
       let id = i == 0 ? '' : i+1;
 			if (body['quando'+id] == 'qualquerDia')
+				qualquerDia = true;
+			if (body['quando'+id] == 'qualquerDia' || body['quando'+id] == 'todoDia')
 				//diasQueJoga = '.*';
-				diasQueJoga = [];
-			else if (body['quando'+id] == 'todoDia')
+			//	diasQueJoga = [];
+			//else if (body['quando'+id] == 'todoDia')
 				//diasQueJoga = '0,1,2,3,4,5,6';
 				diasQueJoga = [0,1,2,3,4,5,6];
 			else if (body['quando'+id] == 'semana')
@@ -492,8 +521,12 @@ servidor.post('/anuncios', async (req, resp)=>{
 				ateHora = undefined;
 			//if (deHora > ateHora)
 			//	virandoNoite = true;
-			if (body.opcoesDisponibilidade)
-				disponivelEmTodos = true;
+
+			//////////////////////////////
+
+			let sqlDisp;
+
+			//////////////////////////////
 
 			//disponibilidades.push({diasQueJoga, deHora, ateHora});
 			//console.log('deHora~ateHora= '+deHora+'~'+ateHora);
@@ -514,9 +547,9 @@ servidor.post('/anuncios', async (req, resp)=>{
 					//console.log('dia='+dia);
 					//anuncio.disponibilidades.map(disp=>{
 					for (let j = 0; j < anuncio.disponibilidades.length && !encontrouTodas; j++) {
-						const disp = anuncio.disponibilidades[j];
+						const anDispAtual = anuncio.disponibilidades[j];
 						
-						let arrDisp = disp.dias.split(',');
+						let diasAnDispAtual = anDispAtual.dias.split(',');
 						//console.log('j='+j+', disp e arrDisp=');
 						//console.log(disp);
 						//console.log(arrDisp);
@@ -524,20 +557,23 @@ servidor.post('/anuncios', async (req, resp)=>{
 						//console.log('deHora~ateHora= '+deHora+'~'+ateHora);
 						let horaDeInicio = deHora;
 						if (horaDeInicio == undefined)
-							horaDeInicio = disp.horaDeInicio;
+							horaDeInicio = anDispAtual.horaDeInicio;
 						let horaDeTermino = ateHora;
 						if (horaDeTermino == undefined)
-							horaDeTermino = disp.horaDeTermino;
+							horaDeTermino = anDispAtual.horaDeTermino;
 						//console.log('horaDeInicio~horaDeTermino= '+horaDeInicio+'~'+horaDeTermino);
 						let duracaoBusca = (1440 + horaDeTermino - horaDeInicio) % 1440;
-						let duracaoAnuncio = (1440 + disp.horaDeTermino - disp.horaDeInicio) % 1440;
-						let diferencaInicio = (1440 - disp.horaDeInicio + horaDeInicio) % 1440;
+						let duracaoAnuncio = (1440 + anDispAtual.horaDeTermino - anDispAtual.horaDeInicio) % 1440;
+						let diferencaInicio = (1440 - anDispAtual.horaDeInicio + horaDeInicio) % 1440;
 						//console.log('duracaoBusca,duracaoAnuncio,diferencaInicio= '+duracaoBusca+','
 						//	+duracaoAnuncio+','+diferencaInicio);
 
-						if (duracaoAnuncio - diferencaInicio >= duracaoBusca && arrDisp.some(d=>d==dia)) {
+						if ((duracaoAnuncio - diferencaInicio >= duracaoBusca || duracaoAnuncio == 0)
+						&& diasAnDispAtual.some(d=>d==dia)) {
 							dispEncontradas.push(dia);
 							dispEncontradas.sort();
+							if (qualquerDia)
+								encontrouTodas = true;
 						}
 						//console.log('dispEncontradas e diasQueJoga=');
 						//console.log(dispEncontradas);
@@ -596,6 +632,8 @@ servidor.post('/anuncios', async (req, resp)=>{
 			//console.log('dps do filtro '+i);
 			//console.log(anuncios);
 		}
+		//console.log(anunciosOu.map(a=>a.idDoAnuncio).join());
+
 		if (!disponivelEmTodos)
 			anuncios = anunciosOu.sort((a,b)=>b.dataDeCriacao - a.dataDeCriacao);
 			
