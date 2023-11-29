@@ -35,6 +35,8 @@ async function iniciar() {
 	//const A = await db.get(`PRAGMA foreign_keys;`);
 	//console.log(A);
 	
+	//await db.run(`ALTER TABLE Sessoes RENAME COLUMN tokenDaSessaoHash TO uuidDoTokenHash;`);
+	//await db.run(`UPDATE Anuncios SET usaChatDeVoz = 1 WHERE usaChatDeVoz = 'on';`);
 	//await db.run(`DROP TABLE Jogos;`);
 	//await db.run(`DROP TABLE Anuncios;`);
 	//await db.run(`ALTER TABLE Jogos2 RENAME TO Jogos;`);
@@ -255,7 +257,7 @@ servidor.get('/jogos', async (req, resp)=>{
 	const db = await abrirBanco;
 	const jogos = await db.all(
 		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.idDoJogo) AS qtdeAnuncios
-		FROM Jogos JOIN Anuncios
+		FROM Jogos LEFT JOIN Anuncios
 		ON Jogos.id = Anuncios.idDoJogo
 		GROUP BY Jogos.id
 		ORDER BY MAX(dataDeCriacao) DESC;`
@@ -305,6 +307,7 @@ servidor.get('/jogos-recentes/:qtde', async (req, resp)=>{
 //pesquisa nos anúncios
 servidor.post('/anuncios', async (req, resp)=>{
 	const body = req.body;
+	console.log('body:');
 	console.log(body);
 
 	const camposPesquisados = {};
@@ -321,34 +324,36 @@ servidor.post('/anuncios', async (req, resp)=>{
 	//console.log('body.idDoUsuario='+body.idDoUsuario);
 	
 	let naoContem = false, exatamente = false;
-	if (!body.nome) body.nome = '%';
-	else if (!body.opcoesNome) body.nome = '%'+body.nome+'%';
-	else if (body.opcoesNome == 'comecaCom') body.nome = body.nome+'%';
-	else if (body.opcoesNome == 'terminaCom') body.nome = '%'+body.nome;
+	if (!body.nomeNoJogo) body.nomeNoJogo = '%';
+	else if (!body.opcoesNome) body.nomeNoJogo = '%'+body.nomeNoJogo+'%';
+	else if (body.opcoesNome == 'comecaCom') body.nomeNoJogo = body.nomeNoJogo+'%';
+	else if (body.opcoesNome == 'terminaCom') body.nomeNoJogo = '%'+body.nomeNoJogo;
 	else if (body.opcoesNome == 'exatamente') exatamente = true;
 	else if (body.opcoesNome == 'naoContem') {
 		naoContem = true;
-		body.nome = '%'+body.nome+'%';
+		body.nomeNoJogo = '%'+body.nomeNoJogo+'%';
 	}
 
 	//if (!body.discord) body.discord = '%';
 	
-	let tempoDeJogoEmAnos = 0, tempoDeJogoEmAnos2 = 0;
-	//let tempoDeJogoEmMeses = 0, tempoDeJogoEmMeses2 = 0;
+	let tempoDeJogoEmMeses = 0;
+	let tempoDeJogoEmMeses2 = 0;
 	let noMaximo = false, entre = false;
-	if (body.tempoDeJogoAnos)
-		tempoDeJogoEmAnos = parseInt(body.tempoDeJogoAnos);
-	if (body.tempoDeJogoMeses)
-		tempoDeJogoEmAnos += parseInt(body.tempoDeJogoMeses)/12;
+	if (body.tempoDeJogoAnos) {
+		tempoDeJogoEmMeses += parseInt(body.tempoDeJogoAnos)*12;
+	}
+	if (body.tempoDeJogoMeses) {
+		tempoDeJogoEmMeses += parseInt(body.tempoDeJogoMeses);
+	}
 	if (body.opcoesTempo) {
 		if (body.opcoesTempo == 'noMaximo')
 			noMaximo = true;
 		else if (body.opcoesTempo == 'entre' && (body.tempoDeJogoAnos2 || body.tempoDeJogoMeses2)) {
 			entre = true;
 			if (body.tempoDeJogoAnos2)
-				tempoDeJogoEmAnos2 = parseInt(body.tempoDeJogoAnos2);
+				tempoDeJogoEmMeses2 += parseInt(body.tempoDeJogoAnos2)*12;
 			if (body.tempoDeJogoMeses2)
-				tempoDeJogoEmAnos2 += parseInt(body.tempoDeJogoMeses2)/12;
+				tempoDeJogoEmMeses2 += parseInt(body.tempoDeJogoMeses2);
 		}
 	}
 
@@ -356,9 +361,16 @@ servidor.post('/anuncios', async (req, resp)=>{
 	if (body.opcoesDisponibilidade && body.opcoesDisponibilidade == 'emTodos')
 		disponivelEmTodos = true;
 
-	if (!body.usaChatDeVoz) body.usaChatDeVoz = '%';
-	else if (body.usaChatDeVoz == 'sim') body.usaChatDeVoz = 1;
-	else if (body.usaChatDeVoz == 'não') body.usaChatDeVoz = 0;
+	let usaChatDeVoz = '%';
+	if (body.usaChatDeVoz) {
+		if (body.usaChatDeVoz == 'sim')
+			usaChatDeVoz = 1;
+		else
+			usaChatDeVoz = 0;
+	}
+	//if (!body.usaChatDeVoz) body.usaChatDeVoz = '%';
+	//else if (body.usaChatDeVoz == 'sim') body.usaChatDeVoz = 1;
+	//else if (body.usaChatDeVoz == 'não') body.usaChatDeVoz = 0;
 
 	let pagina = 1;
 	let resultadosPorPagina = 10;
@@ -376,7 +388,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 	//const b2 = {
 	//	//jogoId: jogoId,
 	//	jogo: body.jogo,
-	//	nome: body.nome,
+	//	nomeNoJogo: body.nomeNoJogo,
 	//	naoContem: naoContem,
 	//	//discord: body.discord,
 	//	tempoDeJogoEmAnos: tempoDeJogoEmAnos,
@@ -387,14 +399,13 @@ servidor.post('/anuncios', async (req, resp)=>{
 	//	//diasQueJoga: diasQueJoga,
 	//	//deHora: deHora,
 	//	//ateHora: ateHora,
-	//	//virandoNoite: virandoNoite,
 	//	usaChatDeVoz: body.usaChatDeVoz
 	//}
 	//console.log('body convertido:');
 	//console.log(b2);
 
 	const db = await abrirBanco;
-	let anuncios = await db.all(
+	/*let anuncios = await db.all(
 		`SELECT idDoAnuncio, idDoJogo, idDoUsuario, Jogos.nome AS nomeDoJogo, nomeNoJogo, tempoDeJogoEmMeses,
 			usaChatDeVoz, dataDeCriacao
 		FROM Anuncios JOIN Jogos
@@ -402,34 +413,13 @@ servidor.post('/anuncios', async (req, resp)=>{
 		WHERE Jogos.nomeUrl ${body.jogo == '%' ? 'LIKE' : '=' } (?)
 		  AND idDoUsuario ${body.idDoUsuario == '%' ? 'LIKE' : '=' } (?)
 			AND nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
-			AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} (?)
-			AND usaChatDeVoz LIKE (?)
+			AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} ${tempoDeJogoEmMeses}
+			${entre ? 'AND tempoDeJogoEmMeses <='+tempoDeJogoEmMeses2 : ''}
+			AND usaChatDeVoz LIKE '${usaChatDeVoz}'
 		ORDER BY dataDeCriacao DESC;`,
-		[body.jogo, body.idDoUsuario, body.nome, tempoDeJogoEmAnos*12, body.usaChatDeVoz]
-	);
+		[body.jogo, body.idDoUsuario, body.nomeNoJogo]
+	);*/
 
-	//////////////////////////////
-
-	let jogo;
-	if(body.jogo != '%') //colocar id do jogo no <select> na pesquisa de anúncios em vez do nomeUrl
-		jogo = await db.get(`SELECT id FROM Jogos WHERE nomeUrl = ${body.jogo}`);
-
-	let anuncios2 = await db.all(
-		`SELECT Anuncios.idDoAnuncio, idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses,
-			usaChatDeVoz, dataDeCriacao, dias, horaDeInicio, horaDeTermino
-		FROM Anuncios JOIN Disponibilidades
-		ON Anuncios.idDoAnuncio = Disponibilidades.idDoAnuncio
-		WHERE idDoUsuario ${body.idDoUsuario == '%' ? 'LIKE' : '=' } (?)
-		  ${jogo ? `AND idDoJogo = ${jogo.id}` : ''}
-		  AND nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
-			AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} (?)
-			AND usaChatDeVoz LIKE (?)
-		ORDER BY dataDeCriacao DESC;`,
-		[body.idDoUsuario, body.nome, tempoDeJogoEmAnos*12, body.usaChatDeVoz]
-	);
-	
-	//////////////////////////////
-	
 	//let anuncios = await db.all(
 	//	`SELECT Anuncios.id, jogoId, Jogos.nome AS nomeDoJogo, nomeDoUsuario, tempoDeJogoEmAnos,
 	//		diasQueJoga, deHora, ateHora, usaChatDeVoz, dataDeCriacao
@@ -444,20 +434,22 @@ servidor.post('/anuncios', async (req, resp)=>{
 	//	ORDER BY dataDeCriacao DESC;`,
 	//	[body.jogo, body.nome, tempoDeJogoEmAnos, body.usaChatDeVoz]
 	//);
+
 	//console.log('qtde an='+anuncios.length);
 	//console.log(anuncios);
-	let idsDosAnuncios = anuncios.map(an=>an.idDoAnuncio).join();
+	
+	//let idsDosAnuncios = anuncios.map(an=>an.idDoAnuncio).join();
 	//console.log(idsDosAnuncios);
-	let disponibilidades = await db.all(
-		`SELECT idDoAnuncio,dias,horaDeInicio,horaDeTermino
-		FROM Disponibilidades
-		WHERE idDoAnuncio IN (${idsDosAnuncios});`
-	);
+	//let disponibilidades = await db.all(
+	//	`SELECT idDoAnuncio,dias,horaDeInicio,horaDeTermino
+	//	FROM Disponibilidades
+	//	WHERE idDoAnuncio IN (${idsDosAnuncios});`
+	//);
 	//console.log('qtde disp='+disponibilidades.length);
-	anuncios.map(an=>{
-		an.disponibilidades = disponibilidades.filter(disp=>disp.idDoAnuncio == an.idDoAnuncio);
-		//console.log(an.disponibilidades);
-	});
+	//anuncios.map(an=>{
+	//	an.disponibilidades = disponibilidades.filter(disp=>disp.idDoAnuncio == an.idDoAnuncio);
+	//	//console.log(an.disponibilidades);
+	//});
 	//disponibilidades.map(disp=>{
 
 	//})
@@ -466,20 +458,23 @@ servidor.post('/anuncios', async (req, resp)=>{
 
 	//console.log('ants do filtro d tempoDeJogoEntre, qtde= '+anuncios.length);
 
-	if (entre)
+	//if (entre)
 		//anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmAnos <= tempoDeJogoEmAnos2);
-		anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmMeses <= tempoDeJogoEmAnos2*12);
+		//anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmMeses <= tempoDeJogoEmMeses2);
 	
 	//console.log('dps do filtro d tempoDeJogoEntre e ants do d disponibilidade, qtde= '+anuncios.length);
 	
+	const sqlDisp = [];
+
 	if (body.qtdeFiltrosDisponibilidade) {
 		//const disponibilidades = [];
 		let qualquerDia = false;
-		let diasQueJoga;
+		//let diasQueJoga;
 		const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
 		let deHora;
 		let ateHora;
-		let anunciosOu = [];
+		//let anunciosOu = [];
+		let diasQueJogaString = '';
 
 		for (let i = 0; i < body.qtdeFiltrosDisponibilidade; i++) {
 			//console.log('ants do filtro '+i);
@@ -488,23 +483,27 @@ servidor.post('/anuncios', async (req, resp)=>{
       let id = i == 0 ? '' : i+1;
 			if (body['quando'+id] == 'qualquerDia')
 				qualquerDia = true;
-			if (body['quando'+id] == 'qualquerDia' || body['quando'+id] == 'todoDia')
+			if (body['quando'+id] == 'qualquerDia' || body['quando'+id] == 'todoDia') {
 				//diasQueJoga = '.*';
 			//	diasQueJoga = [];
 			//else if (body['quando'+id] == 'todoDia')
 				//diasQueJoga = '0,1,2,3,4,5,6';
-				diasQueJoga = [0,1,2,3,4,5,6];
-			else if (body['quando'+id] == 'semana')
+				diasQueJogaString = '0,1,2,3,4,5,6';
+				//diasQueJoga = [0,1,2,3,4,5,6];
+			} else if (body['quando'+id] == 'semana') {
 				//diasQueJoga = '.*1,2,3,4,5.*';
-				diasQueJoga = [1,2,3,4,5];
-			else if (body['quando'+id] == 'finsDeSemana')
+				diasQueJogaString = '%1,2,3,4,5%';
+				//diasQueJoga = [1,2,3,4,5];
+			} else if (body['quando'+id] == 'finsDeSemana') {
 				//diasQueJoga = '0.*6';
-				diasQueJoga = [0,6];
-			else
+				diasQueJogaString = '0%6';
+				//diasQueJoga = [0,6];
+			} else
 				dias.some((dia,i)=>{
 					if (dia == body['quando'+id]) {
 						//diasQueJoga = '.*'+i+'.*';
-						diasQueJoga = [i];
+						diasQueJogaString = '%'+i+'%';
+						//diasQueJoga = [i];
 						return true;
 					}
 				});
@@ -519,12 +518,44 @@ servidor.post('/anuncios', async (req, resp)=>{
 				ateHora = converterHoraStringParaMinutos(body['ate'+id]);
 			else
 				ateHora = undefined;
-			//if (deHora > ateHora)
-			//	virandoNoite = true;
 
 			//////////////////////////////
 
-			let sqlDisp;
+			let pesqHoraDeInicio = deHora;
+			let pesqHoraDeTermino = ateHora;
+			//if (pesqHoraDeInicio == undefined && pesqHoraDeTermino != undefined)
+			//	pesqHoraDeInicio = pesqHoraDeTermino;
+			//if (pesqHoraDeInicio != undefined && pesqHoraDeTermino == undefined)
+			//	pesqHoraDeTermino = pesqHoraDeInicio;
+			//if (pesqHoraDeInicio == undefined && pesqHoraDeTermino == undefined)
+			//	pesqHoraDeInicio = pesqHoraDeTermino = 0;
+
+			//Explicação da query abaixo:
+			//-horaDeInicio == horaDeTermino: [jogaDiaTodo] o anunciante joga durante 24h
+			//-(horaDeTermino - horaDeInicio + 1440) % 1440: [periodoDisp] valor positivo da qtde de tempo
+			//	q o anunciante joga
+			//-(pesqHoraDeInicio - horaDeInicio + 1440) % 1440: [difInicio] valor positivo da diferença d tempo
+			//	entre o horário de início pesquisado e o q consta no anúncio
+			//-(pesqHoraDeTermino - pesqHoraDeInicio + 1440) % 1440: [periodoPesq] valor positivo da qtde de tempo
+			//	pesquisada
+			//-dias LIKE diasQueJogaString: [diasBatem] os dias q constam na disponibilidade se enquadram na pesquisa
+			//Logo, a disponibilidade atual corresponde à pesquisa se:
+			// (
+			//	jogaDiaTodo
+			//	OU
+			//	periodoDisp - difInicio >= periodoPesq
+			// )
+			//E
+			// diasBatem (exceto se puder ser qualquer dia)
+			sqlDisp.push(`(
+					horaDeInicio = horaDeTermino
+				OR
+					((horaDeTermino - horaDeInicio + 1440) % 1440)
+					- ((${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} - horaDeInicio + 1440) % 1440)
+					>= ((${pesqHoraDeTermino == undefined ? 'horaDeTermino' : pesqHoraDeTermino} - ${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} + 1440) % 1440)
+				)
+				${qualquerDia ? '' : ` AND dias LIKE '${diasQueJogaString}'`}
+			`);
 
 			//////////////////////////////
 
@@ -534,7 +565,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 			//if(!disponivelEmTodos) {
 			//	;
 			//} else
-			anuncios = anuncios.filter(anuncio=>{
+			/*anuncios = anuncios.filter(anuncio=>{
 				//anuncio.disponibilidades;
 				//for (let j = 0; j < anuncio.disponibilidades.length; j++) {
 				//	const element = anuncio.disponibilidades[j];
@@ -567,11 +598,20 @@ servidor.post('/anuncios', async (req, resp)=>{
 						let diferencaInicio = (1440 - anDispAtual.horaDeInicio + horaDeInicio) % 1440;
 						//console.log('duracaoBusca,duracaoAnuncio,diferencaInicio= '+duracaoBusca+','
 						//	+duracaoAnuncio+','+diferencaInicio);
+						//if (anuncio.idDoAnuncio == 38)
+						//console.log(diasAnDispAtual);
+						//if (anuncio.idDoAnuncio == 38)
+						//console.log(dia);
+						//if (anuncio.idDoAnuncio == 38 && diasAnDispAtual.some(d=>d==dia))
+						//console.log(dia);
 
 						if ((duracaoAnuncio - diferencaInicio >= duracaoBusca || duracaoAnuncio == 0)
-						&& diasAnDispAtual.some(d=>d==dia)) {
+						&& diasAnDispAtual.some(d=>d==dia) && !dispEncontradas.some(d=>d==dia)) {
 							dispEncontradas.push(dia);
 							dispEncontradas.sort();
+							//if (anuncio.idDoAnuncio == 38){
+							//	console.log('dia='+dia+', dispEncontradas=');
+							//	console.log(dispEncontradas);}
 							if (qualquerDia)
 								encontrouTodas = true;
 						}
@@ -604,7 +644,6 @@ servidor.post('/anuncios', async (req, resp)=>{
 				//if (!body['ate'+id])
 				//if (ateHora == undefined)
 				//		horaDeTermino = anuncio.disponibilidades[0].horaDeTermino;
-				//let anuncioVirandoNoite = anuncio.horaDeInicio > anuncio.horaDeTermino;
 				let duracaoBusca = (1440 + horaDeTermino - horaDeInicio) % 1440;
 				//if (duracaoBusca < 0) duracaoBusca += 1440;
 				let duracaoAnuncio = (1440 + anuncio.disponibilidades[0].horaDeTermino
@@ -627,52 +666,140 @@ servidor.post('/anuncios', async (req, resp)=>{
 						anunciosOu.push(anuncio);
 					passou = !passou;
 				}
-				return passou;*/
-			});
+				return passou; * /
+			});*/
 			//console.log('dps do filtro '+i);
 			//console.log(anuncios);
 		}
 		//console.log(anunciosOu.map(a=>a.idDoAnuncio).join());
 
-		if (!disponivelEmTodos)
-			anuncios = anunciosOu.sort((a,b)=>b.dataDeCriacao - a.dataDeCriacao);
+		//if (!disponivelEmTodos)
+		//	anuncios = anunciosOu.sort((a,b)=>b.dataDeCriacao - a.dataDeCriacao);
 			
 		//console.log(disponibilidades);
 	}
 	//console.log('dps do filtro d disponibilidade, qtde='+anuncios.length);
 
+	//////////////////////////////
+
+	//console.log('sqlDisp:');
+	//console.log(sqlDisp.map(s=>s.replaceAll('\t','').replaceAll('\n',' ')));
+
+	const jogos = await db.all(`SELECT id, nome, nomeUrl FROM Jogos;`);
+
+	const jogo = jogos.find(j=>j.nomeUrl == body.jogo);
+	//console.log(jogo);
+	//let jogo;
+	//if (body.jogo != '%')
+	//	jogos.some(j=>{
+	//		if(j.nomeUrl == body.jogo) {
+	//			jogo = j;
+	//			return true;
+	//		}
+	//	});
+		//jogo = jogos.filter(j=>j.nomeUrl==body.jogo);
+	//if (body.jogo != '%') {
+	//	console.log(jogos.find(j=>j.nomeUrl == body.jogo));
+	//}
+	//	jogo = await db.get(`SELECT id FROM Jogos WHERE nomeUrl = (?);`, [body.jogo]);
+	//lembrete: remover idDoUsuario do resultado (vazamento de informação?)
+	let sqlAnuncios = `SELECT Anuncios.idDoAnuncio
+			, idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, usaChatDeVoz, dataDeCriacao
+		FROM Anuncios JOIN Disponibilidades
+		ON Anuncios.idDoAnuncio = Disponibilidades.idDoAnuncio
+		WHERE idDoUsuario ${body.idDoUsuario == '%' ? 'LIKE' : '=' } (?)
+			${jogo ? `AND idDoJogo = ${jogo.id}` : ''}
+			AND nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
+			AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} ${tempoDeJogoEmMeses}
+			${entre ? 'AND tempoDeJogoEmMeses <='+tempoDeJogoEmMeses2 : ''}
+			AND usaChatDeVoz LIKE '${usaChatDeVoz}'
+			${sqlDisp.length > 0 ? ' AND ' : ' '} ${sqlDisp.join(disponivelEmTodos ? ' AND ' : ' OR ')}
+		GROUP BY Anuncios.idDoAnuncio
+		ORDER BY dataDeCriacao DESC;`;
+	
+	//console.log('sqlAnuncios:');
+	//console.log(sqlAnuncios.replaceAll('\t','').replaceAll('\n',' '));
+
+	let anuncios2 = await db.all(sqlAnuncios, [body.idDoUsuario, body.nomeNoJogo]);
+	//console.log(anuncios2.map(an=>an.idDoAnuncio));
+	//console.log(anuncios2.length);
+
+	let idsDosAnuncios2 = anuncios2.map(an=>an.idDoAnuncio).join();
+	//console.log(idsDosAnuncios);
+	//let an2 = await db.all(
+	//	`SELECT idDoAnuncio, idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, usaChatDeVoz, dataDeCriacao
+	//	FROM Anuncios
+	//	WHERE idDoAnuncio IN (${idsDosAnuncios2});`
+	//);
+	let disponibilidades2 = await db.all(
+		`SELECT idDoAnuncio, dias, horaDeInicio, horaDeTermino
+		FROM Disponibilidades
+		WHERE idDoAnuncio IN (${idsDosAnuncios2});`
+	);
+	//console.log('qtde disp='+disponibilidades.length);
+	anuncios2.map(an=>{
+		jogos.some(j=>{
+			if (j.id == an.idDoJogo) {
+				an.nomeDoJogo = j.nome;
+				return true;
+			}
+		});
+		//an.nomeDoJogo = jogos.find(j=>{
+		//	if(j.id == an.idDoJogo)
+		//		return j.nome;
+		//})
+		//console.log(an.nomeDoJogo);
+		an.disponibilidades = disponibilidades2.filter(disp=>disp.idDoAnuncio == an.idDoAnuncio);
+		an.disponibilidades.map(disp=>{
+			delete disp.idDoAnuncio;
+			disp.dias = disp.dias.split(',');
+			disp.horaDeInicio = converterMinutosParaHoraString(disp.horaDeInicio);
+			disp.horaDeTermino = converterMinutosParaHoraString(disp.horaDeTermino);
+		});
+		//console.log(an.disponibilidades);
+	});
+
+	//console.log(anuncios);
+	//console.log(anuncios2);
+
+	//////////////////////////////
+	
 	//console.log({
 	//	diasQueJoga: anuncios[0].diasQueJoga.split(','),
 	//	horarioDeInicio: converterMinutosParaHoraString(anuncios[0].deHora),
 	//	horarioDeTermino: converterMinutosParaHoraString(anuncios[0].ateHora)
 	//});
-	anuncios.map(anuncio=>{
-		anuncio.disponibilidades.sort((a,b)=>a.dias - b.dias);
-		anuncio.disponibilidades.map(disp=>{
-			disp.dias = disp.dias.split(',');
-			disp.horaDeInicio = converterMinutosParaHoraString(disp.horaDeInicio);
-			disp.horaDeTermino = converterMinutosParaHoraString(disp.horaDeTermino);
-		});
-	});
+	//anuncios2.map(anuncio=>{
+	//	anuncio.disponibilidades.sort((a,b)=>a.dias - b.dias);
+	//	anuncio.disponibilidades.map(disp=>{
+	//		delete disp.idDoAnuncio;
+	//		disp.dias = disp.dias.split(',');
+	//		disp.horaDeInicio = converterMinutosParaHoraString(disp.horaDeInicio);
+	//		disp.horaDeTermino = converterMinutosParaHoraString(disp.horaDeTermino);
+	//	});
+	//});
 	console.log(
-		'POST anuncios, qtde campos='+qtdeCampos+', qtde resultados='+anuncios.length
+		'POST anuncios, qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length
 		+', ip='+req.ip+(qtdeCampos > 0 ? ', campos:' : '')
 	);
 	if (qtdeCampos > 0)
-		console.log(campos);
-	return resp.json(anuncios.map(anuncio=>{
-		return {...anuncio,
-			nomeDoUsuario: anuncio.nomeNoJogo,
-			tempoDeJogoEmAnos: anuncio.tempoDeJogoEmMeses/12,
-			tempoDeJogoEmMeses: anuncio.tempoDeJogoEmMeses,
+		console.log(camposPesquisados);
+	return resp.json(anuncios2
+		//.map(anuncio=>{
+		//return {...anuncio,
+			//nomeDoJogo: jogo.anuncio.nomeDoJogo,
+			//nomeDoUsuario: anuncio.nomeNoJogo,
+			//tempoDeJogoEmAnos: anuncio.tempoDeJogoEmMeses/12,
+			//tempoDeJogoEmMeses: anuncio.tempoDeJogoEmMeses,
 			//diasQueJoga: anuncio.diasQueJoga.split(','),
-			diasQueJoga: anuncio.disponibilidades[0].dias,
+			//diasQueJoga: anuncio.disponibilidades[0].dias,
 			//deHora: converterMinutosParaHoraString(anuncio.disponibilidades[0].horaDeInicio),
 			//ateHora: converterMinutosParaHoraString(anuncio.disponibilidades[0].horaDeTermino)
-			deHora: anuncio.disponibilidades[0].horaDeInicio,
-			ateHora: anuncio.disponibilidades[0].horaDeTermino
-		};
-	}));
+			//deHora: anuncio.disponibilidades[0].horaDeInicio,
+			//ateHora: anuncio.disponibilidades[0].horaDeTermino
+	//	};
+	//})
+	);
 });
 
 /*/só chamado no modal de jogo selecionado, na antiga página inicial
@@ -699,7 +826,7 @@ servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 //*/
 
 //retorna o discord do anúncio do id informado (chamado no modal conectar, nos cartões de anúncios)
-//lembrete: mudar pra autenticar ants d retornar, e passar id por body?
+//lembrete: mudar pra autenticar ants d retornar
 servidor.get('/anuncios/:id/discord', async (req, resp)=>{
 	const anuncioId = req.params.id;
 	//const sessaoExiste = await autenticarSessao(req.get('Authorization'));
@@ -843,7 +970,7 @@ servidor.put('/usuarios', async (req, resp)=>{
 		//return resp.status(201).json(token);
 	}
 	catch (erro) {
-		console.log('entrou no catch');
+		//console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -871,7 +998,7 @@ async function verificarCredenciais(nome, senha, id) {
 		}
 		return usuario;
 	} catch (erro) {
-		console.log('entrou no catch de verificarCredenciais');
+		//console.log('entrou no catch de verificarCredenciais');
 		console.log(erro);
 		return {status: 500, erro: erro.toString()};
 	}
@@ -910,12 +1037,13 @@ servidor.put('/sessoes', async (req, resp)=>{
 			id: usuarioExiste.id,
 			nome: usuarioExiste.nome,
 			tokenDaSessao: seletor + '-' + uuidDoToken,
+			token: seletor + '-' + uuidDoToken,
 			dataDeExpiracao: Date.now() + DURACAO_DO_TOKEN_DE_SESSAO,
 			manterSessao: body.manterSessao
 		};
 		//console.log('seletor,token='+seletor+','+tokenDaSessao);
 		const uuidDoTokenHash = await bcrypt.hash(uuidDoToken, BCRYPT_SALT_ROUNDS);
-		await db.run(
+		await db.run(//renomear token aki
 			`INSERT INTO Sessoes (idDoUsuario, seletor, tokenDaSessaoHash, dataDeExpiracao, manterSessao)
 			VALUES (${resposta.id}, '${seletor}', '${uuidDoTokenHash}', ${resposta.dataDeExpiracao},
 				${resposta.manterSessao});`,
@@ -938,19 +1066,19 @@ servidor.put('/sessoes', async (req, resp)=>{
 		return resp.status(201).json(resposta);
 	}
 	catch (erro) {
-		console.log('entrou no catch');
+		//console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
 });
 
 async function autenticarSessao(token){
-	console.log('entrou em autenticarSessao');
+	//console.log('entrou em autenticarSessao');
 	try {
 		const seletor = token.slice(0,8);
 		const uuidDoToken = token.slice(9);
 		const db = await abrirBanco;
-		const sessaoExiste = await db.get(
+		const sessaoExiste = await db.get(//renomear token aki
 			`SELECT Sessoes.id, idDoUsuario, tokenDaSessaoHash, dataDeExpiracao, manterSessao,
 				Usuarios.nome AS nomeDoUsuario
 			FROM Sessoes JOIN Usuarios
@@ -965,6 +1093,7 @@ async function autenticarSessao(token){
 			console.log('Sessão expirada.');
 			return {status: 404, erro: 'Sessão expirada.'};
 		}
+		//renomear token aki
 		const sessaoValida = await bcrypt.compare(uuidDoToken, sessaoExiste.tokenDaSessaoHash);
 		if (!sessaoValida) {
 			console.log('Sessão inválida.');
@@ -979,7 +1108,7 @@ async function autenticarSessao(token){
 			manterSessao: sessaoExiste.manterSessao
 		};
 	} catch (erro) {
-		console.log('entrou no catch de autenticarSessao');
+		//console.log('entrou no catch de autenticarSessao');
 		console.log(erro);
 		return {status: 500, erro: erro.toString()};
 	}
@@ -1028,6 +1157,7 @@ async function autenticarSessao(token){
 
 //chamado ao carregar a página; autentica sessão, atualiza o token e o retorna
 //lembrete: ao atualizar o token numa aba, se tiver outra aba aberta, o token dela fica inválido; ajeitar
+//removi atualização de token
 //servidor.post('/sessoes', async (req, resp)=>{
 servidor.get('/sessoes', async (req, resp)=>{
 	try {
@@ -1068,7 +1198,9 @@ servidor.get('/sessoes', async (req, resp)=>{
 		//);
 		//const novoToken = await atualizarSessao(sessao.id);
 		//if (novoToken.erro) throw novoToken.erro;
-		const novoTokenDaSessao = uuidv4();
+
+		//atualizando token:
+		/*const novoTokenDaSessao = uuidv4();
 		const resposta = {
 			id: sessaoExiste.idDoUsuario,
 			//nome: usuarioExiste.nome,
@@ -1100,11 +1232,26 @@ servidor.get('/sessoes', async (req, resp)=>{
 				return this.lastID;
 			}
 		);
+		// */
+
+		//sem atualizar token:
+		const resposta = {
+			id: sessaoExiste.idDoUsuario,
+			nome: sessaoExiste.nomeDoUsuario,
+			tokenDaSessao: req.get('Authorization'),
+			token: req.get('Authorization'),
+			dataDeExpiracao: Date.now() + DURACAO_DO_TOKEN_DE_SESSAO,
+			manterSessao: sessaoExiste.manterSessao
+		};
+		await db.run(
+			`UPDATE Sessoes SET dataDeExpiracao = ${resposta.dataDeExpiracao} WHERE id = ${sessaoExiste.id};`
+		);
+		// */
 		console.log('Sessão autenticada e atualizada.');
 		return resp.status(201).json(resposta);
 	}
 	catch (erro) {
-		console.log('entrou no catch');
+		//console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -1148,7 +1295,7 @@ servidor.delete('/sessoes', async (req, resp)=>{
 		return resp.status(200).json({ok: 'Sessão excluída.'});
 	}
 	catch (erro) {
-		console.log('entrou no catch');
+		//console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -1198,7 +1345,7 @@ servidor.delete('/outras-sessoes/:id', async (req, resp)=>{
 		return resp.status(200).json({qtdeSessoesDesconectadas: sessoesConectadas.qtde});
 	}
 	catch (erro) {
-		console.log('entrou no catch');
+		//console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -1303,7 +1450,7 @@ servidor.post('/usuarios/senha', async (req, resp)=>{
 		return resp.status(200).json({ok: 'Senha alterada com sucesso.'});
 	}
 	catch (erro) {
-		console.log('entrou no catch');
+		//console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -1385,7 +1532,7 @@ servidor.delete('/usuarios/:id', async (req, resp)=>{
 		return resp.status(200).json({ok: 'Conta excluída.'});
 	}
 	catch (erro) {
-		console.log('entrou no catch');
+		//console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -1441,7 +1588,7 @@ servidor.delete('/anuncios/:id', async (req, resp)=>{
 		return resp.status(200).json({ok: 'Anúncio excluído.'});
 	}
 	catch (erro) {
-		console.log('entrou no catch');
+		//console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
@@ -1458,6 +1605,11 @@ servidor.put('/anuncios', async (req, resp)=>{
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
 		const anuncio = req.body.anuncio;
+		if (anuncio.idDoUsuario != sessaoExiste.idDoUsuario) {
+			console.log('problema no id do usuário; id recebido e id do token:');
+			console.log(anuncio.idDoUsuario);
+			console.log(sessaoExiste.idDoUsuario);
+		}
 		//console.log('PUT anuncios, usuário='+body.idDoUsuario+', ip='+req.ip);
 
 		//console.log(anuncio);
@@ -1539,7 +1691,7 @@ servidor.put('/anuncios', async (req, resp)=>{
 		return resp.status(201).json(anuncioPublicado);
 	}
 	catch (erro) {
-		console.log('entrou no catch');
+		//console.log('entrou no catch');
 		console.log(erro);
 		return resp.status(500).json({erro: erro.toString()});
 	}
