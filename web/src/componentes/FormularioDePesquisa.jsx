@@ -44,8 +44,8 @@ export default function FormularioDePesquisa({filtros}) {
     document.getElementById('pesquisa').reset();
     if (filtros.opcoesNome)
       document.getElementById('opcoesNome').value = filtros.opcoesNome;
-    if (filtros.nome)
-      document.getElementById('nome').value = filtros.nome;
+    if (filtros.nomeNoJogo)
+      document.getElementById('nomeNoJogo').value = filtros.nomeNoJogo;
     if (componenteExiste) {
       if (filtros.opcoesTempo
         //&& (filtros.tempoDeJogoAnos || filtros.tempoDeJogoMeses
@@ -151,8 +151,8 @@ export default function FormularioDePesquisa({filtros}) {
     
     if (!dados.opcoesNome)
       delete dados.opcoesNome;
-    if (!dados.nome)
-      delete dados.nome;
+    if (!dados.nomeNoJogo)
+      delete dados.nomeNoJogo;
 
     if (!dados.opcoesTempo)
       delete dados.opcoesTempo;
@@ -253,7 +253,7 @@ export default function FormularioDePesquisa({filtros}) {
 
           <div className='flex flexColumn'>
             <div className='flex flexWrap'>
-              <label htmlFor='nome'>Nome no jogo</label>
+              <label htmlFor='nomeNoJogo'>Nome no jogo</label>
               <select id='opcoesNome' name='opcoesNome'>
                 <option value=''>contém</option>
                 <option value='comecaCom'>começa com</option>
@@ -262,13 +262,13 @@ export default function FormularioDePesquisa({filtros}) {
                 <option value='naoContem'>não contém</option>
               </select>
             </div>
-            <input id='nome' name='nome'/>
+            <input id='nomeNoJogo' name='nomeNoJogo'/>
           </div>
 
           {/*<div className='flex flexColumn'>
             <label htmlFor='discord'>Discord</label>
             <input id='discord' name='discord'
-//onChange={e=>{if(e.target.value.match(document.getElementById('nome').value))definirOpcoesTempo('noMaximo');else definirOpcoesTempo('');}}
+//onChange={e=>{if(e.target.value.match(document.getElementById('nomeNoJogo').value))definirOpcoesTempo('noMaximo');else definirOpcoesTempo('');}}
             />
           </div>*/}
 
@@ -399,7 +399,7 @@ export default function FormularioDePesquisa({filtros}) {
               <select id='ordenarPor' name='ordenarPor'>
                 <option value=''>Data de publicação</option>
                 <option value='nomeDoJogo'>Nome do jogo</option>
-                <option value='nomeDoUsuario'>Nome do jogador</option>
+                <option value='nomeNoJogo'>Nome do jogador</option>
                 <option value='tempoDeJogoEmAnos'>Tempo de jogo</option>
                 <option value='diasQueJoga'>Dia que joga</option>
                 <option value='deHora'>Hora que começa</option>

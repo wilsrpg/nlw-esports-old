@@ -199,7 +199,7 @@ export default function ResultadosDaPesquisa({filtros}) {
             <select value={ordenarPor} onChange={e=>definirOrdenarPor(e.target.value)}>
               <option value=''>Data de publicação</option>
               <option value='nomeDoJogo'>Nome do jogo</option>
-              <option value='nomeDoUsuario'>Nome do jogador</option>
+              <option value='nomeNoJogo'>Nome do jogador</option>
               <option value='tempoDeJogoEmAnos'>Tempo de jogo</option>
               <option value='diasQueJoga'>Dia que joga</option>
               <option value='deHora'>Hora que começa</option>

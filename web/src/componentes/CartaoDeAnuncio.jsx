@@ -112,7 +112,7 @@ export default function CartaoDeAnuncio({
       }
 
       <p>Nome ou apelido</p>
-      <strong>{anuncio.nomeDoUsuario}</strong>
+      <strong>{anuncio.nomeNoJogo}</strong>
 
       <p>Tempo de jogo</p>
       <strong>

@@ -18,8 +18,8 @@ export default function Anuncios() {
     const dados = {};
     if (urlParams.get('jogo'))
       dados.jogo = urlParams.get('jogo');
-    if (urlParams.get('nome'))
-      dados.nome = urlParams.get('nome');
+    if (urlParams.get('nomeNoJogo'))
+      dados.nomeNoJogo = urlParams.get('nomeNoJogo');
     if (urlParams.get('opcoesNome'))
       dados.opcoesNome = urlParams.get('opcoesNome');
     if (urlParams.get('opcoesTempo'))
