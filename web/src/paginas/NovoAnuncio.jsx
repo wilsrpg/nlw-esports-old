@@ -60,7 +60,7 @@ export default function NovoAnuncio() {
       }, 500);
       return;
     }
-    if (!document.getElementById('tempoDeJogoEmAnos').value && !document.getElementById('tempoDeJogoEmMeses').value) {
+    if (!document.getElementById('tempoDeJogoAnos').value && !document.getElementById('tempoDeJogoMeses').value) {
       document.getElementById('tempoDeJogo').style.animation = 'chamarAtencao 500ms';
       document.getElementById('tempoDeJogo').focus();
       setTimeout(() => {
@@ -87,11 +87,11 @@ export default function NovoAnuncio() {
       return;
     
     const dados = Object.fromEntries(new FormData(e.target));
-    let tempoDeJogoEmMeses = dados.tempoDeJogoEmAnos*12 + dados.tempoDeJogoEmMeses*1;
-    //if (document.getElementById('tempoDeJogoEmAnos').value)
-    //  tempoDeJogoEmMeses += parseInt(document.getElementById('tempoDeJogoEmAnos').value)*12;
-    //if (document.getElementById('tempoDeJogoEmMeses').value)
-    //  tempoDeJogoEmMeses += parseInt(document.getElementById('tempoDeJogoEmMeses').value);
+    let tempoDeJogoEmMeses = dados.tempoDeJogoAnos*12 + dados.tempoDeJogoMeses*1;
+    //if (document.getElementById('tempoDeJogoAnos').value)
+    //  tempoDeJogoEmMeses += parseInt(document.getElementById('tempoDeJogoAnos').value)*12;
+    //if (document.getElementById('tempoDeJogoMeses').value)
+    //  tempoDeJogoEmMeses += parseInt(document.getElementById('tempoDeJogoMeses').value);
 
     const disponibilidades = [];
     diasDisponiveis.map((disp,i)=>{
@@ -111,12 +111,12 @@ export default function NovoAnuncio() {
       dados.usaChatDeVoz = false;
 
     const novoAnuncio = {
-      idDoJogo: dados.idDoJogo*1,
-      idDoUsuario: contexto2.usuarioLogado.id*1,
+      idDoJogo: dados.idDoJogo,
+      idDoUsuario: contexto2.usuarioLogado.id,
       nomeNoJogo: dados.nome,
-      tempoDeJogoEmMeses: tempoDeJogoEmMeses,
+      tempoDeJogoEmMeses,
       discord: dados.discord,
-      disponibilidades: disponibilidades,
+      disponibilidades,
       usaChatDeVoz: dados.usaChatDeVoz,
     };
 
@@ -207,10 +207,10 @@ export default function NovoAnuncio() {
               {/*<input id='tempo de jogo' name='tempoDeJogo' type='tel' maxLength='2' pattern='\d*' required/>*/}
               <label>Joga há quanto tempo?</label>
               <div id='tempoDeJogo' className='flex flexWrap dias'>
-                <input id='tempoDeJogoEmAnos' className='tempoDeJogo' name='tempoDeJogoEmAnos' type='tel' maxLength='2' pattern='\d*'/>
-                <label htmlFor='tempoDeJogoEmAnos'>ano(s)</label>
-                <input id='tempoDeJogoEmMeses' className='tempoDeJogo' name='tempoDeJogoEmMeses' type='tel' maxLength='2' pattern='\d*'/>
-                <label htmlFor='tempoDeJogoEmMeses'>mês(es)</label>
+                <input id='tempoDeJogoAnos' className='tempoDeJogo' name='tempoDeJogoAnos' type='tel' maxLength='2' pattern='\d*'/>
+                <label htmlFor='tempoDeJogoAnos'>ano(s)</label>
+                <input id='tempoDeJogoMeses' className='tempoDeJogo' name='tempoDeJogoMeses' type='tel' maxLength='2' pattern='\d*'/>
+                <label htmlFor='tempoDeJogoMeses'>mês(es)</label>
               </div>
             </div>
 

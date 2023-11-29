@@ -19,7 +19,7 @@ import { SERVIDOR } from '../../enderecoDoServidor';
 
 /*falta:
 -não reutilizar id no banco de dados
--não atualizar token ao atualizar página (pq invalida as outras abas; pq, se o cookie eh alterado?)
+-opcoesDisponibilidade padrão: mudar pra emTodos
 -redirecionar para página de login ao haver erro de sessão
 -refazer paginação dos resultados d pesquisa
 -cadastrar jogo?

@@ -200,7 +200,7 @@ export default function ResultadosDaPesquisa({filtros}) {
               <option value=''>Data de publicação</option>
               <option value='nomeDoJogo'>Nome do jogo</option>
               <option value='nomeNoJogo'>Nome do jogador</option>
-              <option value='tempoDeJogoEmAnos'>Tempo de jogo</option>
+              <option value='tempoDeJogo'>Tempo de jogo</option>
               <option value='diasQueJoga'>Dia que joga</option>
               <option value='deHora'>Hora que começa</option>
               <option value='ateHora'>Hora que termina</option>
