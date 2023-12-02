@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react'
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import { BrowserRouter, Route, Switch, useHistory } from 'react-router-dom'
 import './App.css'
 import carregando from './imagens/loading.svg'
 import BarraSuperior from './componentes/BarraSuperior'
@@ -19,14 +19,12 @@ import { SERVIDOR } from '../../enderecoDoServidor';
 
 /*falta:
 -não reutilizar id no banco de dados
--opcoesDisponibilidade padrão: mudar pra emTodos
--redirecionar para página de login ao haver erro de sessão
+-limitar requisições ao servidor
 -refazer paginação dos resultados d pesquisa
+-conformar com REST
+-exibir só o indicador de atividade enqt acessa o cookie
 -cadastrar jogo?
 -ajeitar chamarAtencao
--ajeitar layout da barra superior (colocar caixa de continuar conectado num lugar melhor)
--adicionar página atual ao título
--unificar formulários de entrada
 */
 
 export const contexto = createContext();
@@ -34,9 +32,11 @@ export const contexto = createContext();
 export default function App() {
   const [usuarioLogado, definirUsuarioLogado] = useState();
   const [aguardando, definirAguardando] = useState(true);
+  const historico = useHistory();
   
   useEffect(()=>{
-    const tokenDaSessao = getCookie('tokenDaSessao');
+    autenticarSessao();
+    /*const tokenDaSessao = getCookie('tokenDaSessao');
     //console.log('tokenDaSessao:');
     //console.log(tokenDaSessao);
     if (tokenDaSessao && tokenDaSessao != '0' && tokenDaSessao != 'undefined') {
@@ -58,7 +58,7 @@ export default function App() {
     //  definirUsuarioLogado({
     //    id: localStorage.getItem('idDoUsuarioLogado'),
     //    nome: localStorage.getItem('usuarioLogado')
-    //  });
+    //  });*/
   }, [contexto])
 
   function getCookie(cname) {
@@ -79,14 +79,21 @@ export default function App() {
     return '';
   }
 
-  function autenticarSessao(tokenDaSessao) {
+  async function autenticarSessao() {
+    let tokenResposta;
+    const tokenDaSessao = getCookie('tokenDaSessao');
+    if (!tokenDaSessao || tokenDaSessao == '0') {
+      definirUsuarioLogado();
+      definirAguardando(false);
+      return;
+    }
     const dados = {
       method: 'GET',
       headers: {'Authorization': tokenDaSessao},
       //body: JSON.stringify({tokenDaSessao})
     };
     //let usuarioLogado;
-    fetch(SERVIDOR+`/sessoes`, dados)
+    await fetch(SERVIDOR+`/sessoes`, dados)
     //fetch(SERVIDOR+`/sessoes/${tokenDaSessao}`)
     .then(resp=>resp.json())
     .then(resp=>{
@@ -103,18 +110,28 @@ export default function App() {
                         + (resp.manterSessao ? ';expires=' + new Date(resp.dataDeExpiracao).toUTCString() : '')
                         + ';samesite=lax;path=/';
       //}
+      tokenResposta = resp.tokenDaSessao;
     })
     .catch(erro=>{
       console.log(erro);
-      alert('Erro ao autenticar sessão. Verifique o console de seu navegador para mais detalhes.');
+      document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+      definirUsuarioLogado();
+      //alert('Erro ao autenticar sessão. Verifique o console de seu navegador para mais detalhes.');
       //if (componenteExiste)
       //  definirErroAoObterDados(true);
     })
     .finally(()=>definirAguardando(false));
+    return tokenResposta;
+  }
+
+  function desconectar() {
+    document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+    definirUsuarioLogado();
+    historico.push('/entrar');
   }
 
   return (
-    <contexto.Provider value={{usuarioLogado, definirUsuarioLogado}}>
+    <contexto.Provider value={{usuarioLogado, definirUsuarioLogado, autenticarSessao, getCookie, desconectar}}>
       {aguardando ?
         <div className='conteudo'>
           <img className='carregando' src={carregando}/>
@@ -142,7 +159,7 @@ export default function App() {
             {/*<Route path='/amigos'>
               <Amigos/>
             </Route>*/}
-            <Route path='/meusanuncios'>
+            <Route path='/meus-anuncios'>
               <MeusAnuncios/>
             </Route>
             <Route path='/configuracoes'>
@@ -160,7 +177,7 @@ export default function App() {
             <Route path='/anuncios'>
               <Anuncios/>
             </Route>
-            <Route path='/novoanuncio'>
+            <Route path='/novo-anuncio'>
               <NovoAnuncio/>
             </Route>
             <Route>

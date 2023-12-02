@@ -3,7 +3,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import carregando from '../imagens/loading.svg'
 import { SERVIDOR } from '../../../enderecoDoServidor';
 
-export default function FormularioDePesquisa({filtros}) {
+export default function FormularioDePesquisa({filtros, listaDeJogos}) {
   let componenteExiste = true;
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [jogos, definirJogos] = useState();
@@ -17,25 +17,27 @@ export default function FormularioDePesquisa({filtros}) {
   const urlAtual = useLocation();
 
   useEffect(()=>{
-    return ()=>componenteExiste = false;
-  }, [])
-
-  useEffect(()=>{
     //if (!contexto2)
     //  return;
-    fetch(SERVIDOR+`/jogos`)
-    .then(resp=>resp.json())
-    .then(dados=>{
-      if (componenteExiste) {
-        definirErroAoObterDados(false);
-        definirJogos(dados);
-      }
-    })
-    .catch(erro=>{
-      console.log(erro);
-      if (componenteExiste)
-        definirErroAoObterDados(true);
-    });
+    //fetch(SERVIDOR+`/jogos`)
+    //.then(resp=>resp.json())
+    //.then(resp=>{
+    //  if (resp.erro)
+    //    throw resp.erro;
+    //  if (componenteExiste) {
+    //    definirErroAoObterDados(false);
+    //    definirJogos(resp);
+    //  }
+    //})
+    //.catch(erro=>{
+    //  console.log(erro);
+    //  if (componenteExiste)
+    //    definirErroAoObterDados(true);
+    //});
+    if (listaDeJogos)
+      definirJogos(listaDeJogos);
+    else
+      definirErroAoObterDados(true);
 
     return ()=>componenteExiste = false;
   }, [])
@@ -47,10 +49,7 @@ export default function FormularioDePesquisa({filtros}) {
     if (filtros.nomeNoJogo)
       document.getElementById('nomeNoJogo').value = filtros.nomeNoJogo;
     if (componenteExiste) {
-      if (filtros.opcoesTempo
-        //&& (filtros.tempoDeJogoAnos || filtros.tempoDeJogoMeses
-        //|| filtros.tempoDeJogoAnos2 || filtros.tempoDeJogoMeses2)
-      ) {
+      if (filtros.opcoesTempo) {
         document.getElementById('opcoesTempo').value = filtros.opcoesTempo;
         if (filtros.opcoesTempo == 'entre')
           definirOpcoesTempoEntre(true);
@@ -307,8 +306,9 @@ export default function FormularioDePesquisa({filtros}) {
               </button>
               {diasDisponiveis.length > 1 &&
                 <select id='opcoesDisponibilidade' name='opcoesDisponibilidade'>
-                  <option value=''>Em pelo menos um</option>
-                  <option value='emTodos'>Em todos</option>
+                  <option value=''>Em todos</option>
+                  <option value='emQualquer'>Em pelo menos um</option>
+                  {/*<option value='emTodos'>Em todos</option>*/}
                 </select>
               }
             </div>
@@ -400,17 +400,20 @@ export default function FormularioDePesquisa({filtros}) {
                 <option value=''>Data de publicação</option>
                 <option value='nomeDoJogo'>Nome do jogo</option>
                 <option value='nomeNoJogo'>Nome do jogador</option>
-                <option value='tempoDeJogo'>Tempo de jogo</option>
+                <option value='tempoDeJogoEmMeses'>Tempo de jogo</option>
                 <option value='diasQueJoga'>Dia que joga</option>
                 <option value='deHora'>Hora que começa</option>
                 <option value='ateHora'>Hora que termina</option>
                 <option value='usaChatDeVoz'>Chat de voz</option>
               </select>
             </div>
-            <select id='emOrdem' name='emOrdem'>
-              <option value=''>Em ordem decrescente</option>
-              <option value='crescente'>Em ordem crescente</option>
-            </select>
+            <div className='flex flexWrap'>
+              <label>Em ordem</label>
+              <select id='emOrdem' name='emOrdem'>
+                <option value=''>Decrescente</option>
+                <option value='crescente'>Crescente</option>
+              </select>
+            </div>
           </div>
 
         </div>

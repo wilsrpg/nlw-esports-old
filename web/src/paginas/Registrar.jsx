@@ -12,6 +12,7 @@ export default function Registrar() {
   const historico = useHistory();
 
   useEffect(()=>{
+    document.title = 'Criar nova conta - NLW eSports';
     //if (contexto2.usuarioLogado)
     //  historico.push('/conta');
 
@@ -47,7 +48,7 @@ export default function Registrar() {
 
   function tentarRegistrar(nomeDoUsuario, senha) {
     const dados = {
-      method: 'PUT',
+      method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({nomeDoUsuario, senha}),
     };

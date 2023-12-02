@@ -14,10 +14,12 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
   useEffect(()=>{
     fetch(SERVIDOR+`/jogos/${jogo.nomeUrl}/anuncios`)
     .then(resp=>resp.json())
-    .then(dados=>{
+    .then(resp=>{
+      if (resp.erro)
+        throw resp.erro;
       if (componenteExiste) {
         definirErroAoObterDados(false);
-        definirAnuncios(dados);
+        definirAnuncios(resp);
       }
     })
     .catch(erro=>{
@@ -44,10 +46,10 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
   function obterDiscord(anuncioId) {
     fetch(SERVIDOR+`/anuncios/${anuncioId}/discord`)
     .then(resp=>resp.json())
-    .then(dados=>{
+    .then(resp=>{
       if (componenteExiste) {
         definirErroAoObterDados(false);
-        definirDiscord(dados.discord);
+        definirDiscord(resp.discord);
       }
     })
     .catch(erro=>{

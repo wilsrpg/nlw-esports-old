@@ -25,10 +25,10 @@ export default function App() {
     const naCasaDeWisney = fetch(urlNaCasaDeWisney+endereco, {signal: abortista.signal});
     Promise.any([naCasaDeWisney,naMinhaCasa])
     .then(resp=>resp.json())
-    .then(dados=>{
+    .then(resp=>{
       abortista.abort();
       definirErroAoObterDados(false);
-      definirJogos(dados);
+      definirJogos(resp);
     })
     .catch(erro=>{
       console.log(erro);

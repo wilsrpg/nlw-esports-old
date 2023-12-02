@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react'
+import { useHistory, useLocation } from 'react-router-dom';
 import { contexto } from '../App';
 import carregando from '../imagens/loading.svg'
 import { SERVIDOR } from '../../../enderecoDoServidor';
-import { useHistory } from 'react-router-dom';
 //import FormularioDeEntrada from '../componentes/FormularioDeEntrada';
 
 export default function NovoAnuncio() {
@@ -23,31 +23,48 @@ export default function NovoAnuncio() {
   //const [usaChatDeVoz, definirUsaChatDeVoz] = useState(false);
   const [publicando, definirPublicando] = useState(false);
   const historico = useHistory();
+  const urlAtual = useLocation();
   const [diasDisponiveis, definirDiasDisponiveis] = useState([[false,false,false,false,false,false,false]]);
 
   useEffect(()=>{
-    if (!contexto2.usuarioLogado)
-      historico.push('/entrar?redir=novoanuncio');
-    else
-    if (contexto2.usuarioLogado)
-      fetch(SERVIDOR+`/jogos`)
-      .then(resp=>resp.json())
-      .then(dados=>{
-        if (componenteExiste) {
-          definirErroAoObterDados(false);
-          definirJogos(dados);
-        }
-      })
-      .catch(erro=>{
-        console.log(erro);
-        if (componenteExiste)
-          definirErroAoObterDados(true);
-      });
-    
-    return ()=>componenteExiste = false;
-  }, [contexto2.usuarioLogado])
+    document.title = 'Publicar anúncio - NLW eSports';
+    const tokenDaSessao = contexto2.getCookie('tokenDaSessao');
+    if (!tokenDaSessao || !contexto2.usuarioLogado) {
+      document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+      contexto2.definirUsuarioLogado();
+      historico.push('/entrar?redir='+urlAtual.pathname.slice(1));
+      return;
+    }
+    //contexto2.autenticarSessao()
+    //.then(resp=>{
+    //  //console.log(resp);
+    //  if (!resp || !contexto2.usuarioLogado) {
+    //    document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+    //    historico.push('/entrar?redir='+urlAtual.pathname.slice(1));
+    //    //historico.push('/entrar');
+    //  } else {
+        fetch(SERVIDOR+`/jogos`)
+        .then(resp=>resp.json())
+        .then(resp=>{
+          if (resp.erro)
+            throw resp.erro;
+          if (componenteExiste) {
+            definirErroAoObterDados(false);
+            definirJogos(resp);
+          }
+        })
+        .catch(erro=>{
+          console.log(erro);
+          if (componenteExiste)
+            definirErroAoObterDados(true);
+        });
+    //  }
+    //});
 
-  async function publicarAnuncio(e) {
+    return ()=>componenteExiste = false;
+  }, [])
+
+  function publicarAnuncio(e) {
     if (publicando)
       return;
     e.preventDefault();
@@ -95,14 +112,14 @@ export default function NovoAnuncio() {
 
     const disponibilidades = [];
     diasDisponiveis.map((disp,i)=>{
-      const diasd = [];
+      const diasDisp = [];
       disp.map((dia,j)=>{
         if (dia)
-          diasd.push(j);
+          diasDisp.push(j);
       });
       let id = i == 0 ? '' : i+1;
-      if (diasd.length)
-        disponibilidades.push({dias: diasd.join(), horaDeInicio: dados['de'+id], horaDeTermino: dados['ate'+id]});
+      if (diasDisp.length)
+        disponibilidades.push({dias: diasDisp.join(), horaDeInicio: dados['de'+id], horaDeTermino: dados['ate'+id]});
     });
 
     if (dados.usaChatDeVoz == 'on')
@@ -126,52 +143,85 @@ export default function NovoAnuncio() {
   }
 
   function tentarPublicar(anuncio) {
-    const tokenDaSessao = getCookie('tokenDaSessao');
-    const dados = {
-      method: 'PUT',
-      //headers: {'Content-Type': 'application/json'},
-      headers: {'Content-Type': 'application/json', 'Authorization': tokenDaSessao},
-      body: JSON.stringify({anuncio})
-    };
-    fetch(SERVIDOR+`/anuncios`, dados)
-    .then(resp=>resp.json())
-    .then(resp=>{
-      if (resp.erro)
-        throw resp.erro;
-      alert('Anúncio publicado com sucesso!');
-    })
-    .catch(erro=>{
-      console.log(erro);
-      alert('Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.');
-    })
-    .finally(()=>{
-      if (componenteExiste)
-        definirPublicando(false);
-    });
+    //const tokenDaSessao = getCookie('tokenDaSessao');
+    //const tokenDaSessao = contexto2.getCookie('tokenDaSessao');
+    //if (!tokenDaSessao || tokenDaSessao == '0') {
+    //  contexto2.definirUsuarioLogado();
+    //  historico.push('/entrar');
+    //  return;
+    //}
+    const tokenDaSessao = contexto2.getCookie('tokenDaSessao');
+    if (!tokenDaSessao || !contexto2.usuarioLogado) {
+      document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+      contexto2.definirUsuarioLogado();
+      historico.push('/entrar?redir='+urlAtual.pathname.slice(1));
+      return;
+    }
+    //const tokenDaSessao = contexto2.autenticarSessao();
+    //tokenDaSessao.then(resp=>{
+    //  //console.log('/resultadosDaPesquisa, token='+resp);
+    //  //console.log(resp);
+    //  if (!resp || !contexto2.usuarioLogado) {
+    //    document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+    //    historico.push('/entrar?redir='+urlAtual.pathname.slice(1));
+    //    //historico.push(urlAtual.pathname);
+    //  } else {
+        const dados = {
+          method: 'PUT',
+          //headers: {'Content-Type': 'application/json'},
+          headers: {'Content-Type': 'application/json', 'Authorization': tokenDaSessao},
+          body: JSON.stringify({anuncio})
+        };
+        fetch(SERVIDOR+`/anuncios`, dados)
+        .then(resp=>resp.json())
+        .then(resp=>{
+          if (resp.erro)
+            throw resp.erro;
+          alert('Anúncio publicado com sucesso!');
+          if (componenteExiste)
+            definirPublicando(false);
+          alert('Anúncio publicado com sucesso!');
+        })
+        .catch(erro=>{
+          console.log(erro);
+          if (erro.codigo == 401) {
+            document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+            contexto2.definirUsuarioLogado();
+            historico.push('/entrar?redir='+urlAtual.pathname.slice(1));
+            //historico.push('/entrar');
+          } else {
+            alert('Erro ao publicar anúncio. Verifique o console de seu navegador para mais detalhes.');
+            if (componenteExiste)
+              definirPublicando(false);
+          }
+        });
+    //  }
+    //});
   }
 
-  function getCookie(cname) {
-    let name = cname + '=';
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
-    for(let i = 0; i < ca.length; i++) {
-      let c = ca[i];
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-    return '';
-  }
+  //function getCookie(cname) {
+  //  let name = cname + '=';
+  //  let decodedCookie = decodeURIComponent(document.cookie);
+  //  let ca = decodedCookie.split(';');
+  //  for(let i = 0; i < ca.length; i++) {
+  //    let c = ca[i];
+  //    while (c.charAt(0) == ' ') {
+  //      c = c.substring(1);
+  //    }
+  //    if (c.indexOf(name) == 0) {
+  //      return c.substring(name.length, c.length);
+  //    }
+  //  }
+  //  return '';
+  //}
 
   return (
     <div className='conteudo'>
       {/*{!contexto2.usuarioLogado ?
         <FormularioDeEntrada/>
-      :
-        <>*/}
+      :*/}
+      {contexto2.usuarioLogado &&
+        <>
         <h2>Publique seu anúncio</h2>
         <form className='flex flexColumn fundoSemitransparente' onSubmit={publicarAnuncio}>
 
@@ -336,8 +386,8 @@ export default function NovoAnuncio() {
           </button>
 
         </form>
-        {/*</>
-      }*/}
+        </>
+      }
 
     </div>
   )

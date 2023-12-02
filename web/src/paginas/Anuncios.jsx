@@ -3,14 +3,18 @@ import { useLocation } from 'react-router-dom';
 import FormularioDePesquisa from '../componentes/FormularioDePesquisa';
 import ResultadosDaPesquisa from '../componentes/ResultadosDaPesquisa';
 import BotaoParaPublicarAnuncio from '../componentes/BotaoParaPublicarAnuncio';
+import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function Anuncios() {
   let componenteExiste = true;
+  const [jogos, definirJogos] = useState();
   const urlAtual = useLocation();
   const urlParams = new URLSearchParams(urlAtual.search);
   const [filtros, definirFiltros] = useState();
 
   useEffect(()=>{
+    document.title = 'Anúncios - NLW eSports';
+
     return ()=>componenteExiste = false;
   }, [])
 
@@ -65,9 +69,25 @@ export default function Anuncios() {
     if (urlParams.get('ordenarPor'))
       dados.ordenarPor = urlParams.get('ordenarPor');
 
+    fetch(SERVIDOR+`/jogos`)
+    .then(resp=>resp.json())
+    .then(resp=>{
+      if (resp.erro)
+        throw resp.erro;
+      //dados.jogos = resp;
+      definirJogos(resp);
+    })
+    .catch(erro=>{
+      console.log(erro);
+    })
+    .finally(()=>{
+      if (componenteExiste)
+        definirFiltros(dados);
+    });
+  
     //console.log(dados);
-    if (componenteExiste)
-      definirFiltros(dados);
+    //if (componenteExiste)
+    //  definirFiltros(dados);
   }, [urlAtual])
 
   return (
@@ -75,7 +95,7 @@ export default function Anuncios() {
       {filtros &&
         <>
         <BotaoParaPublicarAnuncio/>
-        <FormularioDePesquisa filtros={filtros}/>
+        <FormularioDePesquisa filtros={filtros} listaDeJogos={jogos}/>
         <ResultadosDaPesquisa filtros={filtros}/>
         </>
       }

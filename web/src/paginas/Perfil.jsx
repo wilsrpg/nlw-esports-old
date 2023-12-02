@@ -1,10 +1,14 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { useParams } from 'react-router-dom';
 import { contexto } from '../App';
 
 export default function Perfil() {
   const contexto2 = useContext(contexto);
   const {nome} = useParams();
+
+  useEffect(()=>{
+    document.title = 'Perfil de '+nome+' - NLW eSports';
+  }, [])
 
   return (
     <div className='conteudo'>

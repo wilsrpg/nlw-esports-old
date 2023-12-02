@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import logo from '../imagens/NLW-eSports-Logo.svg'
 import carregando from '../imagens/loading.svg'
 import CartaoDeJogo from '../componentes/CartaoDeJogo'
@@ -8,7 +9,7 @@ import ModalParaCriarAnuncio from '../componentes/ModalParaCriarAnuncio';
 import ModalDeJogoSelecionado from '../componentes/ModalDeJogoSelecionado'
 import { SERVIDOR } from '../../../enderecoDoServidor';
 import { contexto } from '../App'
-import { Link } from 'react-router-dom'
+import BotaoParaPublicarAnuncio from '../componentes/BotaoParaPublicarAnuncio'
 
 export default function App() {
   let componenteExiste = true;
@@ -20,6 +21,7 @@ export default function App() {
   const [jogoProModalDeAnuncios, definirJogoProModalDeAnuncios] = useState('');
 
   useEffect(()=>{
+    document.title = 'NLW eSports';
     //const dados = {
     //  method: 'POST',
     //  headers: {'Content-Type': 'application/json'},
@@ -42,12 +44,15 @@ export default function App() {
     //  body: JSON.stringify({qtde: qtdeJogosExibidos}),
     //};
     //fetch(SERVIDOR+`/jogos-recentes`, dados)
-    fetch(SERVIDOR+`/jogos-recentes/${qtdeJogosExibidos}`)
+    //fetch(SERVIDOR+`/jogos-recentes/${qtdeJogosExibidos}`)
+    fetch(SERVIDOR+`/jogos?ordenarPor=anuncio&qtde=${qtdeJogosExibidos}`)
     .then(resp=>resp.json())
-    .then(dados=>{
+    .then(resp=>{
+      if (resp.erro)
+        throw resp.erro;
       if (componenteExiste) {
         definirErroAoObterDados(false);
-        definirJogos(dados);
+        definirJogos(resp);
       }
     })
     .catch(erro=>{
@@ -80,7 +85,7 @@ export default function App() {
           :
             <>
             {jogos.map((jogo,i)=>
-              <Link key={i} to={`/anuncios/?jogo=${jogo.nomeUrl}`}>
+              <Link key={i} to={`/anuncios?jogo=${jogo.nomeUrl}`}>
                 <CartaoDeJogo jogo={jogo}/>
               </Link>
             )}
@@ -100,17 +105,18 @@ export default function App() {
             <strong>Não encontrou seu duo?</strong>
             <p>Publique um anúncio para encontrar novos players!</p>
           </div>
-          {/*<Link to={contexto2.usuarioLogado ? '/novoanuncio' : '/entrar'}*/}
-          <Link to='/novoanuncio'
+          <BotaoParaPublicarAnuncio/>
+          {/*<Link to={contexto2.usuarioLogado ? '/novo-anuncio' : '/entrar'}*/}
+          {/*<Link to='/novo-anuncio'
             className={`botaoAbrirModalPraPublicar botao ${contexto2.usuarioLogado ? 'semShrink' : ''}`}
-          >
+          >*/}
           {/*<button className='botaoAbrirModalPraPublicar'
             onClick={()=>definirExibindoModalParaCriarAnuncio(true)}
           >*/}
-            <img className='lupa' src={lupa}/>
-            <span>{contexto2.usuarioLogado ? 'Publicar anúncio' : 'Entre para publicar um anúncio'}</span>
+            {/*<img className='lupa' src={lupa}/>
+            <span>{contexto2.usuarioLogado ? 'Publicar anúncio' : 'Entre para publicar um anúncio'}</span>*/}
           {/*</button>*/}
-          </Link>
+          {/*</Link>*/}
         </div>
       </div>
     </div>

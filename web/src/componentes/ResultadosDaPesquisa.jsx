@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
+import { useLocation, useHistory } from 'react-router-dom';
+import { contexto } from '../App';
 import CartaoDeAnuncio from './CartaoDeAnuncio';
 import carregando from '../imagens/loading.svg'
 import ModalConectar from './ModalConectar';
-import { useLocation } from 'react-router-dom';
 import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function ResultadosDaPesquisa({filtros}) {
   let componenteExiste = true;
+  const contexto2 = useContext(contexto);
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [paginas, definirPaginas] = useState(['']);
   const [paginaAtual, definirPaginaAtual] = useState(1);
@@ -16,10 +18,37 @@ export default function ResultadosDaPesquisa({filtros}) {
   const [emOrdem, definirEmOrdem] = useState('');
   const [anunciosPorPagina, definirAnunciosPorPagina] = useState();
   const [discord, definirDiscord] = useState('');
+  const historico = useHistory();
   const urlAtual = useLocation();
   const [botoesDeExcluirDesabilitados, definirBotoesDeExcluirDesabilitados] = useState(false);
 
   useEffect(()=>{
+    //const tokenDaSessao = contexto2.getCookie('tokenDaSessao');
+    //este componente está presente em duas páginas, uma delas pública, por isso a condição é diferente:
+    //if (!tokenDaSessao && contexto2.usuarioLogado) {
+    //  document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+    //  contexto2.definirUsuarioLogado();
+    //  if (urlAtual.pathname == '/meus-anuncios')
+    //    historico.push('/entrar?redir='+urlAtual.pathname.slice(1));
+    //  else
+    //    historico.push(urlAtual.pathname);
+    //  return;
+    //}
+    //const tokenDaSessao = contexto2.autenticarSessao();
+    //tokenDaSessao.then(resp=>{
+    //  //console.log('/resultadosDaPesquisa, token='+resp);
+    //  //console.log(resp);
+    //  if (!resp && contexto2.usuarioLogado) {
+    //    document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+    //    contexto2.definirUsuarioLogado();
+    //    //console.log('redirecionou');
+    //    if (urlAtual.pathname == '/meus-anuncios')
+    //      historico.push('/entrar?redir=meus-anuncios');
+    //    else
+    //      historico.push(urlAtual.pathname);
+    //  }
+    //});
+
     return ()=>componenteExiste = false;
   }, [])
 
@@ -31,12 +60,18 @@ export default function ResultadosDaPesquisa({filtros}) {
     };
     //console.log(filtros);
     //console.log(dados.body);
-    fetch(SERVIDOR+`/anuncios`, dados)
+    const querystring = '?' + new URLSearchParams(filtros).toString();
+    //const objString = '?' + new URLSearchParams(dados.body).toString();
+    //console.log(objString);
+
+    fetch(SERVIDOR+`/anuncios`+querystring, dados)
     .then(resp=>resp.json())
-    .then(dados=>{
+    .then(resp=>{
+      if (resp.erro)
+        throw resp.erro;
       if (componenteExiste) {
         definirErroAoObterDados(false);
-        definirAnuncios(dados);
+        definirAnuncios(resp);
         
         if (filtros.resultadosPorPagina) definirResultadosPorPagina(filtros.resultadosPorPagina);
         else definirResultadosPorPagina(10);
@@ -80,12 +115,15 @@ export default function ResultadosDaPesquisa({filtros}) {
     if (!anuncios)
       return;
     let criterio = ordenarPor;
+    //console.log(criterio);
     let ordem = 1;
     if (!criterio)
       criterio = 'dataDeCriacao';
     if(!emOrdem)
       ordem = -1;
     const a = [...anuncios.sort((a,b)=>{
+      //console.log(a[criterio]);
+      //console.log(b[criterio]);
       let x = a[criterio];
       let y = b[criterio];
       if (typeof a[criterio] == 'string') {
@@ -100,21 +138,41 @@ export default function ResultadosDaPesquisa({filtros}) {
       definirAnuncios(a);
   }, [ordenarPor,emOrdem])
 
-  function obterDiscord(anuncioId) {
-    fetch(SERVIDOR+`/anuncios/${anuncioId}/discord`)
-    .then(resp=>resp.json())
-    .then(dados=>{
-      if (componenteExiste) {
-        //definirErroAoObterDados(false);
-        definirDiscord(dados.discord);
-      }
-    })
-    .catch(erro=>{
-      console.log(erro);
-      //if (componenteExiste)
-      //  definirErroAoObterDados(true);
-      alert(erro);
-    });
+  function obterDiscord(idDoAnuncio) {
+    const tokenDaSessao = contexto2.getCookie('tokenDaSessao');
+    if (!tokenDaSessao || !contexto2.usuarioLogado) {
+      alert('É preciso entrar com uma conta para conectar-se ao jogador.');
+      return;
+    }
+    //const tokenDaSessao = contexto2.autenticarSessao();
+    //tokenDaSessao.then(resp=>{
+    //  //console.log('/resultadosDaPesquisa, token='+resp);
+    //  //console.log(resp);
+    //  if (!resp || !contexto2.usuarioLogado) {
+    //    document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+    //    alert('É preciso entrar com uma conta para conectar-se ao jogador.');
+    //  } else {
+        fetch(SERVIDOR+`/anuncios/${idDoAnuncio}/discord`)
+        .then(resp=>resp.json())
+        .then(resp=>{
+          if (resp.erro)
+            throw resp.erro;
+          if (componenteExiste) {
+            //definirErroAoObterDados(false);
+            definirDiscord(resp.discord);
+          }
+        })
+        .catch(erro=>{
+          console.log(erro);
+          //if (componenteExiste)
+          //  definirErroAoObterDados(true);
+          //if (erro.codigo == 401)
+          //  alert('É preciso entrar com uma conta para conectar-se ao jogador.');
+          //else
+            alert('Erro ao conectar-se ao jogador. Verifique o console de seu navegador para mais detalhes.');
+        });
+    //  }
+    //});
   }
 
   return (
@@ -136,6 +194,7 @@ export default function ResultadosDaPesquisa({filtros}) {
             </p>
           }
         </div>
+        {/*implementar nova paginação aki*/}
         <div className='flex flexColumn'>
           <div className='flex flexWrap opcoesDePagina'>
             <div className='flex'>
@@ -200,7 +259,7 @@ export default function ResultadosDaPesquisa({filtros}) {
               <option value=''>Data de publicação</option>
               <option value='nomeDoJogo'>Nome do jogo</option>
               <option value='nomeNoJogo'>Nome do jogador</option>
-              <option value='tempoDeJogo'>Tempo de jogo</option>
+              <option value='tempoDeJogoEmMeses'>Tempo de jogo</option>
               <option value='diasQueJoga'>Dia que joga</option>
               <option value='deHora'>Hora que começa</option>
               <option value='ateHora'>Hora que termina</option>

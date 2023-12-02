@@ -23,10 +23,10 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
     document.body.onkeydown = e=>fechar(e);
     fetch(SERVIDOR+`/jogos`)
     .then(resp=>resp.json())
-    .then(dados=>{
+    .then(resp=>{
       if (componenteExiste) {
         definirErroAoObterDados(false);
-        definirJogos(dados);
+        definirJogos(resp);
       }
     })
     .catch(erro=>{

@@ -10,12 +10,15 @@ export default function Jogos() {
   const [jogos, definirJogos] = useState();
 
   useEffect(()=>{
+    document.title = 'Jogos - NLW eSports';
     fetch(SERVIDOR+`/jogos`)
     .then(resp=>resp.json())
-    .then(dados=>{
+    .then(resp=>{
+      if (resp.erro)
+        throw resp.erro;
       if (componenteExiste) {
         definirErroAoObterDados(false);
-        definirJogos(dados);
+        definirJogos(resp);
       }
     })
     .catch(erro=>{
@@ -42,7 +45,7 @@ export default function Jogos() {
             <p>Nenhum jogo cadastrado.</p>
           :
             jogos.map((jogo,i)=>
-              <Link key={i} to={`/anuncios/?jogo=${jogo.nomeUrl}`}>
+              <Link key={i} to={`/anuncios?jogo=${jogo.nomeUrl}`}>
                 <CartaoDeJogo jogo={jogo}/>
               </Link>
             )

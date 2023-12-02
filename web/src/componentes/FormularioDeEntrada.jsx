@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation, Link } from 'react-router-dom';
 import { contexto } from '../App';
 import carregando from '../imagens/loading.svg'
 import { SERVIDOR } from '../../../enderecoDoServidor';
 
-export default function FormularioDeEntrada() {
+export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso}) {
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
   const [aguardando, definirAguardando] = useState(false);
@@ -12,15 +12,19 @@ export default function FormularioDeEntrada() {
   const urlAtual = useLocation();
   const historico = useHistory();
   const urlParams = new URLSearchParams(urlAtual.search);
+  const cabecalhoString = cabecalho ? 'Cabecalho' : '';
+  //const [mensagemCabecalho, definirMensagemCabecalho] = useState('');
 
   useEffect(()=>{
-
     return ()=>componenteExiste = false;
-  }, []);
+  }, [])
 
-  //useEffect(()=>{
-  //  console.log(paginaAtual);
-  //}, [paginaAtual]);
+  useEffect(()=>{
+    //definirMensagemCabecalho('');
+    if (componenteExiste)
+      definirMensagem('');
+    //console.log(urlAtual);
+  }, [urlAtual])
 
   function validarEntrada(e) {
     e.preventDefault();
@@ -28,20 +32,26 @@ export default function FormularioDeEntrada() {
       return;
     const dados = Object.fromEntries(new FormData(e.target));
     if (!dados.nomeDoUsuario) {
-      document.getElementById('nomeDoUsuario').focus();
-      definirMensagem('Digite seu nome de usuário.');
+      document.getElementById('nomeDoUsuario'+cabecalhoString).focus();
+      //if (cabecalho)
+      //  definirMensagemCabecalho('Digite seu nome de usuário.');
+      //else
+        definirMensagem('Digite seu nome de usuário.');
       return;
     }
     if (!dados.senha) {
-      document.getElementById('senha').focus();
-      definirMensagem('Digite sua senha.');
+      document.getElementById('senha'+cabecalhoString).focus();
+      //if (cabecalho)
+      //  definirMensagemCabecalho('Digite sua senha.');
+      //else
+        definirMensagem('Digite sua senha.');
       return;
     }
     if (dados.manterSessao == 'on')
       dados.manterSessao = true;
     else
       dados.manterSessao = false;
-    
+
     definirMensagem('');
     definirAguardando(true);
     tentarEntrar(dados.nomeDoUsuario, dados.senha, dados.manterSessao);
@@ -49,7 +59,7 @@ export default function FormularioDeEntrada() {
 
   function tentarEntrar(nomeDoUsuario, senha, manterSessao) {
     const dados = {
-      method: 'PUT',
+      method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({nomeDoUsuario, senha, manterSessao}),
     };
@@ -58,6 +68,8 @@ export default function FormularioDeEntrada() {
     .then(resp=>{
       if (resp.erro)
         throw resp.erro;
+      if (funcFecharMenu)
+        funcFecharMenu();
       //localStorage.setItem('idDoUsuarioLogado', resp.id);
       //localStorage.setItem('usuarioLogado', resp.nome);
       //if (manterSessao)
@@ -65,9 +77,9 @@ export default function FormularioDeEntrada() {
                           //+ ';expires=' + new Date(resp.dataDeExpiracao).toUTCString()
                           + (resp.manterSessao ? ';expires=' + new Date(resp.dataDeExpiracao).toUTCString() : '')
                           + ';samesite=lax;path=/';
-        //setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
       //else
       //  document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao + ';samesite=lax;path=/';
+      //if (componenteExiste)
       contexto2.definirUsuarioLogado({
         id: resp.id,
         nome: resp.nome
@@ -77,34 +89,45 @@ export default function FormularioDeEntrada() {
       else
       //if (urlAtual.pathname == '/entrar' || urlAtual.pathname == '/registrar')
         historico.push('/conta');
-      //historico.refresh();
     })
     .catch(erro=>{
-      //console.log(erro);
-      if (componenteExiste) {
+      console.log(erro);
+      //if (componenteExiste)
         definirMensagem(''+erro);
         definirAguardando(false);
-      }
+    //})
+    //.finally(()=>{
+      //if (componenteExiste)
+      //  definirAguardando(false);
     });
   }
 
   return (
     <>
-      <h2>Entrar</h2>
-      <div>
-        <form className='flex flexColumn' onSubmit={e=>validarEntrada(e)}>
-          <input id='nomeDoUsuario' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
-          <input id='senha' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
-          <div className='manterSessao'>
-            <input id='manterSessao' name='manterSessao' type='checkbox'/>
-            <label htmlFor='manterSessao'>Continuar conectado</label>
-          </div>
-          <button className='alturaBase' type='submit'>
+    {!cabecalho && !suspenso && <h2>Entrar</h2>}
+    <div>
+      <form className={cabecalho ? 'flex' : 'flex flexColumn'} onSubmit={e=>validarEntrada(e)}>
+        <input id={'nomeDoUsuario'+cabecalhoString} name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
+        <input id={'senha'+cabecalhoString} name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
+        <div className='manterSessao'>
+          <input id={'manterSessao'+cabecalhoString} name='manterSessao' type='checkbox'/>
+          <label className={cabecalho ? 'reduzido' : ''} htmlFor={'manterSessao'+cabecalhoString}>
+            Continuar conectado
+          </label>
+        </div>
+        <div className={suspenso ? 'formularioDeEntradaSuspenso' : 'flex'}>
+          <button className='botaoEntrar alturaBase' type='submit'>
             {aguardando ? <img className='carregando' src={carregando}/> : 'Entrar'}
           </button>
-        </form>
-        <p className='mensagemDeErro'>{mensagem}</p>
-      </div>
+          <div className={!cabecalho && !suspenso ? 'registrar' : ''}>
+          <Link to='/registrar'>
+            Registrar-se
+          </Link>
+          </div>
+        </div>
+      </form>
+      <p className='mensagemDeErro'>{mensagem}</p>
+    </div>
     </>
   )
 }

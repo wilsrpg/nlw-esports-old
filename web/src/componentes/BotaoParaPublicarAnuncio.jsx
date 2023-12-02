@@ -7,7 +7,7 @@ export default function BotaoParaPublicarAnuncio() {
   const contexto2 = useContext(contexto);
 
   return (
-    <Link to='/novoanuncio'
+    <Link to={contexto2.usuarioLogado ? '/novo-anuncio' : '/entrar'}
       className={`botaoAbrirModalPraPublicar botao ${contexto2.usuarioLogado ? 'semShrink' : ''}`}
     >
       <img className='lupa' src={lupa}/>

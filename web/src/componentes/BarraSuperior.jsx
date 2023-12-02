@@ -3,7 +3,7 @@ import { useHistory, useLocation, Link } from 'react-router-dom';
 import { contexto } from '../App';
 import iconeMenu from '../imagens/icons8-menu.svg'
 import iconeUsuario from '../imagens/user-circle-svgrepo-com.svg'
-import FormularioDeEntradaNoCabecalho from './FormularioDeEntradaNoCabecalho';
+import FormularioDeEntrada from './FormularioDeEntrada';
 import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function BarraSuperior() {
@@ -33,6 +33,49 @@ export default function BarraSuperior() {
   }, [])
 
   useEffect(()=>{
+    const tokenDaSessao = contexto2.getCookie('tokenDaSessao');
+    //if (!tokenDaSessao || !contexto2.usuarioLogado) {
+    //  document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+    //  contexto2.definirUsuarioLogado();
+    //}
+    if (!tokenDaSessao) {
+      //document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+      if (contexto2.usuarioLogado) {
+        contexto2.definirUsuarioLogado();
+        //console.log('sem cookie, com usuário; deslogando');
+      }
+      //contexto2.autenticarSessao();
+    } else
+    //if (tokenDaSessao && !contexto2.usuarioLogado) {
+    if (!contexto2.usuarioLogado) {
+      contexto2.autenticarSessao();
+      //console.log('com cookie, sem usuário logado; autenticando');
+      //mas se for um cookie roubado?
+    }
+  }, [urlAtual])
+
+  //useEffect(()=>{
+  //  const token = contexto2.autenticarSessao();
+  //  console.log(token);
+  //  if (!token || !contexto2.usuarioLogado) {
+  //    document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+  //    //historico.push('/entrar?redir='+urlAtual.pathname.slice(1));
+  //    historico.push('/entrar');
+  //  }
+  //}, [urlAtual])
+  //}, [urlAtual,contexto2.usuarioLogado])
+
+  //useEffect(()=>{
+  //  if (!contexto2.usuarioLogado) {
+  //    document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+  //    //historico.push('/entrar?redir='+urlAtual.pathname.slice(1));
+  //    historico.push('/entrar');
+  //  }
+    
+  //  //return ()=>componenteExiste = false;
+  //}, [contexto2.usuarioLogado])
+
+  useEffect(()=>{
     fecharMenus();
   }, [urlAtual,telaEstreita,telaEstreita2])
 
@@ -48,35 +91,39 @@ export default function BarraSuperior() {
     definirExibindoMenuDoUsuarioSuspenso(false);
   }
 
-  function getCookie(cname) {
-    let name = cname + '=';
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
-    for(let i = 0; i < ca.length; i++) {
-      let c = ca[i];
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-    return '';
-  }
+  //function getCookie(cname) {
+  //  let name = cname + '=';
+  //  let decodedCookie = decodeURIComponent(document.cookie);
+  //  let ca = decodedCookie.split(';');
+  //  for(let i = 0; i < ca.length; i++) {
+  //    let c = ca[i];
+  //    while (c.charAt(0) == ' ') {
+  //      c = c.substring(1);
+  //    }
+  //    if (c.indexOf(name) == 0) {
+  //      return c.substring(name.length, c.length);
+  //    }
+  //  }
+  //  return '';
+  //}
 
   function sair() {
     definirExibindoMenuDoUsuarioSuspenso(false);
     //localStorage.removeItem('usuarioLogado');
     //localStorage.removeItem('idDoUsuarioLogado');
-    //document.cookie = 'tokenDaSessao=;expires=0;path=/';
+    //document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
     //contexto2.definirUsuarioLogado();
     //historico.push('/entrar');
-    const tokenDaSessao = getCookie('tokenDaSessao');
+    //const tokenDaSessao = getCookie('tokenDaSessao');
     //console.log(tokenDaSessao);
-    if (!tokenDaSessao || tokenDaSessao == '0') {
+    const tokenDaSessao = contexto2.getCookie('tokenDaSessao');
+    if (!tokenDaSessao || !contexto2.usuarioLogado) {
+      document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
       contexto2.definirUsuarioLogado();
       historico.push('/entrar');
-    } else {
+      return;
+    }
+    //} else {
       const dados = {
         method: 'DELETE',
         //headers: {'Content-Type': 'application/json'},
@@ -91,16 +138,16 @@ export default function BarraSuperior() {
           throw resp.erro;
         //localStorage.removeItem('idDoUsuarioLogado');
         //localStorage.removeItem('usuarioLogado');
-        //document.cookie = 'tokenDaSessao=0;expires=0;samesite=lax;httponly=true;path=/';
-        document.cookie = 'tokenDaSessao=0;expires=0;samesite=lax;path=/';
+        //document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;httponly=true;path=/';
+        document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
         contexto2.definirUsuarioLogado();
         historico.push('/entrar');
       })
       .catch(erro=>{
         console.log(erro);
-        definirMensagem(''+erro);
+        alert('Erro ao tentar sair. Verifique o console de seu navegador para mais detalhes.');
       });
-    }
+    //}
   }
 
   function exibirMenuDaPagina(e) {
@@ -143,7 +190,7 @@ export default function BarraSuperior() {
       {/*<Link to='/amigos'>
         Amigos
       </Link>*/}
-      <Link to='/meusanuncios'>
+      <Link to='/meus-anuncios'>
         Meus anúncios
       </Link>
       <Link to='/configuracoes'>
@@ -174,7 +221,7 @@ export default function BarraSuperior() {
             <img className='botaoCopiar' src={iconeUsuario} onClick={e=>exibirMenuDoUsuario(e)}/>
           </div>
         :
-          <FormularioDeEntradaNoCabecalho funcFecharMenu={()=>definirExibindoMenuDoUsuarioSuspenso(false)} horizontal/>
+          <FormularioDeEntrada funcFecharMenu={()=>definirExibindoMenuDoUsuarioSuspenso(false)} cabecalho/>
         }
       </div>
 
@@ -196,7 +243,7 @@ export default function BarraSuperior() {
             {contexto2.usuarioLogado ?
               <OpcoesDoMenuDoUsuario/>
             :
-              <FormularioDeEntradaNoCabecalho funcFecharMenu={()=>definirExibindoMenuDoUsuarioSuspenso(false)}/>
+              <FormularioDeEntrada funcFecharMenu={()=>definirExibindoMenuDoUsuarioSuspenso(false)} suspenso/>
             }
           </div>
         </div>

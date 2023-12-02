@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
+import { useHistory, useLocation } from 'react-router-dom';
 import { SERVIDOR } from '../../../enderecoDoServidor';
 import { contexto } from '../App';
 import iconeLixeira from '../imagens/icons8-trash vermelha.svg'
@@ -10,8 +11,10 @@ export default function CartaoDeAnuncio({
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
   const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
-  //const [aguardando, definirAguardando] = useState(false);
+  const [aguardando, definirAguardando] = useState(false);
   const [confirmandoExclusaoDoAnuncio, definirConfirmandoExclusaoDoAnuncio] = useState(false);
+  const historico = useHistory();
+  const urlAtual = useLocation();
 
   useEffect(()=>{
     //definirExcluindo(false);
@@ -31,7 +34,7 @@ export default function CartaoDeAnuncio({
       if (confirm('Confirma exclusão do anúncio?')) {
         if (componenteExiste) {
           definirExcluindo(true);
-          //definirAguardando(true);
+          definirAguardando(true);
         }
         excluirAnuncio();
       } else {
@@ -42,65 +45,96 @@ export default function CartaoDeAnuncio({
     }
   }, [confirmandoExclusaoDoAnuncio])
 
-  async function excluirAnuncio() {
-    const tokenDaSessao = getCookie('tokenDaSessao');
-    const dados = {
-      method: 'DELETE',
-      //headers: {'Content-Type': 'application/json'},
-      headers: {'Authorization': tokenDaSessao},
-      //body: JSON.stringify({idDoAnuncio: anuncio.idDoAnuncio}),
-    };
-    //fetch(SERVIDOR+`/excluir-anuncio`, dados)
-    fetch(SERVIDOR+`/anuncios/${anuncio.idDoAnuncio}`, dados)
-    .then(resp=>resp.json())
-    .then(resp=>{
-      if (resp.erro)
-        throw resp.erro;
-      if (document.getElementById(anuncio.idDoAnuncio))
-        document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
-      if (componenteExiste)
-        funcRecarregarAnuncios();
-      alert('Anúncio excluído.');
-    })
-    .catch(erro=>{
-      console.log(erro);
-      alert('Erro ao excluir anúncio. Verifique o console de seu navegador para mais detalhes.');
-      if (document.getElementById(anuncio.idDoAnuncio))
-        document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
-      if (componenteExiste)
-        definirConfirmandoExclusaoDoAnuncio(false);
-    })
-    .finally(()=>{
-      if (componenteExiste) {
-        //definirAguardando(false);
-        //definirConfirmandoExclusaoDoAnuncio(false);
-        definirExcluindo(false);
-        //    //definirAguardando(false); //aqui causa memory leak
-      }
-    });
+  function excluirAnuncio() {
+    //const tokenDaSessao = getCookie('tokenDaSessao');
+    const tokenDaSessao = contexto2.getCookie('tokenDaSessao');
+    if (!tokenDaSessao || !contexto2.usuarioLogado) {
+      document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+      contexto2.definirUsuarioLogado();
+      if (urlAtual.pathname == '/meus-anuncios')
+        historico.push('/entrar?redir='+urlAtual.pathname.slice(1));
+      else
+        historico.push(urlAtual.pathname);
+      return;
+    }
+    //const tokenDaSessao = contexto2.autenticarSessao();
+    //tokenDaSessao.then(resp=>{
+    //  //console.log('/resultadosDaPesquisa, token='+resp);
+    //  //console.log(resp);
+    //  if (!resp || !contexto2.usuarioLogado) {
+    //    document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+    //    if (urlAtual.pathname == '/meus-anuncios')
+    //      historico.push('/entrar?redir=meus-anuncios');
+    //    else
+    //      historico.push(urlAtual.pathname);
+    //  } else {
+        const dados = {
+          method: 'DELETE',
+          //headers: {'Content-Type': 'application/json'},
+          headers: {'Authorization': tokenDaSessao},
+          //body: JSON.stringify({idDoAnuncio: anuncio.idDoAnuncio}),
+        };
+        //fetch(SERVIDOR+`/excluir-anuncio`, dados)
+        fetch(SERVIDOR+`/anuncios/${anuncio.idDoAnuncio}`, dados)
+        .then(resp=>resp.json())
+        .then(resp=>{
+          if (resp.erro)
+            throw resp.erro;
+          if (document.getElementById(anuncio.idDoAnuncio))
+            document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
+          if (componenteExiste)
+            funcRecarregarAnuncios();
+          alert('Anúncio excluído.');
+          if (componenteExiste) {
+            //definirConfirmandoExclusaoDoAnuncio(false);
+            //definirAguardando(false);
+            definirExcluindo(false);
+          }
+        })
+        .catch(erro=>{
+          console.log(erro);
+          if (erro.codigo == 401) {
+            document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+            contexto2.definirUsuarioLogado();
+            historico.push('/entrar?redir='+urlAtual.pathname.slice(1));
+            //historico.push('/entrar');
+          } else {
+            alert('Erro ao excluir anúncio. Verifique o console de seu navegador para mais detalhes.');
+            if (document.getElementById(anuncio.idDoAnuncio))
+              document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
+            if (componenteExiste) {
+              definirConfirmandoExclusaoDoAnuncio(false);
+              definirAguardando(false);
+              definirExcluindo(false);
+            }
+          }
+        });
+    //  }
+    //});
   }
 
-  function getCookie(cname) {
-    let name = cname + '=';
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
-    for(let i = 0; i < ca.length; i++) {
-      let c = ca[i];
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-    return '';
-  }
+  //function getCookie(cname) {
+  //  let name = cname + '=';
+  //  let decodedCookie = decodeURIComponent(document.cookie);
+  //  let ca = decodedCookie.split(';');
+  //  for(let i = 0; i < ca.length; i++) {
+  //    let c = ca[i];
+  //    while (c.charAt(0) == ' ') {
+  //      c = c.substring(1);
+  //    }
+  //    if (c.indexOf(name) == 0) {
+  //      return c.substring(name.length, c.length);
+  //    }
+  //  }
+  //  return '';
+  //}
 
   return (
     <div id={anuncio.idDoAnuncio} className='cartaoAnuncio'>
       {contexto2.usuarioLogado && contexto2.usuarioLogado.id == anuncio.idDoUsuario &&
         <img className='botaoCopiar botaoFechar'
-          src={excluindo ? carregando : iconeLixeira}
+        src={aguardando ? carregando : iconeLixeira}
+        //src={excluindo ? carregando : iconeLixeira}
           onClick={excluindo ? undefined : confirmarExclusaoDoAnuncio}
         />
       }
