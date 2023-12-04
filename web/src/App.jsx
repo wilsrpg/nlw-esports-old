@@ -80,9 +80,9 @@ export default function App() {
   }
 
   async function autenticarSessao() {
-    let tokenResposta;
+    //let tokenResposta;
     const tokenDaSessao = getCookie('tokenDaSessao');
-    if (!tokenDaSessao || tokenDaSessao == '0') {
+    if (!tokenDaSessao) {
       definirUsuarioLogado();
       definirAguardando(false);
       return;
@@ -110,7 +110,7 @@ export default function App() {
                         + (resp.manterSessao ? ';expires=' + new Date(resp.dataDeExpiracao).toUTCString() : '')
                         + ';samesite=lax;path=/';
       //}
-      tokenResposta = resp.tokenDaSessao;
+      //tokenResposta = resp.tokenDaSessao;
     })
     .catch(erro=>{
       console.log(erro);
@@ -121,17 +121,20 @@ export default function App() {
       //  definirErroAoObterDados(true);
     })
     .finally(()=>definirAguardando(false));
-    return tokenResposta;
+    //return tokenResposta;
   }
 
-  function desconectar() {
-    document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
-    definirUsuarioLogado();
-    historico.push('/entrar');
-  }
+  //function desconectar() {
+  //  document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
+  //  definirUsuarioLogado();
+  //  historico.push('/entrar');
+  //}
 
   return (
-    <contexto.Provider value={{usuarioLogado, definirUsuarioLogado, autenticarSessao, getCookie, desconectar}}>
+    <contexto.Provider value={{usuarioLogado, definirUsuarioLogado, autenticarSessao, getCookie,
+        aguardando, definirAguardando
+      }}
+    >
       {aguardando ?
         <div className='conteudo'>
           <img className='carregando' src={carregando}/>

@@ -307,7 +307,7 @@ servidor.get('/jogos', async (req, resp)=>{
 		const qtde = parseInt(req.query.qtde);
 		if (req.query.qtde && isNaN(qtde))
 			return resp.status(400).json({erro: 'Quantidade em formato inválido.'});
-		console.log('ordenarPor='+ordenarPor+', qtde='+qtde);
+		//console.log('ordenarPor='+ordenarPor+', qtde='+qtde);
 		const db = await abrirBanco;
 		const jogos = await db.all(
 			`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.idDoJogo) AS qtdeAnuncios
@@ -390,13 +390,12 @@ function converterMinutosParaHoraString(minutos) {
 }
 
 //publica um anúncio
-//lembrete: mudar pra POST
-servidor.put('/anuncios', async (req, resp)=>{
+servidor.post('/anuncios', async (req, resp)=>{
 	try {
 		//const tokenDaSessao = req.body.tokenDaSessao;
 		//const seletor = tokenDaSessao.slice(0,8);
 		//const token = tokenDaSessao.slice(9);
-		console.log('PUT anuncios, ip='+req.ip);
+		console.log('POST anuncios, ip='+req.ip);
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
@@ -516,16 +515,16 @@ servidor.put('/anuncios', async (req, resp)=>{
 	}
 });
 
-//pesquisa nos anúncios
-//lembrete: mudar pra GET
-servidor.post('/anuncios', async (req, resp)=>{
+//pesquisa anúncios
+servidor.get('/anuncios', async (req, resp)=>{
 	try {
-		const body = req.body;
-		const query = req.query;
+		//const body = req.body;
+		//const query = req.query;
+		const body = req.query;
 		//console.log('body:');
-		//console.log(body);
 		console.log('query params:');
-		console.log(query);
+		console.log(body);
+		//console.log(query);
 
 		const camposPesquisados = {};
 		for (let c in body)
@@ -1010,13 +1009,18 @@ servidor.post('/anuncios', async (req, resp)=>{
 		//		disp.horaDeTermino = converterMinutosParaHoraString(disp.horaDeTermino);
 		//	});
 		//});
-		console.log(
-			'POST anuncios, qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length
-			+', ip='+req.ip+(qtdeCampos > 0 ? ', campos:' : '')
+		const totalDeAnuncios = anuncios2.length;
+		const anuncios = anuncios2.filter((a,i)=>
+			i >= (pagina-1)*resultadosPorPagina && i < pagina*resultadosPorPagina
 		);
-		if (qtdeCampos > 0)
-			console.log(camposPesquisados);
-		return resp.json(anuncios2
+		console.log('GET anuncios, qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length+', ip='+req.ip);
+		//console.log(
+		//	'POST anuncios, qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length
+		//	+', ip='+req.ip+(qtdeCampos > 0 ? ', campos:' : '')
+		//);
+		//if (qtdeCampos > 0)
+		//	console.log(camposPesquisados);
+		return resp.status(200).json({anuncios, totalDeAnuncios}
 			//.map(anuncio=>{
 			//return {...anuncio,
 				//nomeDoJogo: jogo.anuncio.nomeDoJogo,
@@ -1068,13 +1072,17 @@ servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 servidor.get('/anuncios/:id/discord', async (req, resp)=>{
 	try {
 		const anuncioId = req.params.id;
-		//const sessaoExiste = await autenticarSessao(req.get('Authorization'));
-		//if (sessaoExiste.erro)
-		//	return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
+		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
+		if (sessaoExiste.erro)
+			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
 		const db = await abrirBanco;
-		const anuncio = await db.get(`SELECT discord FROM Anuncios WHERE idDoAnuncio = ${anuncioId};`);
-		console.log('GET anuncios/:id/discord, discord='+anuncio.discord+', ip='+req.ip);
-		return resp.json({discord: anuncio.discord});
+		const anuncioExiste = await db.get(`SELECT discord FROM Anuncios WHERE idDoAnuncio = ${anuncioId};`);
+		if (!anuncioExiste) {
+			console.log('Anúncio não encontrado.');
+			return resp.status(404).json({erro: 'Anúncio não encontrado.'});
+		}
+		console.log('GET anuncios/:id/discord, discord='+anuncioExiste.discord+', ip='+req.ip);
+		return resp.status(200).json({discord: anuncioExiste.discord});
 	}
 	catch (erro) {
 		//console.log('entrou no catch');
@@ -1146,7 +1154,7 @@ servidor.put('/jogos/:id/anuncios', async (req, resp)=>{
 servidor.delete('/anuncios/:id', async (req, resp)=>{
 	try {
 		//const body = req.body;
-		const idDoAnuncio = parseInt(req.params.id);
+		const idDoAnuncio = req.params.id;
 		//const idDoAnuncio = body.idDoAnuncio;
 		//console.log('DELETE anuncios/:id, id='+id+', ip='+req.ip);
 		//const tokenDaSessao = body.tokenDaSessao;
@@ -1176,7 +1184,7 @@ servidor.delete('/anuncios/:id', async (req, resp)=>{
 		}*/
 
 		const anuncioExiste = await db.get(
-			`SELECT idDoAnuncio FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`
+			`SELECT idDoAnuncio,idDoUsuario FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`
 		);
 		const disponibilidadeExiste = await db.get(
 			`SELECT idDoAnuncio FROM Disponibilidades WHERE idDoAnuncio = ${idDoAnuncio};`
@@ -1185,6 +1193,8 @@ servidor.delete('/anuncios/:id', async (req, resp)=>{
 			console.log('Anúncio não encontrado.');
 			return resp.status(404).json({erro: 'Anúncio não encontrado.'});
 		}
+		if (sessaoExiste.idDoUsuario != anuncioExiste.idDoUsuario)
+			return resp.status(409).json({erro: 'O anúncio não pertence ao usuário informado.'});
 		await db.run(`DELETE FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`);
 		await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = ${idDoAnuncio};`);
 		//await new Promise(r=>setTimeout(r,1000));
@@ -1265,18 +1275,21 @@ servidor.post('/usuarios', async (req, resp)=>{
 });
 
 //altera senha
-servidor.put('/usuarios/senha', async (req, resp)=>{
+servidor.put('/usuarios/:id', async (req, resp)=>{
+//servidor.put('/usuarios/senha', async (req, resp)=>{
 	try {
 		const body = req.body;
 		//console.log('PUT usuarios/senha, id do usuário='+body.id+', ip='+req.ip);
-		//const idDoUsuario = parseInt(body.id);
+		const idDoUsuario = req.params.id;
 		//const tokenDaSessao = body.tokenDaSessao;
 		//const seletor = tokenDaSessao.slice(0,8);
 		//const token = tokenDaSessao.slice(9);
-		console.log('PUT usuarios/senha, ip='+req.ip);
+		console.log('PUT usuarios/:id='+idDoUsuario+', ip='+req.ip);
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
+		if (sessaoExiste.idDoUsuario != idDoUsuario) //lembrete: é possível isso?
+			return resp.status(409).json({erro: 'O token não pertence ao usuário informado.'});
 		const usuarioExiste = await verificarCredenciais('', body.senha, sessaoExiste.idDoUsuario);
 		if (usuarioExiste.erro)
 			return resp.status(usuarioExiste.status).json({erro: usuarioExiste.erro});
@@ -1373,7 +1386,7 @@ servidor.put('/usuarios/senha', async (req, resp)=>{
 servidor.delete('/usuarios/:id', async (req, resp)=>{
 	try {
 		const body = req.body;
-		//const id = parseInt(req.params.id);
+		const idDoUsuario = req.params.id;
 		//const id = parseInt(body.id);
 		//console.log('DELETE usuarios/:id, id do usuário='+id+', ip='+req.ip);
 		//const tokenDaSessao = body.tokenDaSessao;
@@ -1383,9 +1396,11 @@ servidor.delete('/usuarios/:id', async (req, resp)=>{
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
-			const usuarioExiste = await verificarCredenciais('', body.senha, sessaoExiste.idDoUsuario);
-			if (usuarioExiste.erro)
-				return resp.status(usuarioExiste.status).json({erro: usuarioExiste.erro});
+		if (sessaoExiste.idDoUsuario != idDoUsuario) //lembrete: é possível isso?
+			return resp.status(409).json({erro: 'O token não pertence ao usuário informado.'});
+		const usuarioExiste = await verificarCredenciais('', body.senha, sessaoExiste.idDoUsuario);
+		if (usuarioExiste.erro)
+			return resp.status(usuarioExiste.status).json({erro: usuarioExiste.erro});
 		const db = await abrirBanco;
 		/*const sessaoExiste = await db.get(
 			`SELECT id, tokenDaSessaoHash, dataDeExpiracao, idDoUsuario FROM Sessoes WHERE seletor = '${seletor}';`
@@ -1776,15 +1791,16 @@ servidor.delete('/sessoes', async (req, resp)=>{
 
 //exclui todas as outras sessões do mesmo usuário e retorna o número de sessões excluídas
 //lembrete: criar rota que retorna informações dos outros dispositivos conectados
-servidor.delete('/outras-sessoes/:id', async (req, resp)=>{
+//servidor.delete('/outras-sessoes/:idDoUsuario', async (req, resp)=>{
+servidor.delete('/usuarios/:idDoUsuario/outras-sessoes', async (req, resp)=>{
 	try {
 		//const body = req.body;
-		const id = req.params.id;
+		const idDoUsuario = req.params.id;
 		//const [seletor,token] = separarToken(req.params.tokenDaSessao);
 		//const tokenDaSessao = req.params.tokenDaSessao;
 		//const seletor = tokenDaSessao.slice(0,8);
 		//const token = tokenDaSessao.slice(9);
-		console.log('DELETE outras-sessoes/:id, id do usuário='+id+', ip='+req.ip);
+		console.log('DELETE outras-sessoes/:id, id do usuário='+idDoUsuario+', ip='+req.ip);
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
@@ -1809,11 +1825,11 @@ servidor.delete('/outras-sessoes/:id', async (req, resp)=>{
 
 		const sessoesConectadas = await db.get(
 			`SELECT COUNT(*) AS qtde FROM Sessoes
-			WHERE idDoUsuario = ${id} AND seletor != '${sessaoExiste.seletor}';`
+			WHERE idDoUsuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`
 		);
 		//if (!qtde)
 		//	qtde = 0;
-		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${id} AND seletor != '${sessaoExiste.seletor}';`);
+		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`);
 		console.log('Sessões desconectadas='+sessoesConectadas.qtde+'.');
 		return resp.status(200).json({qtdeSessoesDesconectadas: sessoesConectadas.qtde});
 	}

@@ -101,9 +101,9 @@ export default function Configuracoes() {
           method: 'PUT',
           //headers: {'Content-Type': 'application/json'},
           headers: {'Content-Type': 'application/json', 'Authorization': tokenDaSessao},
-          body: JSON.stringify({id: contexto2.usuarioLogado.id, senha, novaSenha}),
+          body: JSON.stringify({senha, novaSenha}),
         };
-        fetch(SERVIDOR+`/usuarios/senha`, dados)
+        fetch(SERVIDOR+`/usuarios/${contexto2.usuarioLogado.id}`, dados)
         .then(resp=>resp.json())
         .then(resp=>{
           if (resp.erro)
@@ -234,7 +234,7 @@ export default function Configuracoes() {
           headers: {'Authorization': tokenDaSessao},
           //body: JSON.stringify({id: contexto2.usuarioLogado.id, tokenDaSessao}),
         };
-        fetch(SERVIDOR+`/outras-sessoes/${contexto2.usuarioLogado.id}`, dados)
+        fetch(SERVIDOR+`/usuarios/${contexto2.usuarioLogado.id}/outras-sessoes`, dados)
         //fetch(SERVIDOR+`/outras-sessoes/${contexto2.usuarioLogado.id}/${tokenDaSessao}`, dados)
         .then(resp=>resp.json())
         .then(resp=>{

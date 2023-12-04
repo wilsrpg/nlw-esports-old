@@ -21,6 +21,7 @@ export default function ResultadosDaPesquisa({filtros}) {
   const historico = useHistory();
   const urlAtual = useLocation();
   const [botoesDeExcluirDesabilitados, definirBotoesDeExcluirDesabilitados] = useState(false);
+  const [paginacao, definirPaginacao] = useState(['1']);
 
   useEffect(()=>{
     //const tokenDaSessao = contexto2.getCookie('tokenDaSessao');
@@ -54,9 +55,9 @@ export default function ResultadosDaPesquisa({filtros}) {
 
   useEffect(()=>{
     const dados = {
-      method: 'POST',
+      method: 'GET',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(filtros),
+      //body: JSON.stringify(filtros),
     };
     //console.log(filtros);
     //console.log(dados.body);
@@ -71,7 +72,8 @@ export default function ResultadosDaPesquisa({filtros}) {
         throw resp.erro;
       if (componenteExiste) {
         definirErroAoObterDados(false);
-        definirAnuncios(resp);
+        definirAnuncios(resp.anuncios);
+        //resp.totalDeAnuncios?;
         
         if (filtros.resultadosPorPagina) definirResultadosPorPagina(filtros.resultadosPorPagina);
         else definirResultadosPorPagina(10);
@@ -152,7 +154,11 @@ export default function ResultadosDaPesquisa({filtros}) {
     //    document.cookie = 'tokenDaSessao=;expires=0;samesite=lax;path=/';
     //    alert('É preciso entrar com uma conta para conectar-se ao jogador.');
     //  } else {
-        fetch(SERVIDOR+`/anuncios/${idDoAnuncio}/discord`)
+        const dados = {
+          method: 'GET',
+          headers: {'Authorization': tokenDaSessao},
+        };
+        fetch(SERVIDOR+`/anuncios/${idDoAnuncio}/discord`, dados)
         .then(resp=>resp.json())
         .then(resp=>{
           if (resp.erro)

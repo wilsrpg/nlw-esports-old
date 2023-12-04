@@ -167,7 +167,7 @@ export default function NovoAnuncio() {
     //    //historico.push(urlAtual.pathname);
     //  } else {
         const dados = {
-          method: 'PUT',
+          method: 'POST',
           //headers: {'Content-Type': 'application/json'},
           headers: {'Content-Type': 'application/json', 'Authorization': tokenDaSessao},
           body: JSON.stringify({anuncio})
