@@ -48,6 +48,7 @@ export default function BarraSuperior() {
     } else
     //if (tokenDaSessao && !contexto2.usuarioLogado) {
     if (!contexto2.usuarioLogado) {
+      //contexto2.definirAguardando(true);
       contexto2.autenticarSessao();
       //console.log('com cookie, sem usuário logado; autenticando');
       //mas se for um cookie roubado?

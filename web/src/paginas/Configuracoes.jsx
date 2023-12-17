@@ -8,7 +8,7 @@ import { SERVIDOR } from '../../../enderecoDoServidor';
 export default function Configuracoes() {
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
-  const [aguardando, definirAguardando] = useState(false);
+  const [aguardandoAlterarSenha, definirAguardandoAlterarSenha] = useState(false);
   const [mensagem, definirMensagem] = useState('');
   const [erroAoValidar, definirErroAoValidar] = useState(false);
   const [confirmandoExclusaoDaConta, definirConfirmandoExclusaoDaConta] = useState(false);
@@ -40,7 +40,7 @@ export default function Configuracoes() {
 
   function validarAlteracaoDeSenha(e) {
     e.preventDefault();
-    if (aguardando)
+    if (aguardandoAlterarSenha)
       return;
     definirErroAoValidar(true);
     const dados = Object.fromEntries(new FormData(e.target));
@@ -70,7 +70,7 @@ export default function Configuracoes() {
       return;
     }
     definirMensagem('');
-    definirAguardando(true);
+    definirAguardandoAlterarSenha(true);
     tentarAlterarSenha(dados.senhaAtual,dados.novaSenha);
   }
 
@@ -110,7 +110,12 @@ export default function Configuracoes() {
             throw resp.erro;
           if (componenteExiste) {
             definirErroAoValidar(false);
-            definirMensagem('Senha alterada com sucesso.');
+            //definirMensagem('Senha alterada com sucesso.');
+            definirMensagem('');
+            document.getElementById('senhaAtual').value = '';
+            document.getElementById('novaSenha').value = '';
+            document.getElementById('confirmarNovaSenha').value = '';
+            alert('Senha alterada com sucesso.');
           }
         })
         .catch(erro=>{
@@ -125,7 +130,7 @@ export default function Configuracoes() {
         })
         .finally(()=>{
           if (componenteExiste)
-            definirAguardando(false);
+            definirAguardandoAlterarSenha(false);
         });
     //  }
     //});
@@ -287,16 +292,19 @@ export default function Configuracoes() {
         <>
         <h2>Configurações</h2>
         <strong>Alterar senha</strong>
-        <div>
+        <div className='positionRelative'>
           <form className='flex flexColumn' onSubmit={e=>validarAlteracaoDeSenha(e)}>
             <input id='senhaAtual' name='senhaAtual' type='password' placeholder='Senha atual' onChange={()=>definirMensagem('')}/>
             <input id='novaSenha' name='novaSenha' type='password' placeholder='Nova senha' onChange={()=>definirMensagem('')}/>
             <input id='confirmarNovaSenha' name='confirmarNovaSenha' type='password' placeholder='Repita a nova senha' onChange={()=>definirMensagem('')}/>
             <button className='alturaBase' type='submit'>
-              {aguardando ? <img className='carregando' src={carregando}/> : 'Salvar'}
+              {aguardandoAlterarSenha ? <img className='carregando' src={carregando}/> : 'Salvar'}
             </button>
+            {/*<p className='mensagemDeErroCentralizada'>{mensagem}</p>*/}
+            {/*{erroAoValidar && <p className='mensagemDeErroCentralizada'>{mensagem}</p>}*/}
           </form>
-          <p className={erroAoValidar ? 'mensagemDeErro' : 'mensagemDeSucesso'}>{mensagem}</p>
+          {/*<p className={erroAoValidar ? 'mensagemDeErro' : 'mensagemDeSucesso'}>{mensagem}</p>*/}
+          {mensagem && <p className='mensagemDeErro2'>{mensagem}</p>}
         </div>
 
         <strong>Desconectar outros dispositivos</strong>
@@ -310,7 +318,7 @@ export default function Configuracoes() {
         :
           <>
           <p>Digite sua senha novamente antes de prosseguir com esta operação.</p>
-          <div>
+          <div className='positionRelative'>
             <div className='flex flexColumn'>
               <input id='confirmarSenhaParaExclusaoDaConta' type='password' placeholder='Senha atual' onChange={()=>definirMensagemExcluir('')}/>
               <button className='excluirConta alturaBase' onClick={validarExclusaoDaConta}>
@@ -322,8 +330,9 @@ export default function Configuracoes() {
               }}>
                 Cancelar
               </button>
+              {/*<p className='mensagemDeErroCentralizada'>{mensagemExcluir}</p>*/}
             </div>
-            <p className='mensagemDeErro'>{mensagemExcluir}</p>
+            {mensagemExcluir && <p className='mensagemDeErro2'>{mensagemExcluir}</p>}
           </div>
           </>
         }

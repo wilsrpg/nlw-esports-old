@@ -105,7 +105,7 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
   return (
     <>
     {!cabecalho && !suspenso && <h2>Entrar</h2>}
-    <div>
+    <div className='positionRelative'>
       <form className={cabecalho ? 'flex' : 'flex flexColumn'} onSubmit={e=>validarEntrada(e)}>
         <input id={'nomeDoUsuario'+cabecalhoString} name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
         <input id={'senha'+cabecalhoString} name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
@@ -115,7 +115,7 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
             Continuar conectado
           </label>
         </div>
-        <div className={suspenso ? 'formularioDeEntradaSuspenso' : 'flex'}>
+        <div className={'spaceEvenly ' + (suspenso ? 'formularioDeEntradaSuspenso' : 'flex')}>
           <button className='botaoEntrar alturaBase' type='submit'>
             {aguardando ? <img className='carregando' src={carregando}/> : 'Entrar'}
           </button>
@@ -125,8 +125,9 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
           </Link>
           </div>
         </div>
+        {/*<p className='mensagemDeErroCentralizada'>{mensagem}</p>*/}
       </form>
-      <p className='mensagemDeErro'>{mensagem}</p>
+      {mensagem && <p className='mensagemDeErro2'>{mensagem}</p>}
     </div>
     </>
   )

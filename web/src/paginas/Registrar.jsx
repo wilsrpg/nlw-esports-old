@@ -79,7 +79,7 @@ export default function Registrar() {
       {!contexto2.usuarioLogado ?
         <>
         <h2>Criar nova conta</h2>
-        <div>
+        <div className='positionRelative'>
           <form className='flex flexColumn' onSubmit={e=>validarRegistro(e)}>
             <input id='nomeDoUsuario' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')}/>
             <input id='senha' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')}/>
@@ -87,8 +87,9 @@ export default function Registrar() {
             <button className='alturaBase' type='submit'>
               {aguardando ? <img className='carregando' src={carregando}/> : 'Registrar'}
             </button>
+            {/*<p className='mensagemDeErroCentralizada'>{mensagem}</p>*/}
           </form>
-          <p className='mensagemDeErro'>{mensagem}</p>
+          {mensagem && <p className='mensagemDeErro2'>{mensagem}</p>}
         </div>
         </>
       :

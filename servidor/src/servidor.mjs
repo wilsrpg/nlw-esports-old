@@ -516,14 +516,14 @@ servidor.post('/anuncios', async (req, resp)=>{
 });
 
 //pesquisa anúncios
-servidor.get('/anuncios', async (req, resp)=>{
+servidor.get('/anuncios-old', async (req, resp)=>{
 	try {
 		//const body = req.body;
 		//const query = req.query;
 		const body = req.query;
 		//console.log('body:');
-		console.log('query params:');
-		console.log(body);
+		//console.log('query params:');
+		//console.log(body);
 		//console.log(query);
 
 		const camposPesquisados = {};
@@ -605,11 +605,38 @@ servidor.get('/anuncios', async (req, resp)=>{
 			pagina = parseInt(body.pagina);
 		if(isNaN(pagina))
 			return resp.status(400).json({erro: 'Página em formato inválido.'});
+		if (pagina < 1)
+			pagina = 1;
 		if (body.resultadosPorPagina)
 			resultadosPorPagina = parseInt(body.resultadosPorPagina);
 		if(isNaN(resultadosPorPagina))
 			return resp.status(400).json({erro: 'Resultados por página em formato inválido.'});
-		console.log('resultadosPorPagina='+resultadosPorPagina+', pagina='+pagina);
+		if (resultadosPorPagina < 3)
+			resultadosPorPagina = 3;
+		if (resultadosPorPagina > 100)
+			resultadosPorPagina = 100;
+		//console.log('resultadosPorPagina='+resultadosPorPagina+', pagina='+pagina);
+
+		let ordenarPor = 'dataDeCriacao';
+		if (body.ordenarPor) {
+			if (body.ordenarPor == 'nomeDoJogo')
+				ordenarPor = 'nomeUrlDoJogo';
+			else if (body.ordenarPor == 'diasQueJoga')
+				ordenarPor = 'dias';
+			else if (body.ordenarPor == 'nomeNoJogo' || body.ordenarPor == 'tempoDeJogoEmMeses'
+			|| body.ordenarPor == 'horaDeInicio' || body.ordenarPor == 'horaDeTermino'
+			|| body.ordenarPor == 'usaChatDeVoz')
+				ordenarPor = body.ordenarPor;
+			else if (body.ordenarPor != 'dataDePublicacao')
+				return resp.status(400).json({erro: 'Critério de organização em formato inválido.'});
+		}
+		let emOrdem = -1;
+		if (body.emOrdem) {
+			if (body.emOrdem == 'crescente')
+				emOrdem = 1;
+			else if (body.emOrdem != 'decrescente')
+				return resp.status(400).json({erro: 'Ordem de organização em formato inválido.'});
+		}
 
 		//console.log(body);
 
@@ -972,6 +999,7 @@ servidor.get('/anuncios', async (req, resp)=>{
 			jogos.some(j=>{
 				if (j.id == an.idDoJogo) {
 					an.nomeDoJogo = j.nome;
+					an.nomeUrlDoJogo = j.nomeUrl;
 					return true;
 				}
 			});
@@ -981,17 +1009,61 @@ servidor.get('/anuncios', async (req, resp)=>{
 			//})
 			//console.log(an.nomeDoJogo);
 			an.disponibilidades = disponibilidades2.filter(disp=>disp.idDoAnuncio == an.idDoAnuncio);
+			//console.log(an.disponibilidades);
+		});
+
+		//console.log('anúncios ants d ordenar:');
+		//console.log(anuncios2);
+		//console.log('ordenarPor, emOrdem');
+		//console.log(ordenarPor+', '+emOrdem);
+		//console.log(anuncios2[0][ordenarPor]);
+
+		if (ordenarPor == 'dias'){
+			//console.log(anuncios2[0].disponibilidades[0][ordenarPor]);
+			anuncios2.sort((a,b)=>
+				a.disponibilidades[0][ordenarPor].localeCompare(b.disponibilidades[0][ordenarPor].search())
+			);
+		}
+		else 
+		if (ordenarPor == 'horaDeInicio' || ordenarPor == 'horaDeTermino'){
+			//console.log(anuncios2[0].disponibilidades[0][ordenarPor]);
+			anuncios2.sort((a,b)=>a.disponibilidades[0][ordenarPor] - b.disponibilidades[0][ordenarPor]);
+		}
+		//else if (ordenarPor == 'tempoDeJogoEmMeses')
+		//	anuncios2.sort((a,b)=>a[ordenarPor] - b[ordenarPor]);
+		//else if (ordenarPor == 'usaChatDeVoz')
+		//	anuncios2.sort((a,b)=>a[ordenarPor] - b[ordenarPor]);
+		else 
+		if (ordenarPor == 'nomeUrlDoJogo' || ordenarPor == 'nomeNoJogo'){
+			//console.log(anuncios2[0][ordenarPor]);
+			anuncios2.sort((a,b)=>a[ordenarPor].toLowerCase().localeCompare(b[ordenarPor].toLowerCase()));
+		}
+		else{
+			//console.log(anuncios2[0][ordenarPor]);
+			anuncios2.sort((a,b)=>a[ordenarPor] - b[ordenarPor]);
+			//anuncios2.sort();
+		}
+
+		if(emOrdem < 0)
+			anuncios2.reverse();
+
+		//if (ordenarPor == 'dias' || ordenarPor == 'horaDeInicio' || ordenarPor == 'horaDeTermino')
+		//	console.log(anuncios2.map(a=>a.disponibilidades[0][ordenarPor]));
+		//else
+		//	console.log(anuncios2.map(a=>a[ordenarPor]));
+
+		anuncios2.map(an=>{
 			an.disponibilidades.map(disp=>{
 				delete disp.idDoAnuncio;
 				disp.dias = disp.dias.split(',');
 				disp.horaDeInicio = converterMinutosParaHoraString(disp.horaDeInicio);
 				disp.horaDeTermino = converterMinutosParaHoraString(disp.horaDeTermino);
 			});
-			//console.log(an.disponibilidades);
 		});
 
+		//console.log('anúncios dps d ordenar:');
 		//console.log(anuncios);
-		//console.log(anuncios2);
+		//console.log(anuncios2.map(a=>a.disponibilidades));
 
 		//////////////////////////////
 		
@@ -1010,6 +1082,10 @@ servidor.get('/anuncios', async (req, resp)=>{
 		//	});
 		//});
 		const totalDeAnuncios = anuncios2.length;
+		const totalDePaginas = Math.ceil(totalDeAnuncios / resultadosPorPagina);
+		
+		if (pagina > totalDePaginas)
+			pagina = totalDePaginas;
 		const anuncios = anuncios2.filter((a,i)=>
 			i >= (pagina-1)*resultadosPorPagina && i < pagina*resultadosPorPagina
 		);
@@ -1020,7 +1096,7 @@ servidor.get('/anuncios', async (req, resp)=>{
 		//);
 		//if (qtdeCampos > 0)
 		//	console.log(camposPesquisados);
-		return resp.status(200).json({anuncios, totalDeAnuncios}
+		return resp.status(200).json({anuncios, totalDeAnuncios, pagina, totalDePaginas}
 			//.map(anuncio=>{
 			//return {...anuncio,
 				//nomeDoJogo: jogo.anuncio.nomeDoJogo,
@@ -1042,6 +1118,634 @@ servidor.get('/anuncios', async (req, resp)=>{
 		console.log(erro);
 		return resp.status(500).json({erro: 'Erro interno no servidor.'});
 	}
+});
+
+//pesquisa anúncios
+async function pesquisar(query, idDoUsuario) {
+	try {
+		const camposPesquisados = {};
+		for (let c in query)
+			if(query[c])
+				camposPesquisados[c] = query[c];
+		if (camposPesquisados.qtdeFiltrosDisponibilidade)
+			delete camposPesquisados.qtdeFiltrosDisponibilidade;
+		const qtdeCampos = Object.entries(camposPesquisados).length;
+		
+		if (!query.jogo) query.jogo = '%';
+
+		if (!idDoUsuario) idDoUsuario = '%';
+		//console.log('body.idDoUsuario='+body.idDoUsuario);
+		
+		let naoContem = false, exatamente = false;
+		if (!query.nomeNoJogo) query.nomeNoJogo = '%';
+		else if (!query.opcoesNome) query.nomeNoJogo = '%'+query.nomeNoJogo+'%';
+		else if (query.opcoesNome == 'comecaCom') query.nomeNoJogo = query.nomeNoJogo+'%';
+		else if (query.opcoesNome == 'terminaCom') query.nomeNoJogo = '%'+query.nomeNoJogo;
+		else if (query.opcoesNome == 'exatamente') exatamente = true;
+		else if (query.opcoesNome == 'naoContem') {
+			naoContem = true;
+			query.nomeNoJogo = '%'+query.nomeNoJogo+'%';
+		}
+
+		//if (!body.discord) body.discord = '%';
+		
+		let tempoDeJogoEmMeses = 0;
+		let tempoDeJogoEmMeses2 = 0;
+		let noMaximo = false, entre = false;
+		if (query.tempoDeJogoAnos) {
+			tempoDeJogoEmMeses += parseInt(query.tempoDeJogoAnos)*12;
+		}
+		if (query.tempoDeJogoMeses) {
+			tempoDeJogoEmMeses += parseInt(query.tempoDeJogoMeses);
+		}
+		if (query.opcoesTempo) {
+			if (query.opcoesTempo == 'noMaximo')
+				noMaximo = true;
+			else if (query.opcoesTempo == 'entre' && (query.tempoDeJogoAnos2 || query.tempoDeJogoMeses2)) {
+				entre = true;
+				if (query.tempoDeJogoAnos2)
+					tempoDeJogoEmMeses2 += parseInt(query.tempoDeJogoAnos2)*12;
+				if (query.tempoDeJogoMeses2)
+					tempoDeJogoEmMeses2 += parseInt(query.tempoDeJogoMeses2);
+			}
+		}
+		if(isNaN(tempoDeJogoEmMeses) || isNaN(tempoDeJogoEmMeses2))
+			//return resp.status(400).json({erro: 'Tempo de jogo em formato inválido.'});
+			return {status: 400, erro: 'Tempo de jogo em formato inválido.'};
+
+		let disponivelEmQualquer = false;
+		if (query.opcoesDisponibilidade && query.opcoesDisponibilidade == 'emQualquer')
+			disponivelEmQualquer = true;
+
+		for (let i = 0; i < query.qtdeFiltrosDisponibilidade; i++) {
+			let id = i == 0 ? '' : i+1;
+			//formato da hora deve ser 2 números, ":", 2 números, sem caracteres antes nem depois
+			if (query['de'+id] && !query['de'+id].match(/^\d{2}:\d{2}$/))
+				//return resp.status(400).json({erro: 'Horário em formato inválido.'});
+				return {status: 400, erro: 'Horário em formato inválido.'};
+			if (query['ate'+id] && !query['ate'+id].match(/^\d{2}:\d{2}$/))
+				//return resp.status(400).json({erro: 'Horário em formato inválido.'});
+				return {status: 400, erro: 'Horário em formato inválido.'};
+			}
+
+		let usaChatDeVoz = '%';
+		if (query.usaChatDeVoz) {
+			if (query.usaChatDeVoz == 'sim')
+				usaChatDeVoz = 1;
+			else
+				usaChatDeVoz = 0;
+		}
+		//if (!body.usaChatDeVoz) body.usaChatDeVoz = '%';
+		//else if (body.usaChatDeVoz == 'sim') body.usaChatDeVoz = 1;
+		//else if (body.usaChatDeVoz == 'não') body.usaChatDeVoz = 0;
+
+		let pagina = 1;
+		let resultadosPorPagina = 10;
+		if (query.pagina)
+			pagina = parseInt(query.pagina);
+		if(isNaN(pagina))
+			//return resp.status(400).json({erro: 'Página em formato inválido.'});
+			return {status: 400, erro: 'Página em formato inválido.'};
+		if (pagina < 1)
+			pagina = 1;
+		if (query.resultadosPorPagina)
+			resultadosPorPagina = parseInt(query.resultadosPorPagina);
+		if(isNaN(resultadosPorPagina))
+			//return resp.status(400).json({erro: 'Resultados por página em formato inválido.'});
+			return {status: 400, erro: 'Resultados por página em formato inválido.'};
+		if (resultadosPorPagina < 3)
+			resultadosPorPagina = 3;
+		if (resultadosPorPagina > 100)
+			resultadosPorPagina = 100;
+		//console.log('resultadosPorPagina='+resultadosPorPagina+', pagina='+pagina);
+
+		let ordenarPor = 'dataDeCriacao';
+		if (query.ordenarPor) {
+			if (query.ordenarPor == 'nomeDoJogo')
+				ordenarPor = 'nomeUrlDoJogo';
+			else if (query.ordenarPor == 'diasQueJoga')
+				ordenarPor = 'dias';
+			else if (query.ordenarPor == 'nomeNoJogo' || query.ordenarPor == 'tempoDeJogoEmMeses'
+			|| query.ordenarPor == 'horaDeInicio' || query.ordenarPor == 'horaDeTermino'
+			|| query.ordenarPor == 'usaChatDeVoz')
+				ordenarPor = query.ordenarPor;
+			else if (query.ordenarPor != 'dataDePublicacao')
+				//return resp.status(400).json({erro: 'Critério de organização em formato inválido.'});
+				return {status: 400, erro: 'Critério de organização em formato inválido.'};
+		}
+		let emOrdem = -1;
+		if (query.emOrdem) {
+			if (query.emOrdem == 'crescente')
+				emOrdem = 1;
+			else if (query.emOrdem != 'decrescente')
+				//return resp.status(400).json({erro: 'Ordem de organização em formato inválido.'});
+				return {status: 400, erro: 'Ordem de organização em formato inválido.'};
+		}
+
+		//console.log(body);
+
+		//const {id: jogoId} = await db.get(`SELECT id FROM Jogos WHERE nomeUrl = (?);`, [body.jogo]);
+		//console.log(jogoId);
+
+		//const b2 = {
+		//	//jogoId: jogoId,
+		//	jogo: body.jogo,
+		//	nomeNoJogo: body.nomeNoJogo,
+		//	naoContem: naoContem,
+		//	//discord: body.discord,
+		//	tempoDeJogoEmAnos: tempoDeJogoEmAnos,
+		//	noMaximo: noMaximo,
+		//	entre: entre,
+		//	tempoDeJogoEmAnos2: tempoDeJogoEmAnos2,
+		//	//emTodos: emTodos,
+		//	//diasQueJoga: diasQueJoga,
+		//	//deHora: deHora,
+		//	//ateHora: ateHora,
+		//	usaChatDeVoz: body.usaChatDeVoz
+		//}
+		//console.log('body convertido:');
+		//console.log(b2);
+
+		const db = await abrirBanco;
+		/*let anuncios = await db.all(
+			`SELECT idDoAnuncio, idDoJogo, idDoUsuario, Jogos.nome AS nomeDoJogo, nomeNoJogo, tempoDeJogoEmMeses,
+				usaChatDeVoz, dataDeCriacao
+			FROM Anuncios JOIN Jogos
+			ON Anuncios.idDoJogo = Jogos.id
+			WHERE Jogos.nomeUrl ${body.jogo == '%' ? 'LIKE' : '=' } (?)
+				AND idDoUsuario ${body.idDoUsuario == '%' ? 'LIKE' : '=' } (?)
+				AND nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
+				AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} ${tempoDeJogoEmMeses}
+				${entre ? 'AND tempoDeJogoEmMeses <='+tempoDeJogoEmMeses2 : ''}
+				AND usaChatDeVoz LIKE '${usaChatDeVoz}'
+			ORDER BY dataDeCriacao DESC;`,
+			[body.jogo, body.idDoUsuario, body.nomeNoJogo]
+		);*/
+
+		//let anuncios = await db.all(
+		//	`SELECT Anuncios.id, jogoId, Jogos.nome AS nomeDoJogo, nomeDoUsuario, tempoDeJogoEmAnos,
+		//		diasQueJoga, deHora, ateHora, usaChatDeVoz, dataDeCriacao
+		//	FROM Anuncios JOIN Jogos ON jogoId = Jogos.id
+		//	WHERE Jogos.nomeUrl LIKE (?)
+		//	  AND nomeDoUsuario ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
+		//		AND tempoDeJogoEmAnos ${noMaximo ? '<=' : '>='} (?)
+		//		${''/*AND diasQueJoga LIKE (?)
+		//		AND deHora <= (?)
+		//		AND ateHora >= (?)*/}
+		//		AND usaChatDeVoz LIKE (?)
+		//	ORDER BY dataDeCriacao DESC;`,
+		//	[body.jogo, body.nome, tempoDeJogoEmAnos, body.usaChatDeVoz]
+		//);
+
+		//console.log('qtde an='+anuncios.length);
+		//console.log(anuncios);
+		
+		//let idsDosAnuncios = anuncios.map(an=>an.idDoAnuncio).join();
+		//console.log(idsDosAnuncios);
+		//let disponibilidades = await db.all(
+		//	`SELECT idDoAnuncio,dias,horaDeInicio,horaDeTermino
+		//	FROM Disponibilidades
+		//	WHERE idDoAnuncio IN (${idsDosAnuncios});`
+		//);
+		//console.log('qtde disp='+disponibilidades.length);
+		//anuncios.map(an=>{
+		//	an.disponibilidades = disponibilidades.filter(disp=>disp.idDoAnuncio == an.idDoAnuncio);
+		//	//console.log(an.disponibilidades);
+		//});
+		//disponibilidades.map(disp=>{
+
+		//})
+		//console.log(disponibilidades);
+		//console.log(anuncios);
+
+		//console.log('ants do filtro d tempoDeJogoEntre, qtde= '+anuncios.length);
+
+		//if (entre)
+			//anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmAnos <= tempoDeJogoEmAnos2);
+			//anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmMeses <= tempoDeJogoEmMeses2);
+		
+		//console.log('dps do filtro d tempoDeJogoEntre e ants do d disponibilidade, qtde= '+anuncios.length);
+		
+		const sqlDisp = [];
+
+		if (query.qtdeFiltrosDisponibilidade) {
+			//const disponibilidades = [];
+			let qualquerDia = false;
+			//let diasQueJoga;
+			const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+			let deHora;
+			let ateHora;
+			//let anunciosOu = [];
+			let diasQueJogaString = '';
+
+			for (let i = 0; i < query.qtdeFiltrosDisponibilidade; i++) {
+				//console.log('ants do filtro '+i);
+				//console.log(anuncios);
+				
+				let id = i == 0 ? '' : i+1;
+				if (query['quando'+id] == 'qualquerDia')
+					qualquerDia = true;
+				if (query['quando'+id] == 'qualquerDia' || query['quando'+id] == 'todoDia') {
+					//diasQueJoga = '.*';
+				//	diasQueJoga = [];
+				//else if (body['quando'+id] == 'todoDia')
+					//diasQueJoga = '0,1,2,3,4,5,6';
+					diasQueJogaString = '0,1,2,3,4,5,6';
+					//diasQueJoga = [0,1,2,3,4,5,6];
+				} else if (query['quando'+id] == 'semana') {
+					//diasQueJoga = '.*1,2,3,4,5.*';
+					diasQueJogaString = '%1,2,3,4,5%';
+					//diasQueJoga = [1,2,3,4,5];
+				} else if (query['quando'+id] == 'finsDeSemana') {
+					//diasQueJoga = '0.*6';
+					diasQueJogaString = '0%6';
+					//diasQueJoga = [0,6];
+				} else
+					dias.some((dia,i)=>{
+						if (dia == query['quando'+id]) {
+							//diasQueJoga = '.*'+i+'.*';
+							diasQueJogaString = '%'+i+'%';
+							//diasQueJoga = [i];
+							return true;
+						}
+					});
+
+				//console.log('diasQueJoga'+id+'= '+diasQueJoga);
+
+				if (query['de'+id])
+					deHora = converterHoraStringParaMinutos(query['de'+id]);
+				else
+					deHora = undefined;
+				if (query['ate'+id])
+					ateHora = converterHoraStringParaMinutos(query['ate'+id]);
+				else
+					ateHora = undefined;
+
+				//////////////////////////////
+
+				let pesqHoraDeInicio = deHora;
+				let pesqHoraDeTermino = ateHora;
+				//if (pesqHoraDeInicio == undefined && pesqHoraDeTermino != undefined)
+				//	pesqHoraDeInicio = pesqHoraDeTermino;
+				//if (pesqHoraDeInicio != undefined && pesqHoraDeTermino == undefined)
+				//	pesqHoraDeTermino = pesqHoraDeInicio;
+				//if (pesqHoraDeInicio == undefined && pesqHoraDeTermino == undefined)
+				//	pesqHoraDeInicio = pesqHoraDeTermino = 0;
+
+				//Explicação da query abaixo:
+				//-horaDeInicio == horaDeTermino: [jogaDiaTodo] o anunciante joga durante 24h
+				//-(horaDeTermino - horaDeInicio + 1440) % 1440: [periodoDisp] valor positivo da qtde de tempo
+				//	q o anunciante joga
+				//-(pesqHoraDeInicio - horaDeInicio + 1440) % 1440: [difInicio] valor positivo da diferença d tempo
+				//	entre o horário de início pesquisado e o q consta no anúncio
+				//-(pesqHoraDeTermino - pesqHoraDeInicio + 1440) % 1440: [periodoPesq] valor positivo da qtde de tempo
+				//	pesquisada
+				//-dias LIKE diasQueJogaString: [diasBatem] os dias q constam na disponibilidade se enquadram na pesquisa
+				//Logo, a disponibilidade atual corresponde à pesquisa se:
+				// (
+				//	jogaDiaTodo
+				//	OU
+				//	periodoDisp - difInicio >= periodoPesq
+				// )
+				//E
+				// diasBatem (exceto se puder ser qualquer dia)
+				sqlDisp.push(`(
+						horaDeInicio = horaDeTermino
+					OR
+						((horaDeTermino - horaDeInicio + 1440) % 1440)
+						- ((${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} - horaDeInicio + 1440) % 1440)
+						>= ((${pesqHoraDeTermino == undefined ? 'horaDeTermino' : pesqHoraDeTermino} - ${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} + 1440) % 1440)
+					)
+					${qualquerDia ? '' : ` AND dias LIKE '${diasQueJogaString}'`}
+				`);
+
+				//////////////////////////////
+
+				//disponibilidades.push({diasQueJoga, deHora, ateHora});
+				//console.log('deHora~ateHora= '+deHora+'~'+ateHora);
+
+				//if(!disponivelEmTodos) {
+				//	;
+				//} else
+				/*anuncios = anuncios.filter(anuncio=>{
+					//anuncio.disponibilidades;
+					//for (let j = 0; j < anuncio.disponibilidades.length; j++) {
+					//	const element = anuncio.disponibilidades[j];
+					//}
+					let dispEncontradas = [];
+					let encontrouTodas = false;
+					//console.log('diasQueJoga busca=');
+					//console.log(diasQueJoga);
+					diasQueJoga.map(dia=>{
+						//console.log('dia='+dia);
+						//anuncio.disponibilidades.map(disp=>{
+						for (let j = 0; j < anuncio.disponibilidades.length && !encontrouTodas; j++) {
+							const anDispAtual = anuncio.disponibilidades[j];
+							
+							let diasAnDispAtual = anDispAtual.dias.split(',');
+							//console.log('j='+j+', disp e arrDisp=');
+							//console.log(disp);
+							//console.log(arrDisp);
+						
+							//console.log('deHora~ateHora= '+deHora+'~'+ateHora);
+							let horaDeInicio = deHora;
+							if (horaDeInicio == undefined)
+								horaDeInicio = anDispAtual.horaDeInicio;
+							let horaDeTermino = ateHora;
+							if (horaDeTermino == undefined)
+								horaDeTermino = anDispAtual.horaDeTermino;
+							//console.log('horaDeInicio~horaDeTermino= '+horaDeInicio+'~'+horaDeTermino);
+							let duracaoBusca = (1440 + horaDeTermino - horaDeInicio) % 1440;
+							let duracaoAnuncio = (1440 + anDispAtual.horaDeTermino - anDispAtual.horaDeInicio) % 1440;
+							let diferencaInicio = (1440 - anDispAtual.horaDeInicio + horaDeInicio) % 1440;
+							//console.log('duracaoBusca,duracaoAnuncio,diferencaInicio= '+duracaoBusca+','
+							//	+duracaoAnuncio+','+diferencaInicio);
+							//if (anuncio.idDoAnuncio == 38)
+							//console.log(diasAnDispAtual);
+							//if (anuncio.idDoAnuncio == 38)
+							//console.log(dia);
+							//if (anuncio.idDoAnuncio == 38 && diasAnDispAtual.some(d=>d==dia))
+							//console.log(dia);
+
+							if ((duracaoAnuncio - diferencaInicio >= duracaoBusca || duracaoAnuncio == 0)
+							&& diasAnDispAtual.some(d=>d==dia) && !dispEncontradas.some(d=>d==dia)) {
+								dispEncontradas.push(dia);
+								dispEncontradas.sort();
+								//if (anuncio.idDoAnuncio == 38){
+								//	console.log('dia='+dia+', dispEncontradas=');
+								//	console.log(dispEncontradas);}
+								if (qualquerDia)
+									encontrouTodas = true;
+							}
+							//console.log('dispEncontradas e diasQueJoga=');
+							//console.log(dispEncontradas);
+							//console.log(diasQueJoga);
+							if (dispEncontradas.join() == diasQueJoga.join())
+								encontrouTodas = true;
+							//console.log(encontrouTodas);
+						}
+						//});
+					});
+					//let passou2 = disp.diasQueJoga.match(diasQueJoga)
+					//							&& duracaoAnuncio - diferencaInicio >= duracaoBusca;
+					let passou2 = encontrouTodas;
+					if (!disponivelEmTodos){
+						if (passou2)
+							anunciosOu.push(anuncio);
+						passou2 = !passou2;
+					}
+					//console.log('anuncio '+anuncio.idDoAnuncio+'='+passou2);
+					return passou2;
+
+					/*let horaDeInicio = deHora || anuncio.disponibilidades[0].horaDeInicio;
+					let horaDeTermino = ateHora || anuncio.disponibilidades[0].horaDeTermino;
+					console.log('horaDeInicio~horaDeTermino= '+horaDeInicio+'~'+horaDeTermino);
+					//if (!body['de'+id])
+					//if (deHora == undefined)
+					//		horaDeInicio = anuncio.disponibilidades[0].horaDeInicio;
+					//if (!body['ate'+id])
+					//if (ateHora == undefined)
+					//		horaDeTermino = anuncio.disponibilidades[0].horaDeTermino;
+					let duracaoBusca = (1440 + horaDeTermino - horaDeInicio) % 1440;
+					//if (duracaoBusca < 0) duracaoBusca += 1440;
+					let duracaoAnuncio = (1440 + anuncio.disponibilidades[0].horaDeTermino
+						- anuncio.disponibilidades[0].horaDeInicio) % 1440;
+					//if (duracaoAnuncio < 0) duracaoAnuncio += 1440;
+					//console.log('duração busca/anúncio= '+duracaoBusca+'/'+duracaoAnuncio);
+					let diferencaInicio = (1440 - anuncio.disponibilidades[0].horaDeInicio + horaDeInicio) % 1440;
+					//duracaoAnuncio = anuncio.horaDeInicio > horaDeInicio ?
+					//	anuncio.horaDeInicio + duracaoAnuncio - 1440 - horaDeInicio :
+					//	duracaoAnuncio;
+					//console.log('duração anúncio2= '+duracaoAnuncio+', condições:');
+
+					//console.log('tá nos dias que joga='+anuncio.diasQueJoga.match(diasQueJoga) ? true : false);
+					//console.log('tá no período q joga='+duracaoAnuncio - diferençaInicio >= duracaoBusca);
+
+					let passou = anuncio.disponibilidades[0].diasQueJoga.match(diasQueJoga)
+											&& duracaoAnuncio - diferencaInicio >= duracaoBusca;
+					if (!disponivelEmTodos){
+						if (passou)
+							anunciosOu.push(anuncio);
+						passou = !passou;
+					}
+					return passou; * /
+				});*/
+				//console.log('dps do filtro '+i);
+				//console.log(anuncios);
+			}
+			//console.log(anunciosOu.map(a=>a.idDoAnuncio).join());
+
+			//if (!disponivelEmTodos)
+			//	anuncios = anunciosOu.sort((a,b)=>b.dataDeCriacao - a.dataDeCriacao);
+				
+			//console.log(disponibilidades);
+		}
+		//console.log('dps do filtro d disponibilidade, qtde='+anuncios.length);
+
+		//////////////////////////////
+
+		//console.log('sqlDisp:');
+		//console.log(sqlDisp.map(s=>s.replaceAll('\t','').replaceAll('\n',' ')));
+
+		const jogos = await db.all(`SELECT id, nome, nomeUrl FROM Jogos;`);
+
+		const jogo = jogos.find(j=>j.nomeUrl == query.jogo);
+		//console.log(jogo);
+		//let jogo;
+		//if (body.jogo != '%')
+		//	jogos.some(j=>{
+		//		if(j.nomeUrl == body.jogo) {
+		//			jogo = j;
+		//			return true;
+		//		}
+		//	});
+			//jogo = jogos.filter(j=>j.nomeUrl==body.jogo);
+		//if (body.jogo != '%') {
+		//	console.log(jogos.find(j=>j.nomeUrl == body.jogo));
+		//}
+		//	jogo = await db.get(`SELECT id FROM Jogos WHERE nomeUrl = (?);`, [body.jogo]);
+		//lembrete: remover idDoUsuario do resultado (vazamento de informação?)
+		let sqlAnuncios = `SELECT Anuncios.idDoAnuncio
+				, idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, usaChatDeVoz, dataDeCriacao
+			FROM Anuncios JOIN Disponibilidades
+			ON Anuncios.idDoAnuncio = Disponibilidades.idDoAnuncio
+			WHERE idDoUsuario ${idDoUsuario == '%' ? 'LIKE' : '=' } (?)
+				${jogo ? `AND idDoJogo = ${jogo.id}` : ''}
+				AND nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
+				AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} ${tempoDeJogoEmMeses}
+				${entre ? 'AND tempoDeJogoEmMeses <='+tempoDeJogoEmMeses2 : ''}
+				AND usaChatDeVoz LIKE '${usaChatDeVoz}'
+				${sqlDisp.length > 0 ? ' AND ' : ' '} ${sqlDisp.join(disponivelEmQualquer ? ' OR ' : ' AND ')}
+			GROUP BY Anuncios.idDoAnuncio
+			ORDER BY dataDeCriacao DESC;`;
+		
+		//console.log('sqlAnuncios:');
+		//console.log(sqlAnuncios.replaceAll('\t','').replaceAll('\n',' '));
+
+		let anuncios2 = await db.all(sqlAnuncios, [idDoUsuario, query.nomeNoJogo]);
+		//console.log(anuncios2.map(an=>an.idDoAnuncio));
+		//console.log(anuncios2.length);
+
+		let idsDosAnuncios2 = anuncios2.map(an=>an.idDoAnuncio).join();
+		//console.log(idsDosAnuncios);
+		//let an2 = await db.all(
+		//	`SELECT idDoAnuncio, idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, usaChatDeVoz, dataDeCriacao
+		//	FROM Anuncios
+		//	WHERE idDoAnuncio IN (${idsDosAnuncios2});`
+		//);
+		let disponibilidades2 = await db.all(
+			`SELECT idDoAnuncio, dias, horaDeInicio, horaDeTermino
+			FROM Disponibilidades
+			WHERE idDoAnuncio IN (${idsDosAnuncios2});`
+		);
+		//console.log('qtde disp='+disponibilidades.length);
+		anuncios2.map(an=>{
+			jogos.some(j=>{
+				if (j.id == an.idDoJogo) {
+					an.nomeDoJogo = j.nome;
+					an.nomeUrlDoJogo = j.nomeUrl;
+					return true;
+				}
+			});
+			//an.nomeDoJogo = jogos.find(j=>{
+			//	if(j.id == an.idDoJogo)
+			//		return j.nome;
+			//})
+			//console.log(an.nomeDoJogo);
+			an.disponibilidades = disponibilidades2.filter(disp=>disp.idDoAnuncio == an.idDoAnuncio);
+			//console.log(an.disponibilidades);
+		});
+
+		//console.log('anúncios ants d ordenar:');
+		//console.log(anuncios2);
+		//console.log('ordenarPor, emOrdem');
+		//console.log(ordenarPor+', '+emOrdem);
+		//console.log(anuncios2[0][ordenarPor]);
+
+		if (ordenarPor == 'dias'){
+			//console.log(anuncios2[0].disponibilidades[0][ordenarPor]);
+			anuncios2.sort((a,b)=>
+				a.disponibilidades[0][ordenarPor].localeCompare(b.disponibilidades[0][ordenarPor].search())
+			);
+		}
+		else 
+		if (ordenarPor == 'horaDeInicio' || ordenarPor == 'horaDeTermino'){
+			//console.log(anuncios2[0].disponibilidades[0][ordenarPor]);
+			anuncios2.sort((a,b)=>a.disponibilidades[0][ordenarPor] - b.disponibilidades[0][ordenarPor]);
+		}
+		//else if (ordenarPor == 'tempoDeJogoEmMeses')
+		//	anuncios2.sort((a,b)=>a[ordenarPor] - b[ordenarPor]);
+		//else if (ordenarPor == 'usaChatDeVoz')
+		//	anuncios2.sort((a,b)=>a[ordenarPor] - b[ordenarPor]);
+		else 
+		if (ordenarPor == 'nomeUrlDoJogo' || ordenarPor == 'nomeNoJogo'){
+			//console.log(anuncios2[0][ordenarPor]);
+			anuncios2.sort((a,b)=>a[ordenarPor].toLowerCase().localeCompare(b[ordenarPor].toLowerCase()));
+		}
+		else{
+			//console.log(anuncios2[0][ordenarPor]);
+			anuncios2.sort((a,b)=>a[ordenarPor] - b[ordenarPor]);
+			//anuncios2.sort();
+		}
+
+		if(emOrdem < 0)
+			anuncios2.reverse();
+
+		//if (ordenarPor == 'dias' || ordenarPor == 'horaDeInicio' || ordenarPor == 'horaDeTermino')
+		//	console.log(anuncios2.map(a=>a.disponibilidades[0][ordenarPor]));
+		//else
+		//	console.log(anuncios2.map(a=>a[ordenarPor]));
+
+		anuncios2.map(an=>{
+			an.disponibilidades.map(disp=>{
+				delete disp.idDoAnuncio;
+				disp.dias = disp.dias.split(',');
+				disp.horaDeInicio = converterMinutosParaHoraString(disp.horaDeInicio);
+				disp.horaDeTermino = converterMinutosParaHoraString(disp.horaDeTermino);
+			});
+		});
+
+		//console.log('anúncios dps d ordenar:');
+		//console.log(anuncios);
+		//console.log(anuncios2.map(a=>a.disponibilidades));
+
+		//////////////////////////////
+		
+		//console.log({
+		//	diasQueJoga: anuncios[0].diasQueJoga.split(','),
+		//	horarioDeInicio: converterMinutosParaHoraString(anuncios[0].deHora),
+		//	horarioDeTermino: converterMinutosParaHoraString(anuncios[0].ateHora)
+		//});
+		//anuncios2.map(anuncio=>{
+		//	anuncio.disponibilidades.sort((a,b)=>a.dias - b.dias);
+		//	anuncio.disponibilidades.map(disp=>{
+		//		delete disp.idDoAnuncio;
+		//		disp.dias = disp.dias.split(',');
+		//		disp.horaDeInicio = converterMinutosParaHoraString(disp.horaDeInicio);
+		//		disp.horaDeTermino = converterMinutosParaHoraString(disp.horaDeTermino);
+		//	});
+		//});
+		const totalDeAnuncios = anuncios2.length;
+		const totalDePaginas = Math.ceil(totalDeAnuncios / resultadosPorPagina);
+		
+		if (pagina > totalDePaginas)
+			pagina = totalDePaginas;
+		const anuncios = anuncios2.filter((a,i)=>
+			i >= (pagina-1)*resultadosPorPagina && i < pagina*resultadosPorPagina
+		);
+//		console.log('GET anuncios, qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length+', ip='+req.ip);
+		console.log('qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length);
+		//console.log(
+		//	'POST anuncios, qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length
+		//	+', ip='+req.ip+(qtdeCampos > 0 ? ', campos:' : '')
+		//);
+		//if (qtdeCampos > 0)
+		//	console.log(camposPesquisados);
+		return {anuncios, totalDeAnuncios, pagina, totalDePaginas};
+		return resp.status(200).json({anuncios, totalDeAnuncios, pagina, totalDePaginas}
+			//.map(anuncio=>{
+			//return {...anuncio,
+				//nomeDoJogo: jogo.anuncio.nomeDoJogo,
+				//nomeDoUsuario: anuncio.nomeNoJogo,
+				//tempoDeJogoEmAnos: anuncio.tempoDeJogoEmMeses/12,
+				//tempoDeJogoEmMeses: anuncio.tempoDeJogoEmMeses,
+				//diasQueJoga: anuncio.diasQueJoga.split(','),
+				//diasQueJoga: anuncio.disponibilidades[0].dias,
+				//deHora: converterMinutosParaHoraString(anuncio.disponibilidades[0].horaDeInicio),
+				//ateHora: converterMinutosParaHoraString(anuncio.disponibilidades[0].horaDeTermino)
+				//deHora: anuncio.disponibilidades[0].horaDeInicio,
+				//ateHora: anuncio.disponibilidades[0].horaDeTermino
+		//	};
+		//})
+		);
+	}
+	catch (erro) {
+		//console.log('entrou no catch');
+		console.log(erro);
+		//return resp.status(500).json({erro: 'Erro interno no servidor.'});
+		return {status: 500, erro: 'Erro interno no servidor.'};
+	}
+}
+
+servidor.get('/anuncios', async (req, resp)=>{
+	console.log('GET anuncios, ip='+req.ip);
+	const anuncios = await pesquisar(req.query);
+	if (anuncios.erro)
+		return resp.status(anuncios.status).json({erro: anuncios.erro});
+	return resp.status(200).json(anuncios);
+});
+
+servidor.get('/usuarios/:idDoUsuario/anuncios', async (req, resp)=>{
+	console.log('GET usuarios/:idDoUsuario/anuncios, id='+req.params.idDoUsuario+', ip='+req.ip);
+	const sessaoExiste = await autenticarSessao(req.get('Authorization'));
+	if (sessaoExiste.erro)
+		return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
+	if (sessaoExiste.idDoUsuario != req.params.idDoUsuario) //lembrete: é possível isso?
+		return resp.status(409).json({erro: 'O token não pertence ao usuário informado.'});
+	const anuncios = await pesquisar(req.query, req.params.idDoUsuario);
+	if (anuncios.erro)
+		return resp.status(anuncios.status).json({erro: anuncios.erro});
+	return resp.status(200).json(anuncios);
 });
 
 /*/só chamado no modal de jogo selecionado, na antiga página inicial
@@ -1069,19 +1773,19 @@ servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
 
 //retorna o discord do anúncio do id informado (chamado no modal conectar, nos cartões de anúncios)
 //lembrete: mudar pra autenticar ants d retornar
-servidor.get('/anuncios/:id/discord', async (req, resp)=>{
+servidor.get('/anuncios/:idDoAnuncio/discord', async (req, resp)=>{
 	try {
-		const anuncioId = req.params.id;
+		const idDoAnuncio = req.params.idDoAnuncio;
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
 		const db = await abrirBanco;
-		const anuncioExiste = await db.get(`SELECT discord FROM Anuncios WHERE idDoAnuncio = ${anuncioId};`);
+		const anuncioExiste = await db.get(`SELECT discord FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`);
 		if (!anuncioExiste) {
 			console.log('Anúncio não encontrado.');
 			return resp.status(404).json({erro: 'Anúncio não encontrado.'});
 		}
-		console.log('GET anuncios/:id/discord, discord='+anuncioExiste.discord+', ip='+req.ip);
+		console.log('GET anuncios/:idDoAnuncio/discord, discord='+anuncioExiste.discord+', ip='+req.ip);
 		return resp.status(200).json({discord: anuncioExiste.discord});
 	}
 	catch (erro) {
@@ -1151,16 +1855,16 @@ servidor.put('/jogos/:id/anuncios', async (req, resp)=>{
 //*/
 
 //exclui um anúncio
-servidor.delete('/anuncios/:id', async (req, resp)=>{
+servidor.delete('/anuncios/:idDoAnuncio', async (req, resp)=>{
 	try {
 		//const body = req.body;
-		const idDoAnuncio = req.params.id;
+		const idDoAnuncio = req.params.idDoAnuncio;
 		//const idDoAnuncio = body.idDoAnuncio;
 		//console.log('DELETE anuncios/:id, id='+id+', ip='+req.ip);
 		//const tokenDaSessao = body.tokenDaSessao;
 		//const seletor = tokenDaSessao.slice(0,8);
 		//const token = tokenDaSessao.slice(9);
-		console.log('DELETE anuncios/:id, ip='+req.ip);
+		console.log('DELETE anuncios/:idDoAnuncio, ip='+req.ip);
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
@@ -1275,16 +1979,16 @@ servidor.post('/usuarios', async (req, resp)=>{
 });
 
 //altera senha
-servidor.put('/usuarios/:id', async (req, resp)=>{
+servidor.put('/usuarios/:idDoUsuario', async (req, resp)=>{
 //servidor.put('/usuarios/senha', async (req, resp)=>{
 	try {
 		const body = req.body;
 		//console.log('PUT usuarios/senha, id do usuário='+body.id+', ip='+req.ip);
-		const idDoUsuario = req.params.id;
+		const idDoUsuario = req.params.idDoUsuario;
 		//const tokenDaSessao = body.tokenDaSessao;
 		//const seletor = tokenDaSessao.slice(0,8);
 		//const token = tokenDaSessao.slice(9);
-		console.log('PUT usuarios/:id='+idDoUsuario+', ip='+req.ip);
+		console.log('PUT usuarios/:idDoUsuario='+idDoUsuario+', ip='+req.ip);
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
@@ -1383,16 +2087,16 @@ servidor.put('/usuarios/:id', async (req, resp)=>{
 });
 
 //exclui conta de usuário
-servidor.delete('/usuarios/:id', async (req, resp)=>{
+servidor.delete('/usuarios/:idDoUsuario', async (req, resp)=>{
 	try {
 		const body = req.body;
-		const idDoUsuario = req.params.id;
+		const idDoUsuario = req.params.idDoUsuario;
 		//const id = parseInt(body.id);
 		//console.log('DELETE usuarios/:id, id do usuário='+id+', ip='+req.ip);
 		//const tokenDaSessao = body.tokenDaSessao;
 		//const seletor = tokenDaSessao.slice(0,8);
 		//const token = tokenDaSessao.slice(9);
-		console.log('DELETE usuarios/:id, ip='+req.ip);
+		console.log('DELETE usuarios/:idDoUsuario, ip='+req.ip);
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
@@ -1647,14 +2351,14 @@ servidor.post('/sessoes', async (req, resp)=>{
 
 //chamado ao carregar a página; autentica sessão e atualiza a data de expiração
 //servidor.post('/sessoes', async (req, resp)=>{
-servidor.get('/sessoes', async (req, resp)=>{
+servidor.put('/sessoes', async (req, resp)=>{
 	try {
 		//const body = req.body;
 		//const tokenDaSessao = req.params.tokenDaSessao;
 		//const seletor = tokenDaSessao.slice(0,8);
 		//const token = tokenDaSessao.slice(9);
 		//const [seletor,token] = separarToken(req.params.tokenDaSessao);
-		console.log('GET sessoes, ip='+req.ip);
+		console.log('PUT sessoes, ip='+req.ip);
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
@@ -1795,12 +2499,12 @@ servidor.delete('/sessoes', async (req, resp)=>{
 servidor.delete('/usuarios/:idDoUsuario/outras-sessoes', async (req, resp)=>{
 	try {
 		//const body = req.body;
-		const idDoUsuario = req.params.id;
+		const idDoUsuario = req.params.idDoUsuario;
 		//const [seletor,token] = separarToken(req.params.tokenDaSessao);
 		//const tokenDaSessao = req.params.tokenDaSessao;
 		//const seletor = tokenDaSessao.slice(0,8);
 		//const token = tokenDaSessao.slice(9);
-		console.log('DELETE outras-sessoes/:id, id do usuário='+idDoUsuario+', ip='+req.ip);
+		console.log('DELETE outras-sessoes/:idDoUsuario, id do usuário='+idDoUsuario+', ip='+req.ip);
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});

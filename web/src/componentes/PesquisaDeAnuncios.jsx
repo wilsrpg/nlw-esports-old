@@ -1,24 +1,25 @@
-import React, { useEffect, useState } from 'react'
-//import { useLocation } from 'react-router-dom';
-//import FormularioDePesquisa from '../componentes/FormularioDePesquisa';
-//import ResultadosDaPesquisa from '../componentes/ResultadosDaPesquisa';
-//import BotaoParaPublicarAnuncio from '../componentes/BotaoParaPublicarAnuncio';
-//import { SERVIDOR } from '../../../enderecoDoServidor';
-import PesquisaDeAnuncios from '../componentes/PesquisaDeAnuncios';
+import React, { useContext, useEffect, useState } from 'react'
+import { useHistory, useLocation } from 'react-router-dom';
+import { contexto } from '../App';
+import FormularioDePesquisa from '../componentes/FormularioDePesquisa';
+import ResultadosDaPesquisa from '../componentes/ResultadosDaPesquisa';
+import BotaoParaPublicarAnuncio from '../componentes/BotaoParaPublicarAnuncio';
+import { SERVIDOR } from '../../../enderecoDoServidor';
 
-export default function Anuncios() {
+export default function PesquisaDeAnuncios({apenasDoUsuario}) {
   let componenteExiste = true;
-  //const [jogos, definirJogos] = useState();
-  //const urlAtual = useLocation();
-  //const urlParams = new URLSearchParams(urlAtual.search);
-  //const [filtros, definirFiltros] = useState();
+  //const contexto2 = useContext(contexto);
+  //const historico = useHistory();
+  const urlAtual = useLocation();
+  const [jogos, definirJogos] = useState();
+  const urlParams = new URLSearchParams(urlAtual.search);
+  const [filtros, definirFiltros] = useState();
 
   useEffect(()=>{
-    document.title = 'Anúncios - NLW eSports';
 
     return ()=>componenteExiste = false;
   }, [])
-/*
+
   useEffect(()=>{
     const dados = {};
     if (urlParams.get('jogo'))
@@ -72,37 +73,32 @@ export default function Anuncios() {
     if (urlParams.get('ordenarPor'))
       dados.ordenarPor = urlParams.get('ordenarPor');
 
-    fetch(SERVIDOR+`/jogos`)
-    .then(resp=>resp.json())
-    .then(resp=>{
-      if (resp.erro)
-        throw resp.erro;
-      //dados.jogos = resp;
-      definirJogos(resp);
-    })
-    .catch(erro=>{
-      console.log(erro);
-    })
-    .finally(()=>{
+    //fetch(SERVIDOR+`/jogos`)
+    //.then(resp=>resp.json())
+    //.then(resp=>{
+    //  if (resp.erro)
+    //    throw resp.erro;
+    //  definirJogos(resp);
+    //})
+    //.catch(erro=>{
+    //  console.log(erro);
+    //})
+    //.finally(()=>{
       if (componenteExiste)
         definirFiltros(dados);
-    });
-  
-    //console.log(dados);
-    //if (componenteExiste)
-    //  definirFiltros(dados);
-  }, [urlAtual])*/
+    //});
+  }, [urlAtual])
 
   return (
-    <div className='conteudo'>
-      <PesquisaDeAnuncios/>
-      {/*{filtros &&
+    <>
+      {filtros &&
         <>
         <BotaoParaPublicarAnuncio/>
-        <FormularioDePesquisa filtros={filtros} listaDeJogos={jogos}/>
-        <ResultadosDaPesquisa filtros={filtros}/>
+        <FormularioDePesquisa filtros={filtros} apenasDoUsuario={apenasDoUsuario}/>
+        {/*<FormularioDePesquisa filtros={filtros} listaDeJogos={jogos} apenasDoUsuario={apenasDoUsuario}/>*/}
+        <ResultadosDaPesquisa filtros={filtros} apenasDoUsuario={apenasDoUsuario}/>
         </>
-      }*/}
-    </div>
+      }
+    </>
   )
 }

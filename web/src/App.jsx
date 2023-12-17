@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react'
-import { BrowserRouter, Route, Switch, useHistory } from 'react-router-dom'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import './App.css'
 import carregando from './imagens/loading.svg'
 import BarraSuperior from './componentes/BarraSuperior'
@@ -19,12 +19,7 @@ import { SERVIDOR } from '../../enderecoDoServidor';
 
 /*falta:
 -não reutilizar id no banco de dados
--limitar requisições ao servidor
--refazer paginação dos resultados d pesquisa
--conformar com REST
--exibir só o indicador de atividade enqt acessa o cookie
 -cadastrar jogo?
--ajeitar chamarAtencao
 */
 
 export const contexto = createContext();
@@ -32,7 +27,6 @@ export const contexto = createContext();
 export default function App() {
   const [usuarioLogado, definirUsuarioLogado] = useState();
   const [aguardando, definirAguardando] = useState(true);
-  const historico = useHistory();
   
   useEffect(()=>{
     autenticarSessao();
@@ -80,6 +74,12 @@ export default function App() {
   }
 
   async function autenticarSessao() {
+    definirAguardando(true);
+    autenticarSessao2();
+  }
+
+  async function autenticarSessao2() {
+    //console.log('entrou em autenticarSessao');
     //let tokenResposta;
     const tokenDaSessao = getCookie('tokenDaSessao');
     if (!tokenDaSessao) {
@@ -88,7 +88,7 @@ export default function App() {
       return;
     }
     const dados = {
-      method: 'GET',
+      method: 'PUT',
       headers: {'Authorization': tokenDaSessao},
       //body: JSON.stringify({tokenDaSessao})
     };
@@ -131,10 +131,7 @@ export default function App() {
   //}
 
   return (
-    <contexto.Provider value={{usuarioLogado, definirUsuarioLogado, autenticarSessao, getCookie,
-        aguardando, definirAguardando
-      }}
-    >
+    <contexto.Provider value={{usuarioLogado, definirUsuarioLogado, getCookie, autenticarSessao}}>
       {aguardando ?
         <div className='conteudo'>
           <img className='carregando' src={carregando}/>

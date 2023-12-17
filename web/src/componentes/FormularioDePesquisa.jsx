@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom';
 import carregando from '../imagens/loading.svg'
 import { SERVIDOR } from '../../../enderecoDoServidor';
+import { contexto } from '../App';
 
-export default function FormularioDePesquisa({filtros, listaDeJogos}) {
+export default function FormularioDePesquisa({filtros, listaDeJogos, apenasDoUsuario}) {
   let componenteExiste = true;
+  const contexto2 = useContext(contexto);
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
   const [jogos, definirJogos] = useState();
   const [opcoesTempo, definirOpcoesTempo] = useState(filtros.opcoesTempo || '');
@@ -15,29 +17,34 @@ export default function FormularioDePesquisa({filtros, listaDeJogos}) {
   const historico = useHistory();
   const [aguardando, definirAguardando] = useState(false);
   const urlAtual = useLocation();
+  const [tempoDeJogoAnosState, definirTempoDeJogoAnosState] = useState('');
+  const [tempoDeJogoMesesState, definirTempoDeJogoMesesState] = useState('');
+  const [tempoDeJogoAnos2State, definirTempoDeJogoAnos2State] = useState('');
+  const [tempoDeJogoMeses2State, definirTempoDeJogoMeses2State] = useState('');
+  const [resultadosPorPaginaState, definirResultadosPorPaginaState] = useState(10);
 
   useEffect(()=>{
-    //if (!contexto2)
-    //  return;
-    //fetch(SERVIDOR+`/jogos`)
-    //.then(resp=>resp.json())
-    //.then(resp=>{
-    //  if (resp.erro)
-    //    throw resp.erro;
-    //  if (componenteExiste) {
-    //    definirErroAoObterDados(false);
-    //    definirJogos(resp);
-    //  }
-    //})
-    //.catch(erro=>{
-    //  console.log(erro);
-    //  if (componenteExiste)
-    //    definirErroAoObterDados(true);
-    //});
-    if (listaDeJogos)
-      definirJogos(listaDeJogos);
-    else
-      definirErroAoObterDados(true);
+    if (!contexto2)
+      return;
+    fetch(SERVIDOR+`/jogos`)
+    .then(resp=>resp.json())
+    .then(resp=>{
+      if (resp.erro)
+        throw resp.erro;
+      if (componenteExiste) {
+        definirErroAoObterDados(false);
+        definirJogos(resp);
+      }
+    })
+    .catch(erro=>{
+      console.log(erro);
+      if (componenteExiste)
+        definirErroAoObterDados(true);
+    });
+    //if (listaDeJogos)
+    //  definirJogos(listaDeJogos);
+    //else
+    //  definirErroAoObterDados(true);
 
     return ()=>componenteExiste = false;
   }, [])
@@ -55,11 +62,15 @@ export default function FormularioDePesquisa({filtros, listaDeJogos}) {
           definirOpcoesTempoEntre(true);
       } else
         definirOpcoesTempo('');
+      if (filtros.tempoDeJogoAnos && !isNaN(filtros.tempoDeJogoAnos)
+          && filtros.tempoDeJogoAnos >= 0 && filtros.tempoDeJogoAnos <= 100)
+        //document.getElementById('tempoDeJogoAnos').value = filtros.tempoDeJogoAnos;
+        definirTempoDeJogoAnosState(filtros.tempoDeJogoAnos);
+      if (filtros.tempoDeJogoMeses && !isNaN(filtros.tempoDeJogoMeses)
+          && filtros.tempoDeJogoMeses >= 0 && filtros.tempoDeJogoMeses <= 100)
+        //document.getElementById('tempoDeJogoAnos').value = filtros.tempoDeJogoAnos;
+        definirTempoDeJogoMesesState(filtros.tempoDeJogoMeses);
     }
-    if (filtros.tempoDeJogoAnos)
-      document.getElementById('tempoDeJogoAnos').value = filtros.tempoDeJogoAnos;
-    if (filtros.tempoDeJogoMeses)
-      document.getElementById('tempoDeJogoMeses').value = filtros.tempoDeJogoMeses;
     if (filtros.quando)
       document.getElementById('quando').value = filtros.quando;
     if (filtros.de)
@@ -84,6 +95,10 @@ export default function FormularioDePesquisa({filtros, listaDeJogos}) {
       document.getElementById('usaChatDeVoz').value = filtros.usaChatDeVoz;
     if (filtros.resultadosPorPagina)
       document.getElementById('resultadosPorPagina').value = filtros.resultadosPorPagina;
+    if (componenteExiste && filtros.resultadosPorPagina && !isNaN(filtros.resultadosPorPagina)
+        && filtros.resultadosPorPagina >= 0 && filtros.resultadosPorPagina <= 100)
+      //document.getElementById('tempoDeJogoAnos').value = filtros.tempoDeJogoAnos;
+      definirResultadosPorPaginaState(filtros.resultadosPorPagina);
     if (filtros.emOrdem)
       document.getElementById('emOrdem').value = filtros.emOrdem;
     if (filtros.ordenarPor)
@@ -101,12 +116,20 @@ export default function FormularioDePesquisa({filtros, listaDeJogos}) {
   }, [jogos,filtros])
 
   useEffect(()=>{
-    if (opcoesTempoEntre) {
-      if (filtros.tempoDeJogoAnos2)
-        document.getElementById('tempoDeJogoAnos2').value = filtros.tempoDeJogoAnos2;
-      if (filtros.tempoDeJogoMeses2)
-        document.getElementById('tempoDeJogoMeses2').value = filtros.tempoDeJogoMeses2;
-      if (componenteExiste)
+    if (opcoesTempoEntre && componenteExiste) {
+      //if (filtros.tempoDeJogoAnos2)
+      //  document.getElementById('tempoDeJogoAnos2').value = filtros.tempoDeJogoAnos2;
+      //if (filtros.tempoDeJogoMeses2)
+      //  document.getElementById('tempoDeJogoMeses2').value = filtros.tempoDeJogoMeses2;
+      if (filtros.tempoDeJogoAnos2 && !isNaN(filtros.tempoDeJogoAnos2)
+          && filtros.tempoDeJogoAnos2 >= 0 && filtros.tempoDeJogoAnos2 <= 100)
+        //document.getElementById('tempoDeJogoAnos').value = filtros.tempoDeJogoAnos;
+        definirTempoDeJogoAnos2State(filtros.tempoDeJogoAnos2);
+      if (filtros.tempoDeJogoMeses2 && !isNaN(filtros.tempoDeJogoMeses2)
+          && filtros.tempoDeJogoMeses2 >= 0 && filtros.tempoDeJogoMeses2 <= 100)
+        //document.getElementById('tempoDeJogoAnos').value = filtros.tempoDeJogoAnos;
+        definirTempoDeJogoMeses2State(filtros.tempoDeJogoMeses2);
+      //if (componenteExiste)
         definirOpcoesTempoEntre(false);
     }
   }, [opcoesTempoEntre])
@@ -216,16 +239,26 @@ export default function FormularioDePesquisa({filtros, listaDeJogos}) {
     
     const qtdeCampos = Object.entries(dados).length;
     //console.log(dados);
-    let destino = '/anuncios' + (qtdeCampos == 0 ? '' : '?'+new URLSearchParams(dados));
+    let url = '/anuncios';
+    if (apenasDoUsuario)
+      url = '/meus-anuncios';
+    let destino = url + (qtdeCampos == 0 ? '' : '?'+new URLSearchParams(dados));
     if (destino != urlAtual.pathname+urlAtual.search) {
       if (componenteExiste)
         definirAguardando(true);
-      carregarPesquisa(dados);
+      //carregarPesquisa(dados);
+      carregarPesquisa(destino);
     }
   }
 
-  function carregarPesquisa(dados) {
-    historico.push('/anuncios?'+new URLSearchParams(dados));    
+  //function carregarPesquisa(dados) {
+  //  let url = '/anuncios';
+  //  if (apenasDoUsuario)
+  //    url = '/meus-anuncios';
+  //  historico.push(url+'?'+new URLSearchParams(dados));
+  //}
+  function carregarPesquisa(destino) {
+    historico.push(destino);
   }
 
   return (
@@ -261,7 +294,7 @@ export default function FormularioDePesquisa({filtros, listaDeJogos}) {
                 <option value='naoContem'>não contém</option>
               </select>
             </div>
-            <input id='nomeNoJogo' name='nomeNoJogo'/>
+            <input id='nomeNoJogo' name='nomeNoJogo' className='nomeNoJogo'/>
           </div>
 
           {/*<div className='flex flexColumn'>
@@ -282,16 +315,106 @@ export default function FormularioDePesquisa({filtros, listaDeJogos}) {
             </div>
             <div className='flex flexColumn'>
               <div className='flex flexWrap'>
-                <input id='tempoDeJogoAnos' className='tempoDeJogo' name='tempoDeJogoAnos' type='tel' maxLength='2' pattern='\d*'/>
+                <input id='tempoDeJogoAnos' className='tempoDeJogo' name='tempoDeJogoAnos'
+                  //type='tel' maxLength='2' pattern='\d*'
+                  value={tempoDeJogoAnosState}
+                  onChange={e=>{
+                    if (e.target.value == '')
+                      definirTempoDeJogoAnosState('');
+                    const n = parseInt(e.target.value);
+                    if (!isNaN(n) && n >= 0 && n <= 100)
+                      definirTempoDeJogoAnosState(n);
+                    else if (n > 100)
+                      definirTempoDeJogoAnosState(100);
+                  }}
+                  onKeyDown={e=>{
+                    //console.log(e.key);
+                    let n = parseInt(e.target.value);
+                    if (e.target.value == '')
+                      n = 0;
+                    if (e.key == 'ArrowUp' && n < 100)
+                      definirTempoDeJogoAnosState(n+1);
+                    if (e.key == 'ArrowDown'&& n > 0)
+                      definirTempoDeJogoAnosState(n-1);
+                  }}
+                />
                 <label htmlFor='tempoDeJogoAnos'>ano(s)</label>
-                <input id='tempoDeJogoMeses' className='tempoDeJogo' name='tempoDeJogoMeses' type='tel' maxLength='2' pattern='\d*'/>
+
+                <input id='tempoDeJogoMeses' className='tempoDeJogo' name='tempoDeJogoMeses'
+                  //type='tel' maxLength='2' pattern='\d*'
+                  value={tempoDeJogoMesesState}
+                  onChange={e=>{
+                    if (e.target.value == '')
+                      definirTempoDeJogoMesesState('');
+                    const n = parseInt(e.target.value);
+                    if (!isNaN(n) && n >= 0 && n <= 100)
+                      definirTempoDeJogoMesesState(n);
+                    else if (n > 100)
+                      definirTempoDeJogoMesesState(100);
+                  }}
+                  onKeyDown={e=>{
+                    //console.log(e.key);
+                    let n = parseInt(e.target.value);
+                    if (e.target.value == '')
+                      n = 0;
+                    if (e.key == 'ArrowUp' && n < 100)
+                      definirTempoDeJogoMesesState(n+1);
+                    if (e.key == 'ArrowDown'&& n > 0)
+                      definirTempoDeJogoMesesState(n-1);
+                  }}
+                />
                 <label htmlFor='tempoDeJogoMeses'>mês(es)</label>
               </div>
               {opcoesTempo == 'entre' &&
                 <div className='flex flexWrap'>
-                  <input id='tempoDeJogoAnos2' className='tempoDeJogo' name='tempoDeJogoAnos2' type='tel' maxLength='2' pattern='\d*'/>
+                  <input id='tempoDeJogoAnos2' className='tempoDeJogo' name='tempoDeJogoAnos2'
+                    //type='tel' maxLength='2' pattern='\d*'
+                    value={tempoDeJogoAnos2State}
+                    onChange={e=>{
+                      if (e.target.value == '')
+                        definirTempoDeJogoAnos2State('');
+                      const n = parseInt(e.target.value);
+                      if (!isNaN(n) && n >= 0 && n <= 100)
+                        definirTempoDeJogoAnos2State(n);
+                      else if (n > 100)
+                        definirTempoDeJogoAnos2State(100);
+                    }}
+                    onKeyDown={e=>{
+                      //console.log(e.key);
+                      let n = parseInt(e.target.value);
+                      if (e.target.value == '')
+                        n = 0;
+                      if (e.key == 'ArrowUp' && n < 100)
+                        definirTempoDeJogoAnos2State(n+1);
+                      if (e.key == 'ArrowDown'&& n > 0)
+                        definirTempoDeJogoAnos2State(n-1);
+                    }}
+                  />
                   <label htmlFor='tempoDeJogoAnos2'>ano(s)</label>
-                  <input id='tempoDeJogoMeses2' className='tempoDeJogo' name='tempoDeJogoMeses2' type='tel' maxLength='2' pattern='\d*'/>
+
+                  <input id='tempoDeJogoMeses2' className='tempoDeJogo' name='tempoDeJogoMeses2'
+                    //type='tel' maxLength='2' pattern='\d*'
+                    value={tempoDeJogoMeses2State}
+                    onChange={e=>{
+                      if (e.target.value == '')
+                        definirTempoDeJogoMeses2State('');
+                      const n = parseInt(e.target.value);
+                      if (!isNaN(n) && n >= 0 && n <= 100)
+                        definirTempoDeJogoMeses2State(n);
+                      else if (n > 100)
+                        definirTempoDeJogoMeses2State(100);
+                    }}
+                    onKeyDown={e=>{
+                      //console.log(e.key);
+                      let n = parseInt(e.target.value);
+                      if (e.target.value == '')
+                        n = 0;
+                      if (e.key == 'ArrowUp' && n < 100)
+                        definirTempoDeJogoMeses2State(n+1);
+                      if (e.key == 'ArrowDown'&& n > 0)
+                        definirTempoDeJogoMeses2State(n-1);
+                    }}
+                  />
                   <label htmlFor='tempoDeJogoMeses2'>mês(es)</label>
                 </div>
               }
@@ -389,11 +512,35 @@ export default function FormularioDePesquisa({filtros, listaDeJogos}) {
           </div>
 
           <div className='flex flexColumn'>
-            <label htmlFor='resultadosPorPagina'>Resultados por página</label>
-            <input id='resultadosPorPagina' name='resultadosPorPagina' type='tel' maxLength='3' pattern='\d*' defaultValue='10'/>
+            <label htmlFor='resultadosPorPagina'>Anúncios por página</label>
+            <input id='resultadosPorPagina' name='resultadosPorPagina' className='tempoDeJogo'
+              //type='tel' maxLength='3' pattern='\d*' defaultValue='10'
+              value={resultadosPorPaginaState}
+              onChange={e=>{
+                if (e.target.value == '')
+                  definirResultadosPorPaginaState('');
+                const n = parseInt(e.target.value);
+                if (!isNaN(n) && n >= 3 && n <= 100)
+                  definirResultadosPorPaginaState(n);
+                else if (n > 100)
+                  definirResultadosPorPaginaState(100);
+                else if (n < 3)
+                  definirResultadosPorPaginaState(3);
+              }}
+              onKeyDown={e=>{
+                //console.log(e.key);
+                let n = parseInt(e.target.value);
+                if (e.target.value == '')
+                  n = 0;
+                if (e.key == 'ArrowUp' && n < 100)
+                  definirResultadosPorPaginaState(n+1);
+                if (e.key == 'ArrowDown'&& n > 0)
+                  definirResultadosPorPaginaState(n-1);
+              }}
+            />
           </div>
 
-          <div className='flex flexColumn'>
+          {/*<div className='flex flexColumn'>
             <div className='flex flexWrap'>
               <label>Ordenar por</label>
               <select id='ordenarPor' name='ordenarPor'>
@@ -401,9 +548,9 @@ export default function FormularioDePesquisa({filtros, listaDeJogos}) {
                 <option value='nomeDoJogo'>Nome do jogo</option>
                 <option value='nomeNoJogo'>Nome do jogador</option>
                 <option value='tempoDeJogoEmMeses'>Tempo de jogo</option>
-                <option value='diasQueJoga'>Dia que joga</option>
-                <option value='deHora'>Hora que começa</option>
-                <option value='ateHora'>Hora que termina</option>
+                <option value='diasQueJoga'>Dias que joga</option>
+                <option value='horaDeInicio'>Hora que começa</option>
+                <option value='horaDeTermino'>Hora que termina</option>
                 <option value='usaChatDeVoz'>Chat de voz</option>
               </select>
             </div>
@@ -414,7 +561,26 @@ export default function FormularioDePesquisa({filtros, listaDeJogos}) {
                 <option value='crescente'>Crescente</option>
               </select>
             </div>
-          </div>
+          </div>*/}
+          
+          <div className='formularioDeEntradaSuspenso'>
+              <label>Ordenar por</label>
+              <select id='ordenarPor' name='ordenarPor'>
+                <option value=''>Data de publicação</option>
+                <option value='nomeDoJogo'>Nome do jogo</option>
+                <option value='nomeNoJogo'>Nome do jogador</option>
+                <option value='tempoDeJogoEmMeses'>Tempo de jogo</option>
+                <option value='diasQueJoga'>Dias que joga</option>
+                <option value='horaDeInicio'>Hora que começa</option>
+                <option value='horaDeTermino'>Hora que termina</option>
+                <option value='usaChatDeVoz'>Chat de voz</option>
+              </select>
+              <label>Em ordem</label>
+              <select id='emOrdem' name='emOrdem'>
+                <option value=''>Decrescente</option>
+                <option value='crescente'>Crescente</option>
+              </select>
+            </div>
 
         </div>
 
@@ -422,6 +588,11 @@ export default function FormularioDePesquisa({filtros, listaDeJogos}) {
           <button type='reset' className='botaoPublicarAnuncio' onClick={()=>{
               definirOpcoesTempo('');
               definirDiasDisponiveis(['']);
+              definirResultadosPorPaginaState(10);
+              definirTempoDeJogoAnosState('');
+              definirTempoDeJogoAnos2State('');
+              definirTempoDeJogoMesesState('');
+              definirTempoDeJogoMeses2State('');
             }}
           >
             Limpar

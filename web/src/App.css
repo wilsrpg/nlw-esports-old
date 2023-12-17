@@ -10,6 +10,14 @@ a {
   cursor: pointer;
 }
 
+input, select {
+  background-color: white;
+}
+
+input[type=time] {
+  width: 4rem;
+}
+
 .conteudo {
   position: relative;
   display: flex;
@@ -455,7 +463,11 @@ h2 {
   font-size: small;
   color: red;
 }
-
+.mensagemDeErro2 {
+  /*align-self: center;*/
+  font-size: small;
+  color: red;
+}
 .mensagemDeSucesso {
   position: absolute;
   font-size: small;
@@ -541,6 +553,11 @@ label.paginaAtual {
   cursor: default;
 }
 
+.paginas {
+  height: fit-content;
+  max-width: 50%;
+}
+
 .excluirConta {
   background-color: red;
 }
@@ -592,4 +609,23 @@ label.paginaAtual {
 .manterSessao .reduzido {
   font-size: 0.6rem;
   max-width: 3.25rem;
+}
+
+.positionRelative {
+  /*position: relative;*/
+  display: flex;
+  flex-direction: column;
+	gap: 0.5rem;
+  align-items: center;
+}
+
+.spaceEvenly {
+  justify-content: space-evenly;
+  /*width: 100%;*/
+  /*background-color: #43e7ad;*/
+}
+
+.nomeNoJogo {
+  width: 100%;
+  box-sizing: border-box;
 }

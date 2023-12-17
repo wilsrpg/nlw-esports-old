@@ -6,7 +6,7 @@ import iconeLixeira from '../imagens/icons8-trash vermelha.svg'
 import carregando from '../imagens/loading.svg'
 
 export default function CartaoDeAnuncio({
-  nomeDoJogo, anuncio, funcConectar, funcRecarregarAnuncios, excluindo, definirExcluindo
+  nomeDoJogo, anuncio, funcConectar, funcExcluirAnuncio, excluindo, definirExcluindo
 }) {
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
@@ -83,7 +83,7 @@ export default function CartaoDeAnuncio({
           if (document.getElementById(anuncio.idDoAnuncio))
             document.getElementById(anuncio.idDoAnuncio).style.borderColor = '';
           if (componenteExiste)
-            funcRecarregarAnuncios();
+            funcExcluirAnuncio();
           alert('Anúncio excluído.');
           if (componenteExiste) {
             //definirConfirmandoExclusaoDoAnuncio(false);
