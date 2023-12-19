@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import logo from '../imagens/NLW-eSports-Logo.svg'
 import carregando from '../imagens/loading.svg'
 import CartaoDeJogo from '../componentes/CartaoDeJogo'
-import lupa from '../imagens/magnifying-glass-plus-reverse.svg'
+//import lupa from '../imagens/magnifying-glass-plus-reverse.svg'
 import setaDupla from '../imagens/caret-double-right.svg'
 import ModalParaCriarAnuncio from '../componentes/ModalParaCriarAnuncio';
 import ModalDeJogoSelecionado from '../componentes/ModalDeJogoSelecionado'

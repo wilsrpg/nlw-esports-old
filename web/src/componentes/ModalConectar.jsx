@@ -33,9 +33,13 @@ export default function ModalConectar({discord, funcFechar}) {
   return (
     <div className='modalAnuncioFora' onClick={funcFechar}>
       {/*{carregou &&*/}
-      <div className='modalAnuncio' style={{visibility: !carregou ? 'hidden' : 'visible'}} onClick={e=>e.stopPropagation()}>
+      <div className='modalAnuncio' style={{visibility: !carregou ? 'hidden' : 'visible'}}
+        onClick={e=>e.stopPropagation()}
+      >
 
-        <img className='botaoCopiar botaoFechar' src={iconeFechar} onClick={funcFechar} onLoad={()=>definirImagensCarregadas(imagensCarregadas+1)}/>
+        <img className='botaoCopiar botaoFechar' src={iconeFechar}
+          onClick={funcFechar} onLoad={()=>definirImagensCarregadas(imagensCarregadas+1)}
+        />
         <div className='modalConectarInterior'>
           <img src={iconeSucesso} onLoad={()=>definirImagensCarregadas(imagensCarregadas+1)}/>
           <div className='centralizado'>

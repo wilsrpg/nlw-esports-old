@@ -69,7 +69,9 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
           <div>
             <h2>{jogo.nome}</h2>
             <strong>Conecte-se e comece a jogar!</strong>
-            {anuncios && anuncios.length > 0 && <p>{anuncios.length} anúncio{anuncios.length > 1 ? 's' : ''}</p>}
+            {(anuncios && anuncios.length > 0) &&
+              <p>{anuncios.length} anúncio{anuncios.length > 1 ? 's' : ''}</p>
+            }
           </div>
         </div>
 

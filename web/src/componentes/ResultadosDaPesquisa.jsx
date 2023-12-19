@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { useLocation, useHistory, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { contexto } from '../App';
 import CartaoDeAnuncio from './CartaoDeAnuncio';
 import carregando from '../imagens/loading.svg'
@@ -23,7 +23,10 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
   const [botoesDeExcluirDesabilitados, definirBotoesDeExcluirDesabilitados] = useState(false);
   const [paginacao, definirPaginacao] = useState(['1']);
   const [totalDeAnuncios, definirTotalDeAnuncios] = useState();
-  const [urlAtualSemPagina, definirUrlAtualSemPagina] = useState('');
+  //const [urlAtualSemPagina, definirUrlAtualSemPagina] = useState('');
+  const [enderecoAtual, definirEnderecoAtual] = useState('');
+  const [searchDoEnderecoAtual, definirSearchDoEnderecoAtual] = useState('');
+  const [posicaoScroll, definirPosicaoScroll] = useState(0);
   //const [aguardando, definirAguardando] = useState(true);
   const [qtdeDeFiltros, definirQtdeDeFiltros] = useState(0);
 
@@ -53,6 +56,7 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
     //      historico.push(urlAtual.pathname);
     //  }
     //});
+    document.body.onscroll = ()=>definirPosicaoScroll(window.scrollY);
 
     return ()=>componenteExiste = false;
   }, [])
@@ -81,14 +85,16 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
     params.delete('qtdeFiltrosDisponibilidade');
     definirQtdeDeFiltros(params.size);
 
-    let url = '/anuncios';
-    let rota = url;
-    if (apenasDoUsuario){
-      url = '/meus-anuncios';
-      rota = '/usuarios/'+contexto2.usuarioLogado.id+'/anuncios';
-    }
-    const urlSemPagina = url + (params.size > 0 ? '?'+params.toString() : '');
-    definirUrlAtualSemPagina(urlSemPagina);
+    let url = apenasDoUsuario ? '/meus-anuncios' : '/anuncios';
+    let rota = apenasDoUsuario ? ('/usuarios/'+contexto2.usuarioLogado.id+'/anuncios') : url;
+    //if (apenasDoUsuario){
+    //  url = '/meus-anuncios';
+    //  rota = '/usuarios/'+contexto2.usuarioLogado.id+'/anuncios';
+    //}
+    //const urlSemPagina = url + (params.size > 0 ? '?'+params.toString() : '');
+    //definirUrlAtualSemPagina(urlSemPagina);
+    definirEnderecoAtual(url);
+    definirSearchDoEnderecoAtual(params.size > 0 ? '?'+params.toString() : '');
     //console.log(urlSemPagina);
     //if (params.has('pagina'))
     //  definirPaginaAtual(parseInt(params.get('pagina')));
@@ -111,7 +117,8 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
         paginac.push(1);
         if (resp.totalDePaginas > 1) {
           //let inicial = resp.pagina >= 4 ? resp.pagina-2 : 1;
-          let inicial = resp.pagina <= 3 ? 1 : (resp.pagina >= resp.totalDePaginas-2 ? resp.totalDePaginas-4 : resp.pagina-2);
+          let inicial = resp.pagina <= 3 ? 1 :
+            (resp.pagina >= resp.totalDePaginas-2 ? resp.totalDePaginas-4 : resp.pagina-2);
           
           if (resp.totalDePaginas >= 7) {
             if (inicial == 3)
@@ -146,6 +153,11 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
 
         //if (filtros.emOrdem) definirEmOrdem(filtros.emOrdem);
         //else definirEmOrdem('');
+        
+        if(urlAtual.state){
+          console.log(urlAtual.state.posicao);
+          window.scrollTo(0,urlAtual.state.posicao);
+        }
       }
     })
     .catch(erro=>{
@@ -175,7 +187,9 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
   //  if (!anuncios)
   //    return;
   //  if (componenteExiste)
-  //    definirAnunciosPorPagina(anuncios.slice((paginaAtual-1)*resultadosPorPagina,paginaAtual*resultadosPorPagina));
+  //    definirAnunciosPorPagina(
+  //      anuncios.slice((paginaAtual-1)*resultadosPorPagina,paginaAtual*resultadosPorPagina)
+  //    );
   //}, [paginas,paginaAtual])
 
   //useEffect(()=>{
@@ -269,9 +283,9 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
         <div>
           <h2>
             {totalDeAnuncios > 1 ?
-              totalDeAnuncios+' anúncios encontrados.'
+              totalDeAnuncios + ' anúncios encontrados.'
             :
-              (totalDeAnuncios > 0 ? totalDeAnuncios : 'Nenhum')+' anúncio encontrado.'
+              (totalDeAnuncios > 0 ? totalDeAnuncios : 'Nenhum') + ' anúncio encontrado.'
             }
           </h2>
           {paginacao.length > 1 &&
@@ -297,10 +311,17 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
             ?
               <label>‹</label>
             :
-              <Link to={
-                urlAtualSemPagina
-                + (paginaAtual > 2 ? ((qtdeDeFiltros > 0 ? '&' : '?')+'pagina='+(paginaAtual-1)) : '')
-              }>
+              <Link to={{
+                  pathname: enderecoAtual,
+                  search: searchDoEnderecoAtual
+                    + (paginaAtual > 2 ? ((qtdeDeFiltros > 0 ? '&' : '?')+'pagina='+(paginaAtual-1)) : ''),
+                  state: {posicao: posicaoScroll}
+                }}
+                //to={
+                //  urlAtualSemPagina
+                //  + (paginaAtual > 2 ? ((qtdeDeFiltros > 0 ? '&' : '?')+'pagina='+(paginaAtual-1)) : '')
+                //}
+              >
                 ‹
               </Link>
             }
@@ -318,9 +339,16 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
                 ?
                   <p key={i}>{p}</p>
                 :
-                  <Link key={i} to={
-                    urlAtualSemPagina + (i > 0 ? ((qtdeDeFiltros > 0 ? '&' : '?')+'pagina='+p) : '')
-                  }>
+                  <Link key={i} to={{
+                    pathname: enderecoAtual,
+                    search: searchDoEnderecoAtual
+                      + (i > 0 ? ((qtdeDeFiltros > 0 ? '&' : '?')+'pagina='+p) : ''),
+                    state: {posicao: posicaoScroll}
+                  }}
+                    //to={
+                    //  urlAtualSemPagina + (i > 0 ? ((qtdeDeFiltros > 0 ? '&' : '?')+'pagina='+p) : '')
+                    //}
+                  >
                     {p}
                   </Link>
               //<label key={i} className={i+1 == paginaAtual ? 'paginaAtual' : 'linkDePagina'}
@@ -333,10 +361,17 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
             ?
               <label>›</label>
             :
-              <Link to={
-                urlAtualSemPagina
-                + (qtdeDeFiltros > 0 ? '&' : '?') + 'pagina=' + (paginaAtual+1)
-              }>
+              <Link to={{
+                pathname: enderecoAtual,
+                search: searchDoEnderecoAtual
+                  + (qtdeDeFiltros > 0 ? '&' : '?') + 'pagina=' + (paginaAtual+1),
+                state: {posicao: posicaoScroll}
+              }}
+                //to={
+                //  urlAtualSemPagina
+                //  + (qtdeDeFiltros > 0 ? '&' : '?') + 'pagina=' + (paginaAtual+1)
+                //}
+              >
                 ›
               </Link>
             }
@@ -357,7 +392,10 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
           {anuncios && (anuncios.length == 0 ?
             <h2>Nenhum anúncio encontrado.</h2>
           :
-            <h2>{anuncios.length} anúncio{anuncios.length > 1 ? 's' : ''} encontrado{anuncios.length > 1 ? 's' : ''}.</h2>
+            <h2>
+              {anuncios.length} anúncio{anuncios.length > 1 ? 's' : ''}
+              encontrado{anuncios.length > 1 ? 's' : ''}.
+            </h2>
           )}
           {anunciosPorPagina && paginas && paginas.length > 1 &&
             <p>

@@ -107,7 +107,8 @@ export default function App() {
       //usuarioLogado = {id: resp.id, nome: resp.nome};
       //setCookie('tokenDaSessao', resp.tokenDaSessao, 30);
       document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao
-                        + (resp.manterSessao ? ';expires=' + new Date(resp.dataDeExpiracao).toUTCString() : '')
+                        + (resp.manterSessao ? ';expires='
+                        + new Date(resp.dataDeExpiracao).toUTCString() : '')
                         + ';samesite=lax;path=/';
       //}
       //tokenResposta = resp.tokenDaSessao;

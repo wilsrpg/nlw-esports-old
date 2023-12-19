@@ -75,7 +75,8 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
       //if (manterSessao)
         document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao
                           //+ ';expires=' + new Date(resp.dataDeExpiracao).toUTCString()
-                          + (resp.manterSessao ? ';expires=' + new Date(resp.dataDeExpiracao).toUTCString() : '')
+                          + (resp.manterSessao ? ';expires='
+                          + new Date(resp.dataDeExpiracao).toUTCString() : '')
                           + ';samesite=lax;path=/';
       //else
       //  document.cookie = 'tokenDaSessao=' + resp.tokenDaSessao + ';samesite=lax;path=/';
@@ -105,10 +106,14 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
   return (
     <>
     {!cabecalho && !suspenso && <h2>Entrar</h2>}
-    <div className='positionRelative'>
+    <div className='comEspacoParaMensagemDeErro'>
       <form className={cabecalho ? 'flex' : 'flex flexColumn'} onSubmit={e=>validarEntrada(e)}>
-        <input id={'nomeDoUsuario'+cabecalhoString} name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
-        <input id={'senha'+cabecalhoString} name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}/>
+        <input id={'nomeDoUsuario'+cabecalhoString} name='nomeDoUsuario' placeholder='Usuário'
+          onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}
+        />
+        <input id={'senha'+cabecalhoString} name='senha' type='password' placeholder='Senha'
+          onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}
+        />
         <div className='manterSessao'>
           <input id={'manterSessao'+cabecalhoString} name='manterSessao' type='checkbox'/>
           <label className={cabecalho ? 'reduzido' : ''} htmlFor={'manterSessao'+cabecalhoString}>
@@ -127,7 +132,7 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
         </div>
         {/*<p className='mensagemDeErroCentralizada'>{mensagem}</p>*/}
       </form>
-      {mensagem && <p className='mensagemDeErro2'>{mensagem}</p>}
+      {mensagem && <p className='mensagemDeErro'>{mensagem}</p>}
     </div>
     </>
   )

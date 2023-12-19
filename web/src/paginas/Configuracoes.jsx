@@ -249,7 +249,8 @@ export default function Configuracoes() {
             if (resp.qtdeSessoesDesconectadas == 0)
               alert('Esta conta não está conectada em outros dispositivos.');
             else
-              alert('Esta conta foi desconectada de '+resp.qtdeSessoesDesconectadas+' outro(s) dispositivo(s).');
+              alert('Esta conta foi desconectada de '+resp.qtdeSessoesDesconectadas
+                +' outro(s) dispositivo(s).');
           }
         })
         .catch(erro=>{
@@ -260,8 +261,8 @@ export default function Configuracoes() {
             historico.push('/entrar?redir='+urlAtual.pathname.slice(1));
             //historico.push('/entrar');
           } else
-            alert('Erro ao tentar desconectar outros dispositivos. Verifique o console de seu navegador para mais\
-              detalhes.');
+            alert('Erro ao tentar desconectar outros dispositivos. Verifique o console de seu navegador para\
+            mais detalhes.');
         });
     //  }
     //});
@@ -292,11 +293,18 @@ export default function Configuracoes() {
         <>
         <h2>Configurações</h2>
         <strong>Alterar senha</strong>
-        <div className='positionRelative'>
+        <div className='comEspacoParaMensagemDeErro'>
           <form className='flex flexColumn' onSubmit={e=>validarAlteracaoDeSenha(e)}>
-            <input id='senhaAtual' name='senhaAtual' type='password' placeholder='Senha atual' onChange={()=>definirMensagem('')}/>
-            <input id='novaSenha' name='novaSenha' type='password' placeholder='Nova senha' onChange={()=>definirMensagem('')}/>
-            <input id='confirmarNovaSenha' name='confirmarNovaSenha' type='password' placeholder='Repita a nova senha' onChange={()=>definirMensagem('')}/>
+            <input id='senhaAtual' name='senhaAtual' type='password'
+              placeholder='Senha atual' onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
+            />
+            <input id='novaSenha' name='novaSenha' type='password'
+              placeholder='Nova senha' onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
+            />
+            <input id='confirmarNovaSenha' name='confirmarNovaSenha' type='password'
+              placeholder='Repita a nova senha' onClick={()=>definirMensagem('')}
+              onChange={()=>definirMensagem('')}
+            />
             <button className='alturaBase' type='submit'>
               {aguardandoAlterarSenha ? <img className='carregando' src={carregando}/> : 'Salvar'}
             </button>
@@ -304,7 +312,7 @@ export default function Configuracoes() {
             {/*{erroAoValidar && <p className='mensagemDeErroCentralizada'>{mensagem}</p>}*/}
           </form>
           {/*<p className={erroAoValidar ? 'mensagemDeErro' : 'mensagemDeSucesso'}>{mensagem}</p>*/}
-          {mensagem && <p className='mensagemDeErro2'>{mensagem}</p>}
+          {mensagem && <p className='mensagemDeErro'>{mensagem}</p>}
         </div>
 
         <strong>Desconectar outros dispositivos</strong>
@@ -318,9 +326,11 @@ export default function Configuracoes() {
         :
           <>
           <p>Digite sua senha novamente antes de prosseguir com esta operação.</p>
-          <div className='positionRelative'>
+          <div className='comEspacoParaMensagemDeErro'>
             <div className='flex flexColumn'>
-              <input id='confirmarSenhaParaExclusaoDaConta' type='password' placeholder='Senha atual' onChange={()=>definirMensagemExcluir('')}/>
+              <input id='confirmarSenhaParaExclusaoDaConta' type='password' placeholder='Senha atual'
+                onClick={()=>definirMensagemExcluir('')} onChange={()=>definirMensagemExcluir('')}
+              />
               <button className='excluirConta alturaBase' onClick={validarExclusaoDaConta}>
                 {aguardandoExcluir ? <img className='carregando' src={carregando}/> : 'Excluir minha conta'}
               </button>
@@ -332,7 +342,7 @@ export default function Configuracoes() {
               </button>
               {/*<p className='mensagemDeErroCentralizada'>{mensagemExcluir}</p>*/}
             </div>
-            {mensagemExcluir && <p className='mensagemDeErro2'>{mensagemExcluir}</p>}
+            {mensagemExcluir && <p className='mensagemDeErro'>{mensagemExcluir}</p>}
           </div>
           </>
         }

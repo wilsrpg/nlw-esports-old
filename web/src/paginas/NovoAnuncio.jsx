@@ -86,7 +86,8 @@ export default function NovoAnuncio() {
       definirMensagemErroJogo('Selecione um jogo.');
       return;
     }
-    if (!document.getElementById('tempoDeJogoAnos').value && !document.getElementById('tempoDeJogoMeses').value) {
+    if (!document.getElementById('tempoDeJogoAnos').value
+        && !document.getElementById('tempoDeJogoMeses').value) {
       //document.getElementById('tempoDeJogo').style.animation = 'chamarAtencao 500ms';
       document.getElementById('tempoDeJogoAnos').focus();
       //setTimeout(() => {
@@ -130,7 +131,9 @@ export default function NovoAnuncio() {
       });
       let id = i == 0 ? '' : i+1;
       if (diasDisp.length)
-        disponibilidades.push({dias: diasDisp.join(), horaDeInicio: dados['de'+id], horaDeTermino: dados['ate'+id]});
+        disponibilidades.push(
+          {dias: diasDisp.join(), horaDeInicio: dados['de'+id], horaDeTermino: dados['ate'+id]}
+        );
     });
 
     if (dados.usaChatDeVoz == 'on')
@@ -234,7 +237,7 @@ export default function NovoAnuncio() {
       {contexto2.usuarioLogado &&
         <>
         <h2>Publique seu anúncio</h2>
-        <div className='positionRelative fundoSemitransparente'>
+        <div className='comEspacoParaMensagemDeErro fundoSemitransparente'>
           <form className='flex flexColumn' onSubmit={publicarAnuncio}>
 
             <div className='aoLado'>
@@ -246,7 +249,9 @@ export default function NovoAnuncio() {
                 >
                   <option value='nenhum'>
                     {!jogos ?
-                      (!erroAoObterDados ? 'Buscando jogos...' : 'Erro ao obter dados dos jogos do servidor.')
+                      (!erroAoObterDados ? 'Buscando jogos...' :
+                        'Erro ao obter dados dos jogos do servidor.'
+                      )
                     :
                       'Selecione um jogo'
                     }
@@ -266,13 +271,17 @@ export default function NovoAnuncio() {
 
               <div className='flex flexColumn'>
                 <label htmlFor='discord'>Discord</label>
-                {/*<input id='discord' name='discord' placeholder='Nome de Usuário#0000' pattern='.*[\S][#][\d]{4}' required/>*/}
+                {/*<input id='discord' name='discord' placeholder='Nome de Usuário#0000'
+                  pattern='.*[\S][#][\d]{4}' required
+                />*/}
                 <input id='discord' name='discord' required/>
               </div>
 
               <div className='flex flexColumn'>
                 {/*<label htmlFor='tempo de jogo'>Joga há quantos anos?</label>*/}
-                {/*<input id='tempo de jogo' name='tempoDeJogo' type='tel' maxLength='2' pattern='\d*' required/>*/}
+                {/*<input id='tempo de jogo' name='tempoDeJogo' type='tel' maxLength='2'
+                  pattern='\d*' required
+                />*/}
                 <label>Joga há quanto tempo?</label>
                 <div id='tempoDeJogo' className='flex flexWrap'>
                   <input
@@ -346,7 +355,9 @@ export default function NovoAnuncio() {
               <label>Horários disponíveis</label>
               <button className='carregando' type='button'
                 onClick={()=>
-                  definirDiasDisponiveis(diasDisponiveis.concat([[false,false,false,false,false,false,false]]))
+                  definirDiasDisponiveis(
+                    diasDisponiveis.concat([[false,false,false,false,false,false,false]])
+                  )
                 }
               >
                 +
@@ -384,7 +395,9 @@ export default function NovoAnuncio() {
                     <option value='semana'>De segunda a sexta</option>
                     <option value='finsDeSemana'>Fins de semana</option>
                     {dias.map((dia,j)=>
-                      <option key={j} value={dia.nome}>{dia.nome[0].toUpperCase()+dia.nome.slice(1)}</option>
+                      <option key={j} value={dia.nome}>
+                        {dia.nome[0].toUpperCase()+dia.nome.slice(1)}
+                      </option>
                     )}
                   </select>*/}
                   <div className='flex' key={i*2+1}>
@@ -428,11 +441,14 @@ export default function NovoAnuncio() {
                             for(let j=i; j < diasDisponiveis.length-1; j++){
                               let atual = j == 0 ? '' : j+1;
                               let proximo = j+2;
-                              //document.getElementById('quando'+atual).value = document.getElementById('quando'+proximo).value;
+                              //document.getElementById('quando'+atual).value =
+                              //  document.getElementById('quando'+proximo).value;
                               //dispNovo[j] = dispNovo[j+1];
                               //diasDisponiveis[j] = diasDisponiveis[j+1];
-                              document.getElementById('de'+atual).value = document.getElementById('de'+proximo).value;
-                              document.getElementById('ate'+atual).value = document.getElementById('ate'+proximo).value;
+                              document.getElementById('de'+atual).value =
+                                document.getElementById('de'+proximo).value;
+                              document.getElementById('ate'+atual).value =
+                                document.getElementById('ate'+proximo).value;
                             }
                             //console.log(dispNovo);
                             //definirDiasDisponiveis(dispNovo.slice(1));
@@ -480,11 +496,13 @@ export default function NovoAnuncio() {
             <p className='mensagemDeErro'>{mensagemErroTempoDeJogo}</p>
             <p className='mensagemDeErro'>{mensagemErroHorario}</p>*/}
             {/*<div className='conteudo'>
-              <p className='mensagemDeErroCentralizada'>{mensagemErroJogo+mensagemErroTempoDeJogo+mensagemErroHorario}</p>
+              <p className='mensagemDeErroCentralizada'>
+                {mensagemErroJogo+mensagemErroTempoDeJogo+mensagemErroHorario}
+              </p>
             </div>*/}
           </form>
           {(mensagemErroJogo || mensagemErroTempoDeJogo || mensagemErroHorario) &&
-            <p className='mensagemDeErro2'>
+            <p className='mensagemDeErro'>
               {mensagemErroJogo+mensagemErroTempoDeJogo+mensagemErroHorario}
             </p>
           }

@@ -151,7 +151,8 @@ export default function CartaoDeAnuncio({
       <p>Tempo de jogo</p>
       <strong>
         {anuncio.tempoDeJogoEmMeses >= 12 &&
-          (Math.floor(anuncio.tempoDeJogoEmMeses/12) + ' ano' + (anuncio.tempoDeJogoEmMeses >= 24 ? 's' : ''))}
+          Math.floor(anuncio.tempoDeJogoEmMeses/12) + ' ano' + (anuncio.tempoDeJogoEmMeses >= 24 ? 's' : '')
+        }
         {anuncio.tempoDeJogoEmMeses >= 12 && anuncio.tempoDeJogoEmMeses%12 > 0 && ' e '}
         {anuncio.tempoDeJogoEmMeses % 12 > 0 &&
           anuncio.tempoDeJogoEmMeses % 12 + (anuncio.tempoDeJogoEmMeses % 12 > 1 ? ' meses' : ' mês')}

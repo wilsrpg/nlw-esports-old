@@ -79,17 +79,23 @@ export default function Registrar() {
       {!contexto2.usuarioLogado ?
         <>
         <h2>Criar nova conta</h2>
-        <div className='positionRelative'>
+        <div className='comEspacoParaMensagemDeErro'>
           <form className='flex flexColumn' onSubmit={e=>validarRegistro(e)}>
-            <input id='nomeDoUsuario' name='nomeDoUsuario' placeholder='Usuário' onChange={()=>definirMensagem('')}/>
-            <input id='senha' name='senha' type='password' placeholder='Senha' onChange={()=>definirMensagem('')}/>
-            <input id='confirmarSenha' name='confirmarSenha' onChange={()=>definirMensagem('')} type='password' placeholder='Repita a senha'/>
+            <input id='nomeDoUsuario' name='nomeDoUsuario' placeholder='Usuário'
+              onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
+            />
+            <input id='senha' name='senha' type='password' placeholder='Senha'
+              onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
+            />
+            <input id='confirmarSenha' name='confirmarSenha' type='password' placeholder='Repita a senha'
+              onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
+            />
             <button className='alturaBase' type='submit'>
               {aguardando ? <img className='carregando' src={carregando}/> : 'Registrar'}
             </button>
             {/*<p className='mensagemDeErroCentralizada'>{mensagem}</p>*/}
           </form>
-          {mensagem && <p className='mensagemDeErro2'>{mensagem}</p>}
+          {mensagem && <p className='mensagemDeErro'>{mensagem}</p>}
         </div>
         </>
       :

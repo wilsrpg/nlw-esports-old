@@ -4,7 +4,7 @@ import carregando from '../imagens/loading.svg'
 import { SERVIDOR } from '../../../enderecoDoServidor';
 import { contexto } from '../App';
 
-export default function FormularioDePesquisa({filtros, listaDeJogos, apenasDoUsuario}) {
+export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
@@ -267,7 +267,7 @@ export default function FormularioDePesquisa({filtros, listaDeJogos, apenasDoUsu
       <form id='pesquisa' className='flex flexColumn fundoSemitransparente' onSubmit={e=>pesquisar(e)}>
 
         <div className='jogosPagina formularioDePesquisa'>
-          <div className='flex flexColumn'>
+          {/*<div className='flex flexColumn'>
             <label>Jogo</label>
             <select disabled={!jogos} id='jogo' name='jogo'>
               <option value=''>
@@ -297,17 +297,12 @@ export default function FormularioDePesquisa({filtros, listaDeJogos, apenasDoUsu
             <input id='nomeNoJogo' name='nomeNoJogo' className='nomeNoJogo'/>
           </div>
 
-          {/*<div className='flex flexColumn'>
-            <label htmlFor='discord'>Discord</label>
-            <input id='discord' name='discord'
-//onChange={e=>{if(e.target.value.match(document.getElementById('nomeNoJogo').value))definirOpcoesTempo('noMaximo');else definirOpcoesTempo('');}}
-            />
-          </div>*/}
-
           <div className='flex flexColumn'>
             <div className='flex flexWrap'>
               <label>Joga há quanto tempo?</label>
-              <select id='opcoesTempo' name='opcoesTempo' value={opcoesTempo} onChange={e=>definirOpcoesTempo(e.target.value)}>
+              <select id='opcoesTempo' name='opcoesTempo' value={opcoesTempo}
+                onChange={e=>definirOpcoesTempo(e.target.value)}
+              >
                 <option value=''>no mínimo</option>
                 <option value='noMaximo'>no máximo</option>
                 <option value='entre'>entre</option>
@@ -424,14 +419,15 @@ export default function FormularioDePesquisa({filtros, listaDeJogos, apenasDoUsu
           <div className='flex flexColumn'>
             <div className='flex flexWrap'>
               <label>Disponibilidade</label>
-              <button className='carregando' type='button' onClick={()=>definirDiasDisponiveis(diasDisponiveis.concat(''))}>
+              <button className='carregando' type='button'
+                onClick={()=>definirDiasDisponiveis(diasDisponiveis.concat(''))}
+              >
                 +
               </button>
               {diasDisponiveis.length > 1 &&
                 <select id='opcoesDisponibilidade' name='opcoesDisponibilidade'>
                   <option value=''>Em todos</option>
                   <option value='emQualquer'>Em pelo menos um</option>
-                  {/*<option value='emTodos'>Em todos</option>*/}
                 </select>
               }
             </div>
@@ -451,43 +447,50 @@ export default function FormularioDePesquisa({filtros, listaDeJogos, apenasDoUsu
                   <div className='flex flexWrap'>
                     <div className='flex'>
                       <label htmlFor={'de'+id}>De</label>
-                      <input id={'de'+id} name={'de'+id} type='time' onChange={()=>{
-                      const ate = document.getElementById('ate'+id);
-                      if (ate.value && ate.value <= document.getElementById('de'+id).value) {
-                        //ate.style.backgroundColor = 'lightgray';
-                        ate.style.cursor = 'help';
-                        ate.title = 'Do dia seguinte';
-                      } else {
-                        //ate.style.backgroundColor = '';
-                        ate.style.cursor = 'default';
-                        ate.title = '';
-                      }
-                    }}/>
+                      <input id={'de'+id} name={'de'+id} type='time'
+                        onChange={()=>{
+                          const ate = document.getElementById('ate'+id);
+                          if (ate.value && ate.value <= document.getElementById('de'+id).value) {
+                            //ate.style.backgroundColor = 'lightgray';
+                            ate.style.cursor = 'help';
+                            ate.title = 'Do dia seguinte';
+                          } else {
+                            //ate.style.backgroundColor = '';
+                            ate.style.cursor = 'default';
+                            ate.title = '';
+                          }
+                        }}
+                      />
                     </div>
                     <div className='flex flexWrap'>
                       <label htmlFor={'ate'+id}>Até</label>
-                      <input id={'ate'+id} name={'ate'+id} type='time' onChange={()=>{
-                        const ate = document.getElementById('ate'+id);
-                        //console.log(ate.value);
-                        if (ate.value && ate.value <= document.getElementById('de'+id).value) {
-                          //ate.style.backgroundColor = 'lightgray';
-                          ate.style.cursor = 'help';
-                          ate.title = 'Do dia seguinte';
-                        } else {
-                          //ate.style.backgroundColor = '';
-                          ate.style.cursor = 'default';
-                          ate.title = '';
-                        }
-                      }}/>
+                      <input id={'ate'+id} name={'ate'+id} type='time'
+                        onChange={()=>{
+                          const ate = document.getElementById('ate'+id);
+                          //console.log(ate.value);
+                          if (ate.value && ate.value <= document.getElementById('de'+id).value) {
+                            //ate.style.backgroundColor = 'lightgray';
+                            ate.style.cursor = 'help';
+                            ate.title = 'Do dia seguinte';
+                          } else {
+                            //ate.style.backgroundColor = '';
+                            ate.style.cursor = 'default';
+                            ate.title = '';
+                          }
+                        }}
+                      />
                       {diasDisponiveis.length > 1 &&
                         <button className='carregando' type='button'
                           onClick={()=>{
                             for(let j=i; j < diasDisponiveis.length-1; j++){
                               let atual = j == 0 ? '' : j+1;
                               let proximo = j+2;
-                              document.getElementById('quando'+atual).value = document.getElementById('quando'+proximo).value;
-                              document.getElementById('de'+atual).value = document.getElementById('de'+proximo).value;
-                              document.getElementById('ate'+atual).value = document.getElementById('ate'+proximo).value;
+                              document.getElementById('quando'+atual).value =
+                                document.getElementById('quando'+proximo).value;
+                              document.getElementById('de'+atual).value =
+                                document.getElementById('de'+proximo).value;
+                              document.getElementById('ate'+atual).value =
+                                document.getElementById('ate'+proximo).value;
                             }
                             definirDiasDisponiveis(diasDisponiveis.slice(1));
                           }}
@@ -540,30 +543,296 @@ export default function FormularioDePesquisa({filtros, listaDeJogos, apenasDoUsu
             />
           </div>
 
-          {/*<div className='flex flexColumn'>
-            <div className='flex flexWrap'>
-              <label>Ordenar por</label>
-              <select id='ordenarPor' name='ordenarPor'>
-                <option value=''>Data de publicação</option>
-                <option value='nomeDoJogo'>Nome do jogo</option>
-                <option value='nomeNoJogo'>Nome do jogador</option>
-                <option value='tempoDeJogoEmMeses'>Tempo de jogo</option>
-                <option value='diasQueJoga'>Dias que joga</option>
-                <option value='horaDeInicio'>Hora que começa</option>
-                <option value='horaDeTermino'>Hora que termina</option>
-                <option value='usaChatDeVoz'>Chat de voz</option>
-              </select>
-            </div>
-            <div className='flex flexWrap'>
-              <label>Em ordem</label>
-              <select id='emOrdem' name='emOrdem'>
-                <option value=''>Decrescente</option>
-                <option value='crescente'>Crescente</option>
-              </select>
-            </div>
-          </div>*/}
-          
           <div className='formularioDeEntradaSuspenso'>
+            <label>Ordenar por</label>
+            <select id='ordenarPor' name='ordenarPor'>
+              <option value=''>Data de publicação</option>
+              <option value='nomeDoJogo'>Nome do jogo</option>
+              <option value='nomeNoJogo'>Nome do jogador</option>
+              <option value='tempoDeJogoEmMeses'>Tempo de jogo</option>
+              <option value='diasQueJoga'>Dias que joga</option>
+              <option value='horaDeInicio'>Hora que começa</option>
+              <option value='horaDeTermino'>Hora que termina</option>
+              <option value='usaChatDeVoz'>Chat de voz</option>
+            </select>
+            <label>Em ordem</label>
+            <select id='emOrdem' name='emOrdem'>
+              <option value=''>Decrescente</option>
+              <option value='crescente'>Crescente</option>
+            </select>
+          </div>*/}
+
+          <div className='aoLado'>
+            <div className='flex'>
+            <label>Jogo</label>
+            <select disabled={!jogos} id='jogo' name='jogo'>
+              <option value=''>
+                {!jogos ?
+                  (!erroAoObterDados ? 'Buscando jogos...' : 'Erro ao obter dados dos jogos do servidor.')
+                :
+                  'Qualquer um'
+                }
+              </option>
+              {jogos && jogos.map((jogo,i)=>{
+                return <option key={i} value={jogo.nomeUrl}>{jogo.nome}</option>
+              })}
+            </select>
+            </div>
+
+            <div className='flex'>
+            <div className='flex'>
+              <label htmlFor='nomeNoJogo'>Nome no jogo</label>
+              <select id='opcoesNome' name='opcoesNome'>
+                <option value=''>contém</option>
+                <option value='comecaCom'>começa com</option>
+                <option value='terminaCom'>termina com</option>
+                <option value='exatamente'>exatamente</option>
+                <option value='naoContem'>não contém</option>
+              </select>
+            </div>
+            <input id='nomeNoJogo' name='nomeNoJogo'/>
+            </div>
+
+            <div className='flex'>
+              <label>Joga há quanto tempo?</label>
+              <select id='opcoesTempo' name='opcoesTempo' value={opcoesTempo}
+                onChange={e=>definirOpcoesTempo(e.target.value)}
+              >
+                <option value=''>no mínimo</option>
+                <option value='noMaximo'>no máximo</option>
+                <option value='entre'>entre</option>
+              </select>
+            </div>
+            <div className='flex flexColumn'>
+              <div className='flex'>
+                <input id='tempoDeJogoAnos' className='tempoDeJogo' name='tempoDeJogoAnos'
+                  value={tempoDeJogoAnosState}
+                  onChange={e=>{
+                    if (e.target.value == '')
+                      definirTempoDeJogoAnosState('');
+                    const n = parseInt(e.target.value);
+                    if (!isNaN(n) && n >= 0 && n <= 100)
+                      definirTempoDeJogoAnosState(n);
+                    else if (n > 100)
+                      definirTempoDeJogoAnosState(100);
+                  }}
+                  onKeyDown={e=>{
+                    let n = parseInt(e.target.value);
+                    if (e.target.value == '')
+                      n = 0;
+                    if (e.key == 'ArrowUp' && n < 100)
+                      definirTempoDeJogoAnosState(n+1);
+                    if (e.key == 'ArrowDown'&& n > 0)
+                      definirTempoDeJogoAnosState(n-1);
+                  }}
+                />
+                <label htmlFor='tempoDeJogoAnos'>ano(s)</label>
+
+                <input id='tempoDeJogoMeses' className='tempoDeJogo' name='tempoDeJogoMeses'
+                  value={tempoDeJogoMesesState}
+                  onChange={e=>{
+                    if (e.target.value == '')
+                      definirTempoDeJogoMesesState('');
+                    const n = parseInt(e.target.value);
+                    if (!isNaN(n) && n >= 0 && n <= 100)
+                      definirTempoDeJogoMesesState(n);
+                    else if (n > 100)
+                      definirTempoDeJogoMesesState(100);
+                  }}
+                  onKeyDown={e=>{
+                    let n = parseInt(e.target.value);
+                    if (e.target.value == '')
+                      n = 0;
+                    if (e.key == 'ArrowUp' && n < 100)
+                      definirTempoDeJogoMesesState(n+1);
+                    if (e.key == 'ArrowDown'&& n > 0)
+                      definirTempoDeJogoMesesState(n-1);
+                  }}
+                />
+                <label htmlFor='tempoDeJogoMeses'>mês(es)</label>
+              </div>
+              {opcoesTempo == 'entre' &&
+                <div className='flex'>
+                  <input id='tempoDeJogoAnos2' className='tempoDeJogo' name='tempoDeJogoAnos2'
+                    value={tempoDeJogoAnos2State}
+                    onChange={e=>{
+                      if (e.target.value == '')
+                        definirTempoDeJogoAnos2State('');
+                      const n = parseInt(e.target.value);
+                      if (!isNaN(n) && n >= 0 && n <= 100)
+                        definirTempoDeJogoAnos2State(n);
+                      else if (n > 100)
+                        definirTempoDeJogoAnos2State(100);
+                    }}
+                    onKeyDown={e=>{
+                      let n = parseInt(e.target.value);
+                      if (e.target.value == '')
+                        n = 0;
+                      if (e.key == 'ArrowUp' && n < 100)
+                        definirTempoDeJogoAnos2State(n+1);
+                      if (e.key == 'ArrowDown'&& n > 0)
+                        definirTempoDeJogoAnos2State(n-1);
+                    }}
+                  />
+                  <label htmlFor='tempoDeJogoAnos2'>ano(s)</label>
+
+                  <input id='tempoDeJogoMeses2' className='tempoDeJogo' name='tempoDeJogoMeses2'
+                    value={tempoDeJogoMeses2State}
+                    onChange={e=>{
+                      if (e.target.value == '')
+                        definirTempoDeJogoMeses2State('');
+                      const n = parseInt(e.target.value);
+                      if (!isNaN(n) && n >= 0 && n <= 100)
+                        definirTempoDeJogoMeses2State(n);
+                      else if (n > 100)
+                        definirTempoDeJogoMeses2State(100);
+                    }}
+                    onKeyDown={e=>{
+                      let n = parseInt(e.target.value);
+                      if (e.target.value == '')
+                        n = 0;
+                      if (e.key == 'ArrowUp' && n < 100)
+                        definirTempoDeJogoMeses2State(n+1);
+                      if (e.key == 'ArrowDown'&& n > 0)
+                        definirTempoDeJogoMeses2State(n-1);
+                    }}
+                  />
+                  <label htmlFor='tempoDeJogoMeses2'>mês(es)</label>
+                </div>
+              }
+            </div>
+
+            <div className='flex flexColumn'>
+            <div className='flex'>
+              <label>Disponibilidade</label>
+              <button className='carregando botaoMais' type='button'
+                onClick={()=>definirDiasDisponiveis(diasDisponiveis.concat(''))}
+              >
+                +
+              </button>
+            </div>
+              {diasDisponiveis.length > 1 &&
+                <select id='opcoesDisponibilidade' name='opcoesDisponibilidade'>
+                  <option value=''>Em todos</option>
+                  <option value='emQualquer'>Em pelo menos um</option>
+                </select>
+              }
+            </div>
+            <div className='flex flexColumn'>
+              {diasDisponiveis.map((d,i)=>{
+                let id = i == 0 ? '' : i+1;
+                return (
+                  <div key={i} className='flex'>
+                    <select id={'quando'+id} name={'quando'+id}>
+                      <option value='qualquerDia'>Qualquer dia</option>
+                      <option value='todoDia'>Todo dia</option>
+                      <option value='semana'>De segunda a sexta</option>
+                      <option value='finsDeSemana'>Fins de semana</option>
+                      {dias.map((dia,j)=>
+                        <option key={j} value={dia}>{dia[0].toUpperCase()+dia.slice(1)}</option>
+                      )}
+                    </select>
+                    {/*<div className='flex'>*/}
+                      {/*<div className='flex'>*/}
+                        <label htmlFor={'de'+id}>De</label>
+                        <input id={'de'+id} name={'de'+id} type='time'
+                          onChange={()=>{
+                            const ate = document.getElementById('ate'+id);
+                            if (ate.value && ate.value <= document.getElementById('de'+id).value) {
+                              //ate.style.backgroundColor = 'lightgray';
+                              ate.style.cursor = 'help';
+                              ate.title = 'Do dia seguinte';
+                            } else {
+                              //ate.style.backgroundColor = '';
+                              ate.style.cursor = 'default';
+                              ate.title = '';
+                            }
+                          }}
+                        />
+                      {/*</div>*/}
+                      {/*<div className='flex'>*/}
+                        <label htmlFor={'ate'+id}>Até</label>
+                        <input id={'ate'+id} name={'ate'+id} type='time'
+                          onChange={()=>{
+                            const ate = document.getElementById('ate'+id);
+                            //console.log(ate.value);
+                            if (ate.value && ate.value <= document.getElementById('de'+id).value) {
+                              //ate.style.backgroundColor = 'lightgray';
+                              ate.style.cursor = 'help';
+                              ate.title = 'Do dia seguinte';
+                            } else {
+                              //ate.style.backgroundColor = '';
+                              ate.style.cursor = 'default';
+                              ate.title = '';
+                            }
+                          }}
+                        />
+                        {diasDisponiveis.length > 1 ?
+                          <button className='carregando' type='button'
+                            onClick={()=>{
+                              for(let j=i; j < diasDisponiveis.length-1; j++){
+                                let atual = j == 0 ? '' : j+1;
+                                let proximo = j+2;
+                                document.getElementById('quando'+atual).value =
+                                  document.getElementById('quando'+proximo).value;
+                                document.getElementById('de'+atual).value =
+                                  document.getElementById('de'+proximo).value;
+                                document.getElementById('ate'+atual).value =
+                                  document.getElementById('ate'+proximo).value;
+                              }
+                              definirDiasDisponiveis(diasDisponiveis.slice(1));
+                            }}
+                          >
+                            ×
+                          </button>
+                        :
+                          <div className='carregando'/>
+                        }
+                      {/*</div>*/}
+                    {/*</div>*/}
+                  </div>
+                )
+              })}
+            </div>
+
+            <div className='flex'>
+              <label>Usa chat de voz</label>
+              <select id='usaChatDeVoz' name='usaChatDeVoz'>
+                <option value=''>Tanto faz</option>
+                <option value='sim'>Sim</option>
+                <option value='não'>Não</option>
+              </select>
+            </div>
+
+            <div className='flex'>
+              <label htmlFor='resultadosPorPagina'>Anúncios por página</label>
+              <input id='resultadosPorPagina' name='resultadosPorPagina' className='tempoDeJogo'
+                value={resultadosPorPaginaState}
+                onChange={e=>{
+                  if (e.target.value == '')
+                    definirResultadosPorPaginaState('');
+                  const n = parseInt(e.target.value);
+                  if (!isNaN(n) && n >= 3 && n <= 100)
+                    definirResultadosPorPaginaState(n);
+                  else if (n > 100)
+                    definirResultadosPorPaginaState(100);
+                  else if (n < 3)
+                    definirResultadosPorPaginaState(3);
+                }}
+                onKeyDown={e=>{
+                  //console.log(e.key);
+                  let n = parseInt(e.target.value);
+                  if (e.target.value == '')
+                    n = 0;
+                  if (e.key == 'ArrowUp' && n < 100)
+                    definirResultadosPorPaginaState(n+1);
+                  if (e.key == 'ArrowDown'&& n > 0)
+                    definirResultadosPorPaginaState(n-1);
+                }}
+              />
+            </div>
+
+            <div className='flex'>
               <label>Ordenar por</label>
               <select id='ordenarPor' name='ordenarPor'>
                 <option value=''>Data de publicação</option>
@@ -575,12 +844,15 @@ export default function FormularioDePesquisa({filtros, listaDeJogos, apenasDoUsu
                 <option value='horaDeTermino'>Hora que termina</option>
                 <option value='usaChatDeVoz'>Chat de voz</option>
               </select>
+            </div>
+            <div className='flex'>
               <label>Em ordem</label>
               <select id='emOrdem' name='emOrdem'>
                 <option value=''>Decrescente</option>
                 <option value='crescente'>Crescente</option>
               </select>
             </div>
+          </div>
 
         </div>
 

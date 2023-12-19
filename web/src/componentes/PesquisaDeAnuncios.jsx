@@ -1,17 +1,17 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { useHistory, useLocation } from 'react-router-dom';
-import { contexto } from '../App';
+import React, { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom';
+//import { contexto } from '../App';
 import FormularioDePesquisa from '../componentes/FormularioDePesquisa';
 import ResultadosDaPesquisa from '../componentes/ResultadosDaPesquisa';
 import BotaoParaPublicarAnuncio from '../componentes/BotaoParaPublicarAnuncio';
-import { SERVIDOR } from '../../../enderecoDoServidor';
+//import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function PesquisaDeAnuncios({apenasDoUsuario}) {
   let componenteExiste = true;
   //const contexto2 = useContext(contexto);
   //const historico = useHistory();
   const urlAtual = useLocation();
-  const [jogos, definirJogos] = useState();
+  //const [jogos, definirJogos] = useState();
   const urlParams = new URLSearchParams(urlAtual.search);
   const [filtros, definirFiltros] = useState();
 

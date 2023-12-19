@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 //import { useLocation } from 'react-router-dom';
 //import FormularioDePesquisa from '../componentes/FormularioDePesquisa';
 //import ResultadosDaPesquisa from '../componentes/ResultadosDaPesquisa';
