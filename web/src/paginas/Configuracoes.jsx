@@ -8,14 +8,15 @@ import { SERVIDOR } from '../../../enderecoDoServidor';
 export default function Configuracoes() {
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
-  const [aguardandoAlterarSenha, definirAguardandoAlterarSenha] = useState(false);
+  const [aguardandoAlterarDados, definirAguardandoAlterarDados] = useState(false);
   const [mensagem, definirMensagem] = useState('');
-  const [erroAoValidar, definirErroAoValidar] = useState(false);
+  //const [erroAoValidar, definirErroAoValidar] = useState(false);
   const [confirmandoExclusaoDaConta, definirConfirmandoExclusaoDaConta] = useState(false);
   const [aguardandoExcluir, definirAguardandoExcluir] = useState(false);
   const [mensagemExcluir, definirMensagemExcluir] = useState('');
   const historico = useHistory();
   const urlAtual = useLocation();
+  const [dadosDoUsuario, definirDadosDoUsuario] = useState('');
 
   useEffect(()=>{
     document.title = 'Configurações - NLW eSports';
@@ -34,47 +35,72 @@ export default function Configuracoes() {
     //    historico.push('/entrar?redir='+urlAtual.pathname.slice(1));
     //  }
     //});
+    const dados = {
+      method: 'GET',
+      headers: {'Authorization': tokenDaSessao}
+    };
+    fetch(SERVIDOR+`/usuarios/${contexto2.usuarioLogado.id}/dados`, dados)
+    .then(resp=>resp.json())
+    .then(resp=>{
+      if (resp.erro)
+        throw resp.erro;
+      if (componenteExiste)
+        definirDadosDoUsuario(resp);
+    })
+    .catch(erro=>{
+      console.log(erro);
+      if (componenteExiste)
+        definirMensagem(''+erro);
+    });
 
     return ()=>componenteExiste = false;
   }, [])
 
-  function validarAlteracaoDeSenha(e) {
+  function validarAlteracaoDeDados(e) {
     e.preventDefault();
-    if (aguardandoAlterarSenha)
+    if (aguardandoAlterarDados)
       return;
-    definirErroAoValidar(true);
+    //definirErroAoValidar(true);
     const dados = Object.fromEntries(new FormData(e.target));
     if (!dados.senhaAtual) {
       document.getElementById('senhaAtual').focus();
       definirMensagem('Digite sua senha atual.');
       return;
     }
-    if (!dados.novaSenha) {
-      document.getElementById('novaSenha').focus();
-      definirMensagem('Digite sua nova senha.');
-      return;
+    if (dados.email && !dados.email.match(
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+    )) {
+      document.getElementById('email').focus();
+      definirMensagem('Digite um e-mail válido.');
     }
-    if (!dados.confirmarNovaSenha) {
-      document.getElementById('confirmarNovaSenha').focus();
-      definirMensagem('Repita sua nova senha.');
-      return;
-    }
-    if (dados.novaSenha != dados.confirmarNovaSenha) {
-      //document.getElementById('confirmarSenha').focus();
-      definirMensagem('As senhas digitadas não são iguais.');
-      return;
-    }
-    if (dados.senhaAtual == dados.novaSenha) {
-      //document.getElementById('confirmarSenha').focus();
-      definirMensagem('A nova senha não pode ser igual à atual.');
-      return;
+    if (dados.novaSenha || dados.confirmarNovaSenha) {
+      if (!dados.novaSenha) {
+        document.getElementById('novaSenha').focus();
+        definirMensagem('Digite sua nova senha.');
+        return;
+      }
+      if (!dados.confirmarNovaSenha) {
+        document.getElementById('confirmarNovaSenha').focus();
+        definirMensagem('Repita sua nova senha.');
+        return;
+      }
+      if (dados.novaSenha != dados.confirmarNovaSenha) {
+        //document.getElementById('confirmarSenha').focus();
+        definirMensagem('As senhas digitadas não são iguais.');
+        return;
+      }
+      if (dados.senhaAtual == dados.novaSenha) {
+        //document.getElementById('confirmarSenha').focus();
+        definirMensagem('A nova senha não pode ser igual à atual.');
+        return;
+      }
     }
     definirMensagem('');
-    definirAguardandoAlterarSenha(true);
-    tentarAlterarSenha(dados.senhaAtual,dados.novaSenha);
+    definirAguardandoAlterarDados(true);
+    tentarAlterarDados(dados.email, dados.senhaAtual, dados.novaSenha);
   }
 
-  function tentarAlterarSenha(senha,novaSenha) {
+  function tentarAlterarDados(email, senha, novaSenha) {
     //const tokenDaSessao = getCookie('tokenDaSessao');
     //const tokenDaSessao = contexto2.getCookie('tokenDaSessao');
     //if (!tokenDaSessao || tokenDaSessao == '0') {
@@ -101,7 +127,7 @@ export default function Configuracoes() {
           method: 'PUT',
           //headers: {'Content-Type': 'application/json'},
           headers: {'Content-Type': 'application/json', 'Authorization': tokenDaSessao},
-          body: JSON.stringify({senha, novaSenha}),
+          body: JSON.stringify({email, senha, novaSenha}),
         };
         fetch(SERVIDOR+`/usuarios/${contexto2.usuarioLogado.id}`, dados)
         .then(resp=>resp.json())
@@ -109,13 +135,16 @@ export default function Configuracoes() {
           if (resp.erro)
             throw resp.erro;
           if (componenteExiste) {
-            definirErroAoValidar(false);
+            //definirErroAoValidar(false);
             //definirMensagem('Senha alterada com sucesso.');
             definirMensagem('');
+            if (email)
+              document.getElementById('email').placeholder = email;
+            document.getElementById('email').value = '';
             document.getElementById('senhaAtual').value = '';
             document.getElementById('novaSenha').value = '';
             document.getElementById('confirmarNovaSenha').value = '';
-            alert('Senha alterada com sucesso.');
+            alert('Dados alterados com sucesso.');
           }
         })
         .catch(erro=>{
@@ -130,11 +159,16 @@ export default function Configuracoes() {
         })
         .finally(()=>{
           if (componenteExiste)
-            definirAguardandoAlterarSenha(false);
+            definirAguardandoAlterarDados(false);
         });
     //  }
     //});
   }
+
+  useEffect(()=>{
+    if(confirmandoExclusaoDaConta)
+      document.getElementById('confirmarSenhaParaExclusaoDaConta').focus();
+  }, [confirmandoExclusaoDaConta])
 
   function validarExclusaoDaConta() {
     const senha = document.getElementById('confirmarSenhaParaExclusaoDaConta').value;
@@ -292,21 +326,35 @@ export default function Configuracoes() {
       {contexto2.usuarioLogado &&
         <>
         <h2>Configurações</h2>
-        <strong>Alterar senha</strong>
+        <strong>Alterar dados</strong>
         <div className='comEspacoParaMensagemDeErro'>
-          <form className='flex flexColumn' onSubmit={e=>validarAlteracaoDeSenha(e)}>
-            <input id='senhaAtual' name='senhaAtual' type='password'
-              placeholder='Senha atual' onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
+          <form className='configuracoes' onSubmit={e=>validarAlteracaoDeDados(e)}>
+            {/*<div className='aoLado'>*/}
+            {/*<label htmlFor='nome'>Nome</label>
+            <input id='nome' name='nome' placeholder={dadosDoUsuario.nome}
+              onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
+            />*/}
+            <label htmlFor='email'>E-mail</label>
+            <input id='email' name='email' type='email'
+              placeholder={dadosDoUsuario.email || '(conta sem e-mail)'}
+              onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
             />
+            <label htmlFor='novaSenha'>Nova senha</label>
             <input id='novaSenha' name='novaSenha' type='password'
-              placeholder='Nova senha' onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
+              onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
             />
+            <label htmlFor='confirmarNovaSenha'>Repita a nova senha</label>
             <input id='confirmarNovaSenha' name='confirmarNovaSenha' type='password'
-              placeholder='Repita a nova senha' onClick={()=>definirMensagem('')}
-              onChange={()=>definirMensagem('')}
+              onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
             />
-            <button className='alturaBase' type='submit'>
-              {aguardandoAlterarSenha ? <img className='carregando' src={carregando}/> : 'Salvar'}
+            {/*</div>*/}
+            <br/>
+            <label htmlFor='senhaAtual'>Digite a senha atual para confirmar</label>
+            <input id='senhaAtual' name='senhaAtual' type='password' required
+              onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
+            />
+            <button className='botaoEntrar alturaBase' type='submit'>
+              {aguardandoAlterarDados ? <img className='carregando' src={carregando}/> : 'Salvar'}
             </button>
             {/*<p className='mensagemDeErroCentralizada'>{mensagem}</p>*/}
             {/*{erroAoValidar && <p className='mensagemDeErroCentralizada'>{mensagem}</p>}*/}

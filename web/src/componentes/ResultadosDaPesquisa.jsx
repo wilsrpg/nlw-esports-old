@@ -29,6 +29,7 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
   const [posicaoScroll, definirPosicaoScroll] = useState(0);
   //const [aguardando, definirAguardando] = useState(true);
   const [qtdeDeFiltros, definirQtdeDeFiltros] = useState(0);
+  const [tempoDePesquisa, definirTempoDePesquisa] = useState(0);
 
   useEffect(()=>{
     //const tokenDaSessao = contexto2.getCookie('tokenDaSessao');
@@ -66,6 +67,7 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
   }, [urlAtual])
 
   useEffect(()=>{
+		const tempoInicio = Date.now();
     const dados = {
       method: 'GET',
       headers: {'Content-Type': 'application/json'}
@@ -154,6 +156,9 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
         //if (filtros.emOrdem) definirEmOrdem(filtros.emOrdem);
         //else definirEmOrdem('');
         
+        const tempoPesquisa = Date.now() - tempoInicio;
+        definirTempoDePesquisa(tempoPesquisa);
+        //console.log('tempoPesquisa='+tempoPesquisa);
         if(urlAtual.state){
           console.log(urlAtual.state.posicao);
           window.scrollTo(0,urlAtual.state.posicao);
@@ -299,8 +304,10 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
           }
         </div>
         
+        <div className='paginas'>
         {paginacao.length > 1 &&
-          <div className='flex flexWrap paginas'>
+          //<div className='flex flexWrap paginas'>
+          <div className='flex'>
             {/*<Link to={urlAtualSemPagina}>«</Link>*/}
             {/*<label className={paginaAtual > 1 ? 'linkDePagina' : ''}
               onClick={paginaAtual > 1 ? ()=>{definirPaginaAtual(1)} : undefined}
@@ -387,7 +394,8 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
             </label>*/}
           </div>
         }
-
+        <p>({tempoDePesquisa/1000} segundos)</p>
+        </div>
         {/*<div>
           {anuncios && (anuncios.length == 0 ?
             <h2>Nenhum anúncio encontrado.</h2>

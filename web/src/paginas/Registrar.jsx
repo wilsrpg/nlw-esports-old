@@ -41,16 +41,28 @@ export default function Registrar() {
       definirMensagem('As senhas digitadas não são iguais.');
       return;
     }
+    if (!dados.email) {
+      document.getElementById('email').focus();
+      definirMensagem('Digite seu e-mail.');
+      return;
+    }
+    if (!dados.email.match(
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+    )) {
+      document.getElementById('email').focus();
+      definirMensagem('Digite um e-mail válido.');
+      return;
+    }
     definirMensagem('');
     definirAguardando(true);
-    tentarRegistrar(dados.nomeDoUsuario,dados.senha);
+    tentarRegistrar(dados.nomeDoUsuario,dados.senha,dados.email);
   }
 
-  function tentarRegistrar(nomeDoUsuario, senha) {
+  function tentarRegistrar(nomeDoUsuario, senha, email) {
     const dados = {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({nomeDoUsuario, senha}),
+      body: JSON.stringify({nomeDoUsuario, senha, email}),
     };
     fetch(SERVIDOR+`/usuarios`, dados)
     .then(resp=>resp.json())
@@ -81,13 +93,16 @@ export default function Registrar() {
         <h2>Criar nova conta</h2>
         <div className='comEspacoParaMensagemDeErro'>
           <form className='flex flexColumn' onSubmit={e=>validarRegistro(e)}>
-            <input id='nomeDoUsuario' name='nomeDoUsuario' placeholder='Usuário'
+            <input id='nomeDoUsuario' name='nomeDoUsuario' placeholder='Usuário' required
               onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
             />
-            <input id='senha' name='senha' type='password' placeholder='Senha'
+            <input id='senha' name='senha' type='password' placeholder='Senha' required
               onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
             />
             <input id='confirmarSenha' name='confirmarSenha' type='password' placeholder='Repita a senha'
+              onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')} required
+            />
+            <input id='email' name='email' placeholder='E-mail'
               onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
             />
             <button className='alturaBase' type='submit'>

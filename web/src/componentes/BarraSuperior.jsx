@@ -222,7 +222,8 @@ export default function BarraSuperior() {
             <img className='botaoCopiar' src={iconeUsuario} onClick={e=>exibirMenuDoUsuario(e)}/>
           </div>
         :
-          <FormularioDeEntrada funcFecharMenu={()=>definirExibindoMenuDoUsuarioSuspenso(false)} cabecalho/>
+          urlAtual.pathname != '/entrar' &&
+            <FormularioDeEntrada funcFecharMenu={()=>definirExibindoMenuDoUsuarioSuspenso(false)} cabecalho/>
         }
       </div>
 
@@ -236,7 +237,7 @@ export default function BarraSuperior() {
         </div>
       }
 
-      {exibindoMenuDoUsuarioSuspenso &&
+      {exibindoMenuDoUsuarioSuspenso && urlAtual.pathname != '/entrar' &&
         <div className='gambiarra direita'>
           <div className='invisivel'>
           </div>

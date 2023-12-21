@@ -8,11 +8,11 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
   const [aguardando, definirAguardando] = useState(false);
-  const [mensagem, definirMensagem] = useState('');
   const urlAtual = useLocation();
+  const [mensagem, definirMensagem] = useState('');
   const historico = useHistory();
   const urlParams = new URLSearchParams(urlAtual.search);
-  const cabecalhoString = cabecalho ? 'Cabecalho' : '';
+  const cabecalhoString = (cabecalho || suspenso) ? 'Cabecalho' : '';
   //const [mensagemCabecalho, definirMensagemCabecalho] = useState('');
 
   useEffect(()=>{
@@ -21,8 +21,17 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
 
   useEffect(()=>{
     //definirMensagemCabecalho('');
-    if (componenteExiste)
+    if (componenteExiste){
       definirMensagem('');
+      if (urlAtual.state) {
+        //console.log('urlAtual.state.erro:'+cabecalho+suspenso);
+        //console.log(urlAtual.state.erro);
+        //console.log(urlAtual.state.nomeDoUsuario);
+        definirMensagem(urlAtual.state.erro);
+        document.getElementById('nomeDoUsuario').value = urlAtual.state.nomeDoUsuario;
+        document.getElementById('senha').focus();
+      }
+    }
     //console.log(urlAtual);
   }, [urlAtual])
 
@@ -36,6 +45,7 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
       //if (cabecalho)
       //  definirMensagemCabecalho('Digite seu nome de usuário.');
       //else
+      if (!cabecalho && !suspenso)
         definirMensagem('Digite seu nome de usuário.');
       return;
     }
@@ -44,6 +54,7 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
       //if (cabecalho)
       //  definirMensagemCabecalho('Digite sua senha.');
       //else
+      if (!cabecalho && !suspenso)
         definirMensagem('Digite sua senha.');
       return;
     }
@@ -94,7 +105,10 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
     .catch(erro=>{
       console.log(erro);
       //if (componenteExiste)
-        definirMensagem(''+erro);
+        if (!cabecalho && !suspenso)
+          definirMensagem(''+erro);
+        else if (urlAtual.pathname != '/entrar')
+          historico.push('/entrar?redir='+urlAtual.pathname.slice(1), {erro, nomeDoUsuario});
         definirAguardando(false);
     //})
     //.finally(()=>{
@@ -108,10 +122,10 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
     {!cabecalho && !suspenso && <h2>Entrar</h2>}
     <div className='comEspacoParaMensagemDeErro'>
       <form className={cabecalho ? 'flex' : 'flex flexColumn'} onSubmit={e=>validarEntrada(e)}>
-        <input id={'nomeDoUsuario'+cabecalhoString} name='nomeDoUsuario' placeholder='Usuário'
+        <input id={'nomeDoUsuario'+cabecalhoString} name='nomeDoUsuario' placeholder='Usuário' required
           onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}
         />
-        <input id={'senha'+cabecalhoString} name='senha' type='password' placeholder='Senha'
+        <input id={'senha'+cabecalhoString} name='senha' type='password' placeholder='Senha' required
           onChange={()=>definirMensagem('')} onClick={()=>definirMensagem('')}
         />
         <div className='manterSessao'>
@@ -120,6 +134,13 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
             Continuar conectado
           </label>
         </div>
+        {!cabecalho && !suspenso &&
+          <div className={!cabecalho && !suspenso ? 'registrar' : ''}>
+            <Link to='/recuperar-conta'>
+              Recuperar conta
+            </Link>
+          </div>
+        }
         <div className={'spaceEvenly ' + (suspenso ? 'formularioDeEntradaSuspenso' : 'flex')}>
           <button className='botaoEntrar alturaBase' type='submit'>
             {aguardando ? <img className='carregando' src={carregando}/> : 'Entrar'}
@@ -132,7 +153,7 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
         </div>
         {/*<p className='mensagemDeErroCentralizada'>{mensagem}</p>*/}
       </form>
-      {mensagem && <p className='mensagemDeErro'>{mensagem}</p>}
+      {mensagem && !cabecalho && !suspenso && <p className='mensagemDeErro'>{mensagem}</p>}
     </div>
     </>
   )

@@ -16,9 +16,12 @@ import Entrar from './paginas/Entrar'
 import NovoAnuncio from './paginas/NovoAnuncio'
 import MeusAnuncios from './paginas/MeusAnuncios'
 import { SERVIDOR } from '../../enderecoDoServidor';
+import RecuperarConta from './paginas/RecuperarConta'
+import RedefinirSenha from './paginas/RedefinirSenha'
 
 /*falta:
 -não reutilizar id no banco de dados
+-ajeitar pesquisa múltipla de disponibilidades
 -cadastrar jogo?
 */
 
@@ -150,6 +153,12 @@ export default function App() {
             </Route>
             <Route path='/entrar'>
               <Entrar/>
+            </Route>
+            <Route path='/recuperar-conta'>
+              <RecuperarConta/>
+            </Route>
+            <Route path='/redefinir-senha'>
+              <RedefinirSenha/>
             </Route>
             <Route path='/conta'>
               <Conta/>

@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 //import { PORTA } from '../../enderecoDoServidor';
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 const PORTA = '3333';
 
@@ -26,12 +27,21 @@ const abrirBanco = open({
 const BCRYPT_SALT_ROUNDS = 10;
 
 const DURACAO_DO_TOKEN_DE_SESSAO = 7 * 24*60*60*1000; //uma semana
+const DURACAO_DO_TOKEN_DE_RECUPERACAO = 10*60*1000; //10 minutos
 
 //procedimentos iniciais
 async function iniciar() {
 	const db = await abrirBanco;
 	await db.run(`DELETE FROM Sessoes WHERE dataDeExpiracao < ${Date.now()};`);
+	//await db.run(`DELETE FROM RecuperacoesDeConta WHERE dataDeExpiracao < ${Date.now()};`);
 
+	//await db.run(`ALTER TABLE RecuperacoesDeConta ADD COLUMN idDoUsuario INTEGER NOT NULL;`);
+	//await db.run(`CREATE TABLE IF NOT EXISTS RecuperacoesDeConta (
+	//	id INTEGER PRIMARY KEY,
+	//	token TEXT NOT NULL,
+	//	dataDeExpiracao DATETIME NOT NULL);`
+	//);
+	//await db.run(`ALTER TABLE Usuarios ADD COLUMN email TEXT;`);
 	/*/gera um anúncio aleatório sempre q inicio o server, só pra ir aumentando o tamanho msm
 	const jogo = await db.get(`SELECT id FROM Jogos WHERE nome = 'Sword of Mana';`);
 	const usuario = await db.get(`SELECT id FROM Usuarios WHERE nome = 'teste';`);
@@ -815,6 +825,20 @@ servidor.get('/anuncios-old', async (req, resp)=>{
 					${qualquerDia ? '' : ` AND dias LIKE '${diasQueJogaString}'`}
 				`);
 
+				//sqlDisp.push(`AND EXISTS
+				//(
+				//	SELECT * FROM Disponibilidades WHERE
+				//	(
+				//		horaDeInicio = horaDeTermino
+				//	OR
+				//		((horaDeTermino - horaDeInicio + 1440) % 1440)
+				//		- ((${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} - horaDeInicio + 1440) % 1440)
+				//		>= ((${pesqHoraDeTermino == undefined ? 'horaDeTermino' : pesqHoraDeTermino} - ${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} + 1440) % 1440)
+				//	)
+				//	${qualquerDia ? '' : ` AND dias LIKE '${diasQueJogaString}'`}
+				//)
+				//`);
+
 				//////////////////////////////
 
 				//disponibilidades.push({diasQueJoga, deHora, ateHora});
@@ -1123,6 +1147,7 @@ servidor.get('/anuncios-old', async (req, resp)=>{
 //pesquisa anúncios
 async function pesquisar(query, idDoUsuario) {
 	try {
+		//const tempoInicio = Date.now();
 		const camposPesquisados = {};
 		for (let c in query)
 			if(query[c])
@@ -1582,6 +1607,12 @@ async function pesquisar(query, idDoUsuario) {
 		//console.log('sqlAnuncios:');
 		//console.log(sqlAnuncios.replaceAll('\t','').replaceAll('\n',' '));
 
+		await db.run('EXPLAIN QUERY PLAN '+sqlAnuncios, [idDoUsuario, query.nomeNoJogo], function(err, rows) {
+			rows.forEach(function (row) {
+				console.log('a');
+			})
+		});
+
 		let anuncios2 = await db.all(sqlAnuncios, [idDoUsuario, query.nomeNoJogo]);
 		//console.log(anuncios2.map(an=>an.idDoAnuncio));
 		//console.log(anuncios2.length);
@@ -1693,8 +1724,10 @@ async function pesquisar(query, idDoUsuario) {
 		const anuncios = anuncios2.filter((a,i)=>
 			i >= (pagina-1)*resultadosPorPagina && i < pagina*resultadosPorPagina
 		);
+		//const tempoPesquisa = Date.now() - tempoInicio;
 //		console.log('GET anuncios, qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length+', ip='+req.ip);
 		console.log('qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length);
+		//console.log('tempoPesquisa='+tempoPesquisa);
 		//console.log(
 		//	'POST anuncios, qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length
 		//	+', ip='+req.ip+(qtdeCampos > 0 ? ', campos:' : '')
@@ -1933,8 +1966,8 @@ servidor.post('/usuarios', async (req, resp)=>{
 		//await db.run(`INSERT INTO Usuarios (id, nome, senhaHash, dataDeCriacao) VALUES (?,?,?,?);`,
 			//[uuidv4(), body.nomeDoUsuario, senhaHash, Date.now()],
 		const timeStampDoRegistro = Date.now();
-		await db.run(`INSERT INTO Usuarios (nome, senhaHash, dataDeCriacao) VALUES (?,?,?);`,
-			[body.nomeDoUsuario, senhaHash, timeStampDoRegistro],
+		await db.run(`INSERT INTO Usuarios (nome, senhaHash, email, dataDeCriacao) VALUES (?,?,?,?);`,
+			[body.nomeDoUsuario, senhaHash, body.email, timeStampDoRegistro],
 			function(erro) {
 				console.log('quando isso é executado??');
 				if (erro) {
@@ -1978,7 +2011,28 @@ servidor.post('/usuarios', async (req, resp)=>{
 	}
 });
 
-//altera senha
+//retorna dados pessoais do usuário
+servidor.get('/usuarios/:idDoUsuario/dados', async (req, resp)=>{
+	try {
+		const idDoUsuario = req.params.idDoUsuario;
+		console.log('GET usuarios/:idDoUsuario/dados='+idDoUsuario+', ip='+req.ip);
+		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
+		if (sessaoExiste.erro)
+			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
+		if (sessaoExiste.idDoUsuario != idDoUsuario) //lembrete: é possível isso?
+			return resp.status(409).json({erro: 'O token não pertence ao usuário informado.'});
+		const db = await abrirBanco;
+		const usuario = await db.get(`SELECT nome, email FROM Usuarios WHERE id = ${idDoUsuario};`);
+		return resp.status(200).json(usuario);
+	}
+	catch (erro) {
+		//console.log('entrou no catch');
+		console.log(erro);
+		return resp.status(500).json({erro: 'Erro interno no servidor.'});
+	}
+});
+	
+//altera dados do usuário
 servidor.put('/usuarios/:idDoUsuario', async (req, resp)=>{
 //servidor.put('/usuarios/senha', async (req, resp)=>{
 	try {
@@ -2038,46 +2092,150 @@ servidor.put('/usuarios/:idDoUsuario', async (req, resp)=>{
 			console.log('Senha incorreta.');
 			return resp.status(200).json({erro: 'Senha incorreta.'});
 		}*/
-		const novaSenhaIgual = await bcrypt.compare(body.novaSenha, usuarioExiste.senhaHash);
-		if (novaSenhaIgual) {
-			console.log('A nova senha não pode ser igual à atual.');
-			return resp.status(422).json({erro: 'A nova senha não pode ser igual à atual.'});
+		if (body.email) {
+			if (!body.email.match(
+				/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+			)) {
+				console.log('E-mail em formato inválido.');
+				return resp.status(400).json({erro: 'E-mail em formato inválido.'});
+			}
+			await db.run(`UPDATE Usuarios SET email = '${body.email}' WHERE id = ${sessaoExiste.idDoUsuario};`);
 		}
-		const novaSenhaHash = await bcrypt.hash(body.novaSenha, BCRYPT_SALT_ROUNDS);
+		if (body.novaSenha) {
+			const novaSenhaIgual = await bcrypt.compare(body.novaSenha, usuarioExiste.senhaHash);
+			if (novaSenhaIgual) {
+				console.log('A nova senha não pode ser igual à atual.');
+				return resp.status(422).json({erro: 'A nova senha não pode ser igual à atual.'});
+			}
+			const novaSenhaHash = await bcrypt.hash(body.novaSenha, BCRYPT_SALT_ROUNDS);
+			await db.run(
+				`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE id = ${sessaoExiste.idDoUsuario};`
+			);
+		}
 		//await db.run(`INSERT INTO Usuarios (id, nome, senhaHash, dataDeCriacao) VALUES (?,?,?,?);`,
 			//[uuidv4(), body.nomeDoUsuario, senhaHash, Date.now()],
 		//await db.run(
 		//	`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE nome = '${body.nomeDoUsuario}';`
 		//);
-		await db.run(`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE id = ${sessaoExiste.idDoUsuario};`,
-			function(erro) {
-				console.log('quando isso é executado?? - atualizando senha');
-				if (erro) {
-					console.log('erro:');
-					console.log(erro);
-					return console.log(erro);
-				}
-				console.log(`A row has been inserted with rowid ${this.lastID}`);
-				return this.lastID;
-			}
-		);
 		//exclui sessões de outros dispositivos
 		await db.run(
 			`DELETE FROM Sessoes
-			WHERE idDoUsuario = ${sessaoExiste.idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`,
-			function(erro) {
-				console.log('quando isso é executado?? - excluindo sessões');
-				if (erro) {
-					console.log('erro:');
-					console.log(erro);
-					return console.log(erro);
-				}
-				console.log(`A row has been inserted with rowid ${this.lastID}`);
-				return this.lastID;
-			}
+			WHERE idDoUsuario = ${sessaoExiste.idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`
 		);
-		console.log('Senha alterada com sucesso.');
-		return resp.status(200).json({ok: 'Senha alterada com sucesso.'});
+		console.log('Dados alterados com sucesso.');
+		return resp.status(200).json({ok: 'Dados alterados com sucesso.'});
+	}
+	catch (erro) {
+		//console.log('entrou no catch');
+		console.log(erro);
+		return resp.status(500).json({erro: 'Erro interno no servidor.'});
+	}
+});
+
+servidor.post('/recuperacao-de-conta', async (req, resp)=>{
+	try {
+		const body = req.body;
+		console.log('POST recuperacao-de-conta, ip='+req.ip);
+		const db = await abrirBanco;
+		const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE email = (?);`, [body.email]);
+		if (!usuarioExiste) {
+			console.log('Conta não encontrada.');
+			return resp.status(404).json({erro: 'Conta não encontrada.'});
+		}
+		await db.run(`DELETE FROM RecuperacoesDeConta WHERE idDoUsuario = ${usuarioExiste.id};`);
+		const uuidDoToken = uuidv4();
+		const uuidDoTokenHash = await bcrypt.hash(uuidDoToken, BCRYPT_SALT_ROUNDS);
+		const dataDeExpiracao = Date.now() + DURACAO_DO_TOKEN_DE_RECUPERACAO;
+		await db.run(//renomear token aki
+			`INSERT INTO RecuperacoesDeConta (idDoUsuario, token, dataDeExpiracao)
+			VALUES (${usuarioExiste.id}, '${uuidDoTokenHash}', ${dataDeExpiracao});`
+		);
+		const emailEnviado = await enviarEmail(body.email, 'Assunto',
+			`<a href='http://localhost:3000/redefinir-senha?token=${uuidDoToken}&id=${usuarioExiste.id}'>
+				Redefinir senha
+			</a>`
+		);
+		if (emailEnviado.erro)
+			return resp.status(emailEnviado.status).json({erro: emailEnviado.erro});
+		return resp.status(200).json({ok: 'E-mail enviado com sucesso.'});
+	}
+	catch (erro) {
+		//console.log('entrou no catch');
+		console.log(erro);
+		return resp.status(500).json({erro: 'Erro interno no servidor.'});
+	}
+});
+
+async function enviarEmail(email, assunto, texto) {
+	try {
+		//console.log('entrou em enviarEmail');
+		const transporter = nodemailer.createTransport({
+			host: 'sandbox.smtp.mailtrap.io',
+			//service: process.env.SERVICE,
+			port: 587,
+			//secure: true,
+			auth: {
+				user: '2532e002f2d871',
+				pass: '1d9fa7da00c108',
+			},
+		});
+		//transporter.verify(function(error, success) {
+		//	if (error) {
+		//		console.log(error);
+		//	} else {
+		//		console.log('Server is ready to take our messages');
+		//	}
+		//});
+		//console.log('passou d verify');
+		await transporter.sendMail({
+			from: 'naoresponda@teste.com',
+			to: email,
+			subject: assunto,
+			text: texto,
+			html: texto
+		});
+		console.log('E-mail enviado com sucesso.');
+		return {enviado: true};
+	} catch (erro) {
+		console.log('Erro ao enviar e-mail:');
+		console.log(erro);
+		return {status: 500, erro};
+	}
+}
+
+servidor.post('/redefinicao-de-senha', async (req, resp)=>{
+	try {
+		const body = req.body;
+		console.log('POST redefinicao-de-senha, ip='+req.ip);
+		const db = await abrirBanco;
+		const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE id = (?);`, [body.idDoUsuario]);
+		if (!usuarioExiste) {
+			console.log('Conta não encontrada.');
+			return resp.status(404).json({erro: 'Conta não encontrada.'});
+		}
+		const recuperacaoExiste = await db.get(
+			`SELECT token, dataDeExpiracao FROM RecuperacoesDeConta WHERE idDoUsuario = ${body.idDoUsuario};`
+		);
+		if (!recuperacaoExiste) {
+			console.log('Redefinição de senha inexistente.');
+			return resp.status(401).json({erro: 'Redefinição de senha inexistente.'});
+		}
+		if(recuperacaoExiste.dataDeExpiracao < Date.now()) {
+			console.log('Redefinição de senha expirada.');
+			return resp.status(401).json({erro: 'Redefinição de senha expirada.'});
+		}
+		//lembrete: renomear token aki
+		const recuperacaoValida = await bcrypt.compare(body.token, recuperacaoExiste.token);
+		if (!recuperacaoValida) {
+			console.log('Redefinição inválida.');
+			return {status: 401, erro: {descricao: 'Redefinição inválida.', codigo: 401}};
+		}
+		const novaSenhaHash = await bcrypt.hash(body.novaSenha, BCRYPT_SALT_ROUNDS);
+		await db.run(
+			`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE id = ${body.idDoUsuario};`
+		);
+		await db.run(`DELETE FROM RecuperacoesDeConta WHERE idDoUsuario = ${body.idDoUsuario};`);
+		return resp.status(200).json({ok: 'Senha redefinida com sucesso.'});
 	}
 	catch (erro) {
 		//console.log('entrou no catch');

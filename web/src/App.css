@@ -531,6 +531,10 @@ h2 {
   text-align: end;
 }
 
+.justifyEnd {
+  justify-content: end;
+}
+
 .formularioDePesquisa input, .formularioDePesquisa select {
   align-self: start;
 }
@@ -556,6 +560,9 @@ label.paginaAtual {
 .paginas {
   height: fit-content;
   max-width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
 }
 
 .excluirConta {
@@ -632,4 +639,22 @@ label.paginaAtual {
 
 .botaoMais {
   align-self: start;
+}
+
+.emailRecuperar {
+  width: 20rem;
+  text-align: center;
+}
+
+.configuracoes{
+	display: flex;
+	gap: 0.5rem;
+  flex-direction: column;
+  align-items: center;
+}
+
+.configuracoes label {
+  color: #d4d4d8;
+  margin: 0;
+  font-size: 87.5%;
 }
