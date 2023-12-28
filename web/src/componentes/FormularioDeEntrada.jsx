@@ -23,7 +23,7 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
     //definirMensagemCabecalho('');
     if (componenteExiste){
       definirMensagem('');
-      if (urlAtual.state) {
+      if (urlAtual.state && (urlAtual.state.erro || urlAtual.state.nomeDoUsuario)) {
         //console.log('urlAtual.state.erro:'+cabecalho+suspenso);
         //console.log(urlAtual.state.erro);
         //console.log(urlAtual.state.nomeDoUsuario);

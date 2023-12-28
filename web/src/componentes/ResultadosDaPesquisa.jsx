@@ -160,7 +160,7 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
         definirTempoDePesquisa(tempoPesquisa);
         //console.log('tempoPesquisa='+tempoPesquisa);
         if(urlAtual.state){
-          console.log(urlAtual.state.posicao);
+          //console.log(urlAtual.state.posicao);
           window.scrollTo(0,urlAtual.state.posicao);
         }
       }
