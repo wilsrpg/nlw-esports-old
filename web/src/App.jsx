@@ -21,7 +21,7 @@ import RedefinirSenha from './paginas/RedefinirSenha'
 
 /*falta:
 -não reutilizar id no banco de dados
--ajeitar pesquisa múltipla de disponibilidades
+-mudar nomenclatura no banco de dados pra este_padrao
 -cadastrar jogo?
 */
 

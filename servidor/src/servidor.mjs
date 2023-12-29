@@ -32,9 +32,54 @@ const DURACAO_DO_TOKEN_DE_RECUPERACAO = 10*60*1000; //10 minutos
 //procedimentos iniciais
 async function iniciar() {
 	const db = await abrirBanco;
-	await db.run(`DELETE FROM Sessoes WHERE dataDeExpiracao < ${Date.now()};`);
+	//await db.run(`DELETE FROM Sessoes WHERE dataDeExpiracao < ${Date.now()};`);
 	//await db.run(`DELETE FROM RecuperacoesDeConta WHERE dataDeExpiracao < ${Date.now()};`);
 
+	//await db.run('PRAGMA foreign_keys=off;');
+	//await db.run('ALTER TABLE Disponibilidades RENAME TO Disponibilidades_old;');
+	//await db.run('ALTER TABLE Disponibilidades2 RENAME TO Disponibilidades;');
+	//await db.run('PRAGMA foreign_keys=on;');
+
+	//await db.run(
+	//	`CREATE TABLE Disponibilidades2 (
+	//		id INTEGER PRIMARY KEY,
+	//		idDoAnuncio INTEGER NOT NULL,
+	//		horaDeInicio INTEGER NOT NULL,
+	//		horaDeTermino INTEGER NOT NULL,
+	//		FOREIGN KEY (idDoAnuncio) REFERENCES Anuncios (idDoAnuncio)
+	//		ON DELETE CASCADE
+	//	);`
+	//);
+	//await db.run(
+	//	`INSERT INTO Disponibilidades2
+	//	SELECT id,idDoAnuncio,horaDeInicio,horaDeTermino
+	//	FROM Disponibilidades;`
+	//);
+
+	//const disps = await db.all(`SELECT id, dias FROM Disponibilidades`);
+	//disps.map(disp=>{
+	//	disp.diasArray = disp.dias.split(',').map(d=>Number(d));
+	//});
+	//let i = 0;
+	//while (i < disps.length) {
+	//	let placeholders = disps[i].diasArray.map(d => `(${disps[i].id},?)`).join(',');
+	//	//let sql = 'INSERT INTO DiasDasDisponibilidades(idDaDisponibilidade, dia) VALUES ' + placeholders;
+	//	//console.log(sql);
+	//	await db.run(
+	//		`INSERT INTO DiasDasDisponibilidades (idDaDisponibilidade, dia) VALUES ${placeholders};`,
+	//		disps[i].diasArray
+	//	);
+	//	i++;
+	//}
+	//await db.run(`CREATE TABLE IF NOT EXISTS DiasDasDisponibilidades (
+	//	id INTEGER PRIMARY KEY,
+	//	idDaDisponibilidade INTEGER NOT NULL,
+	//	dia INTEGER NOT NULL,
+	//	FOREIGN KEY (idDaDisponibilidade) REFERENCES Disponibilidades (id)
+	//	ON DELETE CASCADE);`
+	//);
+	//await db.run(`UPDATE Disponibilidades SET id = rowid WHERE id = 'rowid';`); //rowid foi considerado string kk
+	//await db.run(`ALTER TABLE Disponibilidades ADD COLUMN id INTEGER NOT NULL DEFAULT rowid;`);
 	//await db.run(`ALTER TABLE RecuperacoesDeConta ADD COLUMN idDoUsuario INTEGER NOT NULL;`);
 	//await db.run(`CREATE TABLE IF NOT EXISTS RecuperacoesDeConta (
 	//	id INTEGER PRIMARY KEY,
@@ -43,22 +88,23 @@ async function iniciar() {
 	//);
 	//await db.run(`ALTER TABLE Usuarios ADD COLUMN email TEXT;`);
 	/*/gera um anúncio aleatório sempre q inicio o server, só pra ir aumentando o tamanho msm
-	const jogo = await db.get(`SELECT id FROM Jogos WHERE nome = 'Sword of Mana';`);
-	const usuario = await db.get(`SELECT id FROM Usuarios WHERE nome = 'teste';`);
+	const {qtdeAnuncios} = await db.get(`SELECT COUNT(1) AS qtdeAnuncios FROM Anuncios;`);
+	//const jogo = await db.get(`SELECT id FROM Jogos WHERE nome = 'Sword of Mana';`);
+	//const usuario = await db.get(`SELECT id FROM Usuarios WHERE nome = 'teste';`);
 	const timeStampDaPublicacao = Date.now();
 	const anuncio = {
-		idDoJogo: jogo.id,
-		idDoUsuario: usuario.id,
+		idDoJogo: 1,
+		idDoUsuario: 1,
 		nomeNoJogo: 'Teste de anúncio gerado automaticamente',
-		tempoDeJogoEmMeses: timeStampDaPublicacao % 1000,
-		discord: 'Testando 123, testando 123, e1e2e3 e1e2e3 e1e2',
-		usaChatDeVoz: Boolean(timeStampDaPublicacao % 2),
+		tempoDeJogoEmMeses: qtdeAnuncios % 1200,
+		discord: 'Testando, 123, testando, 123, e1e2e3 e1e2e3 e1e2',
+		usaChatDeVoz: Boolean(qtdeAnuncios % 2),
 		disponibilidades: []
 	};
 	//gera entre 1 e 5 disponibilidades
-	for (let i = 0; i < (timeStampDaPublicacao % 5 + 1); i++) {
+	for (let i = 0; i < (qtdeAnuncios % 5 + 1); i++) {
 		const dias = [];
-		dias.push(timeStampDaPublicacao % 7);
+		dias.push(qtdeAnuncios % 7);
 		for (let i = dias[0]+1; i < 7; i++)
 			if ((timeStampDaPublicacao / Math.pow(10,i)) % 2)
 				dias.push(i);
@@ -129,7 +175,7 @@ async function iniciar() {
 	//	dias TEXT NOT NULL,
 	//	horaDeInicio INTEGER NOT NULL,
 	//	horaDeTermino INTEGER NOT NULL,
-	//	FOREIGN KEY (idDoAnuncio) REFERENCES Anuncios2(idDoAnuncio)
+	//	FOREIGN KEY (idDoAnuncio) REFERENCES Anuncios2 (idDoAnuncio)
 	//	ON DELETE CASCADE);`
 	//);
 
@@ -425,8 +471,8 @@ servidor.post('/anuncios', async (req, resp)=>{
 			let horaAte = anuncio.disponibilidades[i].horaDeTermino;
 			for (let j = 0; j < dias.length; j++)
 				if (isNaN(dias[j]) || dias[j] < 0 || dias[j] > 6)
-			//formato da hora deve ser 2 números, ":", 2 números, sem caracteres antes nem depois
 					return resp.status(400).json({erro: 'Dias em formato inválido.'});
+			//formato da hora deve ser 2 números, ":", 2 números, sem caracteres antes nem depois
 			if (!horaDe.match(/^\d{2}:\d{2}$/))
 				return resp.status(400).json({erro: 'Horário em formato inválido.'});
 			if (!horaAte.match(/^\d{2}:\d{2}$/))
@@ -473,19 +519,10 @@ servidor.post('/anuncios', async (req, resp)=>{
 			`INSERT INTO Anuncios (idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, discord, usaChatDeVoz,
 				dataDeCriacao)
 			VALUES (?,?,?,?,?,?,?);`,
-			[anuncio.idDoJogo, sessaoExiste.idDoUsuario, anuncio.nomeNoJogo, anuncio.tempoDeJogoEmMeses,
+			[
+				anuncio.idDoJogo, sessaoExiste.idDoUsuario, anuncio.nomeNoJogo, anuncio.tempoDeJogoEmMeses,
 				anuncio.discord, anuncio.usaChatDeVoz, timeStampDaPublicacao
-			],
-			function(erro) {
-				console.log('quando isso é executado??');
-				if (erro) {
-					console.log('erro:');
-					console.log(erro);
-					return console.log(erro);
-				}
-				console.log(`A row has been inserted with rowid ${this.lastID}`);
-				return this.lastID;
-			}
+			]
 		);
 		const anuncioPublicado = await db.get(
 			`SELECT idDoAnuncio FROM Anuncios WHERE dataDeCriacao = ${timeStampDaPublicacao};`
@@ -493,24 +530,34 @@ servidor.post('/anuncios', async (req, resp)=>{
 
 		let i = 0;
 		while (i < anuncio.disponibilidades.length) {
+			//await db.run(
+			//	`INSERT INTO Disponibilidades (idDoAnuncio, dias, horaDeInicio, horaDeTermino)
+			//	VALUES (?,?,?,?);`,
+			//	[
+			//		anuncioPublicado.idDoAnuncio, anuncio.disponibilidades[i].dias,
+			//		converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeInicio),
+			//		converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeTermino)
+			//	]
+			//);
 			await db.run(
-				`INSERT INTO Disponibilidades (idDoAnuncio, dias, horaDeInicio, horaDeTermino)
-				VALUES (?,?,?,?);`,
-				[anuncioPublicado.idDoAnuncio, anuncio.disponibilidades[i].dias,
+				`INSERT INTO Disponibilidades (idDoAnuncio, horaDeInicio, horaDeTermino) VALUES (?,?,?);`,
+				[
+					anuncioPublicado.idDoAnuncio,
 					converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeInicio),
 					converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeTermino)
-				],
-				function(err) {
-					console.log('quando isso é executado??');
-					if (err) {
-						console.log('erro:');
-						console.log(err);
-						return console.log(err);
-					}
-					console.log(`A row has been inserted with rowid ${this.lastID}`);
-					return this.lastID;
-				}
+				]
 			);
+			const disp = await db.get(`SELECT MAX(id) AS id FROM Disponibilidades`);
+			//console.log(disp);
+			let j = 0;
+			let dias = anuncio.disponibilidades[i].dias.split(',').map(d=>parseInt(d));
+			while (j < dias.length) {
+				await db.run(
+					`INSERT INTO DiasDasDisponibilidades (idDaDisponibilidade, dia) VALUES (?,?);`,
+					[disp.id, dias[j]]
+				);
+				j++;
+			}
 			i++;
 			//console.log(i+','+body.disponibilidades.length);
 		}
@@ -525,7 +572,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 	}
 });
 
-//pesquisa anúncios
+//pesquisa anúncios (com erro)
 servidor.get('/anuncios-old', async (req, resp)=>{
 	try {
 		//const body = req.body;
@@ -824,6 +871,9 @@ servidor.get('/anuncios-old', async (req, resp)=>{
 					)
 					${qualquerDia ? '' : ` AND dias LIKE '${diasQueJogaString}'`}
 				`);
+				//ERRO: se pesquisando mais de um dia de uma vez só (ex.: finsDeSemana), essa consulta não encontra
+				//anúncios com dias em disponibilidades diferentes (ex.: sábado em hora X e domingo em hora X ou Y);
+				//só encontra se estiverem na mesma disponibilidade (ex.: sábado e domingo em hora X)
 
 				//sqlDisp.push(`AND EXISTS
 				//(
@@ -1156,9 +1206,9 @@ async function pesquisar(query, idDoUsuario) {
 			delete camposPesquisados.qtdeFiltrosDisponibilidade;
 		const qtdeCampos = Object.entries(camposPesquisados).length;
 		
-		if (!query.jogo) query.jogo = '%';
+		//if (!query.jogo) query.jogo = '%';
 
-		if (!idDoUsuario) idDoUsuario = '%';
+		//if (!idDoUsuario) idDoUsuario = '%';
 		//console.log('body.idDoUsuario='+body.idDoUsuario);
 		
 		let naoContem = false, exatamente = false;
@@ -1174,9 +1224,11 @@ async function pesquisar(query, idDoUsuario) {
 
 		//if (!body.discord) body.discord = '%';
 		
-		let tempoDeJogoEmMeses = 0;
-		let tempoDeJogoEmMeses2 = 0;
+		let tempoDeJogoEmMeses;
+		let tempoDeJogoEmMeses2;
 		let noMaximo = false, entre = false;
+		if (query.tempoDeJogoAnos || query.tempoDeJogoMeses)
+			tempoDeJogoEmMeses = 0;
 		if (query.tempoDeJogoAnos) {
 			tempoDeJogoEmMeses += parseInt(query.tempoDeJogoAnos)*12;
 		}
@@ -1188,13 +1240,15 @@ async function pesquisar(query, idDoUsuario) {
 				noMaximo = true;
 			else if (query.opcoesTempo == 'entre' && (query.tempoDeJogoAnos2 || query.tempoDeJogoMeses2)) {
 				entre = true;
+				tempoDeJogoEmMeses2 = 0;
 				if (query.tempoDeJogoAnos2)
 					tempoDeJogoEmMeses2 += parseInt(query.tempoDeJogoAnos2)*12;
 				if (query.tempoDeJogoMeses2)
 					tempoDeJogoEmMeses2 += parseInt(query.tempoDeJogoMeses2);
 			}
 		}
-		if(isNaN(tempoDeJogoEmMeses) || isNaN(tempoDeJogoEmMeses2))
+		if((tempoDeJogoEmMeses != undefined && isNaN(tempoDeJogoEmMeses))
+		|| (tempoDeJogoEmMeses2 != undefined && isNaN(tempoDeJogoEmMeses2)))
 			//return resp.status(400).json({erro: 'Tempo de jogo em formato inválido.'});
 			return {status: 400, erro: 'Tempo de jogo em formato inválido.'};
 
@@ -1213,7 +1267,7 @@ async function pesquisar(query, idDoUsuario) {
 				return {status: 400, erro: 'Horário em formato inválido.'};
 			}
 
-		let usaChatDeVoz = '%';
+		let usaChatDeVoz;
 		if (query.usaChatDeVoz) {
 			if (query.usaChatDeVoz == 'sim')
 				usaChatDeVoz = 1;
@@ -1351,46 +1405,49 @@ async function pesquisar(query, idDoUsuario) {
 		
 		//console.log('dps do filtro d tempoDeJogoEntre e ants do d disponibilidade, qtde= '+anuncios.length);
 		
-		const sqlDisp = [];
+		//const sqlDisp = [];
+		let sqlDisp2 = [];
 
 		if (query.qtdeFiltrosDisponibilidade) {
 			//const disponibilidades = [];
-			let qualquerDia = false;
-			//let diasQueJoga;
+			let qualquerDia;
+			let diasQueJoga = [];
 			const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
 			let deHora;
 			let ateHora;
 			//let anunciosOu = [];
-			let diasQueJogaString = '';
+			//let diasQueJogaString = '';
 
 			for (let i = 0; i < query.qtdeFiltrosDisponibilidade; i++) {
 				//console.log('ants do filtro '+i);
 				//console.log(anuncios);
+				qualquerDia = false;
 				
 				let id = i == 0 ? '' : i+1;
 				if (query['quando'+id] == 'qualquerDia')
 					qualquerDia = true;
-				if (query['quando'+id] == 'qualquerDia' || query['quando'+id] == 'todoDia') {
+				//if (query['quando'+id] == 'qualquerDia' || query['quando'+id] == 'todoDia') {
+				if (query['quando'+id] == 'todoDia') {
 					//diasQueJoga = '.*';
 				//	diasQueJoga = [];
 				//else if (body['quando'+id] == 'todoDia')
 					//diasQueJoga = '0,1,2,3,4,5,6';
-					diasQueJogaString = '0,1,2,3,4,5,6';
-					//diasQueJoga = [0,1,2,3,4,5,6];
+					//diasQueJogaString = '0,1,2,3,4,5,6';
+					diasQueJoga = [0,1,2,3,4,5,6];
 				} else if (query['quando'+id] == 'semana') {
 					//diasQueJoga = '.*1,2,3,4,5.*';
-					diasQueJogaString = '%1,2,3,4,5%';
-					//diasQueJoga = [1,2,3,4,5];
+					//diasQueJogaString = '%1,2,3,4,5%';
+					diasQueJoga = [1,2,3,4,5];
 				} else if (query['quando'+id] == 'finsDeSemana') {
 					//diasQueJoga = '0.*6';
-					diasQueJogaString = '0%6';
-					//diasQueJoga = [0,6];
+					//diasQueJogaString = '0%6';
+					diasQueJoga = [0,6];
 				} else
 					dias.some((dia,i)=>{
 						if (dia == query['quando'+id]) {
 							//diasQueJoga = '.*'+i+'.*';
-							diasQueJogaString = '%'+i+'%';
-							//diasQueJoga = [i];
+							//diasQueJogaString = '%'+i+'%';
+							diasQueJoga = [i];
 							return true;
 						}
 					});
@@ -1417,6 +1474,7 @@ async function pesquisar(query, idDoUsuario) {
 				//if (pesqHoraDeInicio == undefined && pesqHoraDeTermino == undefined)
 				//	pesqHoraDeInicio = pesqHoraDeTermino = 0;
 
+
 				//Explicação da query abaixo:
 				//-horaDeInicio == horaDeTermino: [jogaDiaTodo] o anunciante joga durante 24h
 				//-(horaDeTermino - horaDeInicio + 1440) % 1440: [periodoDisp] valor positivo da qtde de tempo
@@ -1434,15 +1492,78 @@ async function pesquisar(query, idDoUsuario) {
 				// )
 				//E
 				// diasBatem (exceto se puder ser qualquer dia)
-				sqlDisp.push(`(
-						horaDeInicio = horaDeTermino
-					OR
-						((horaDeTermino - horaDeInicio + 1440) % 1440)
-						- ((${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} - horaDeInicio + 1440) % 1440)
-						>= ((${pesqHoraDeTermino == undefined ? 'horaDeTermino' : pesqHoraDeTermino} - ${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} + 1440) % 1440)
+
+				//sqlDisp.push(`
+				//	(
+				//		horaDeInicio = horaDeTermino
+				//	OR
+				//		((horaDeTermino - horaDeInicio + 1440) % 1440)
+				//		- ((${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} - horaDeInicio + 1440) % 1440)
+				//		>= ((${pesqHoraDeTermino == undefined ? 'horaDeTermino' : pesqHoraDeTermino} - ${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} + 1440) % 1440)
+				//	)
+				//	${qualquerDia ? '' : ` AND dias LIKE '${diasQueJogaString}'`}
+				//`);
+
+				const consultaHorario = `(
+					horaDeInicio = horaDeTermino
+				OR
+					((horaDeTermino - horaDeInicio + 1440) % 1440)
+					- ((${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} - horaDeInicio + 1440) % 1440)
+					>= ((${pesqHoraDeTermino == undefined ? 'horaDeTermino' : pesqHoraDeTermino} - ${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} + 1440) % 1440)
+				)`;
+
+				//sqlDisp.push(
+				//	qualquerDia ?
+				//		consultaHorario
+				//	:
+				//		diasQueJoga.map(d=>
+				//			`EXISTS (
+				//				SELECT idDoAnuncio FROM Disponibilidades WHERE
+				//				${(pesqHoraDeInicio == undefined && pesqHoraDeTermino == undefined) ? '' :
+				//					consultaHorario + ' AND '
+				//				}
+				//				dias LIKE '${d}'
+				//			)`
+				//		).join(' AND ')
+				//);
+
+				//console.log(qualquerDia);
+				sqlDisp2.push(`Anuncios.idDoAnuncio IN (
+					SELECT idDoAnuncio
+					FROM (
+						SELECT Disponibilidades.id, idDoAnuncio, dia
+						FROM Disponibilidades JOIN DiasDasDisponibilidades
+						ON Disponibilidades.id = DiasDasDisponibilidades.idDaDisponibilidade
+						${//WHERE (dia = {0} AND consultaHorario) 'OR' (dia = {1} AND consultaHorario)
+						''}
+						WHERE ${qualquerDia ?
+								consultaHorario
+							:
+								diasQueJoga.map(d=>{
+									return (
+									'(dia = '+d
+									+ ((pesqHoraDeInicio == undefined && pesqHoraDeTermino == undefined) ? '' :
+										(' AND ' + consultaHorario))
+									+ ')'
+								);
+							//}).join(disponivelEmQualquer ? ' OR ' : ' AND ')
+							}).join(' AND ')
+						}
+						GROUP BY idDoAnuncio,dia
 					)
-					${qualquerDia ? '' : ` AND dias LIKE '${diasQueJogaString}'`}
-				`);
+					GROUP BY idDoAnuncio
+					HAVING COUNT(idDoAnuncio) >= ${diasQueJoga.length}
+				)`);
+				
+				/*
+				select id_anuncio,count(dia) as 'dias' from (select disp_dia.id,id_anuncio,dia FROM disp_dia join disp on disp.id_disp_dia = disp_dia.id
+				where (dia = 0 and hora_ini >= 10) or (dia = 1 and hora_ini >= 13) group by id_anuncio,dia) disp_d 
+				group by id_anuncio having count(id_anuncio) >= 2;
+				--alterar o primeiro 'where'
+				--alterar numero depois do 'having' no final pelo count dos dias
+
+				vlw, willameee
+				*/
 
 				//////////////////////////////
 
@@ -1574,7 +1695,9 @@ async function pesquisar(query, idDoUsuario) {
 
 		const jogos = await db.all(`SELECT id, nome, nomeUrl FROM Jogos;`);
 
-		const jogo = jogos.find(j=>j.nomeUrl == query.jogo);
+		let jogo;
+		if (query.jogo)
+			jogo = jogos.find(j=>j.nomeUrl == query.jogo);
 		//console.log(jogo);
 		//let jogo;
 		//if (body.jogo != '%')
@@ -1592,45 +1715,64 @@ async function pesquisar(query, idDoUsuario) {
 		//lembrete: remover idDoUsuario do resultado (vazamento de informação?)
 		let sqlAnuncios = `SELECT Anuncios.idDoAnuncio
 				, idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, usaChatDeVoz, dataDeCriacao
-			FROM Anuncios JOIN Disponibilidades
-			ON Anuncios.idDoAnuncio = Disponibilidades.idDoAnuncio
-			WHERE idDoUsuario ${idDoUsuario == '%' ? 'LIKE' : '=' } (?)
+			FROM Anuncios
+			JOIN Disponibilidades ON Anuncios.idDoAnuncio = Disponibilidades.idDoAnuncio
+			JOIN DiasDasDisponibilidades ON Disponibilidades.id = idDaDisponibilidade
+			WHERE nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
+				${idDoUsuario ? `AND idDoUsuario = '${idDoUsuario}'` : ''}
 				${jogo ? `AND idDoJogo = ${jogo.id}` : ''}
-				AND nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
-				AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} ${tempoDeJogoEmMeses}
-				${entre ? 'AND tempoDeJogoEmMeses <='+tempoDeJogoEmMeses2 : ''}
-				AND usaChatDeVoz LIKE '${usaChatDeVoz}'
-				${sqlDisp.length > 0 ? ' AND ' : ' '} ${sqlDisp.join(disponivelEmQualquer ? ' OR ' : ' AND ')}
-			GROUP BY Anuncios.idDoAnuncio
+				${tempoDeJogoEmMeses == undefined ? '' :
+					`AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} ${tempoDeJogoEmMeses}`
+				}
+				${entre ? 'AND tempoDeJogoEmMeses <=' + tempoDeJogoEmMeses2 : ''}
+				${usaChatDeVoz == undefined ? '' : `AND usaChatDeVoz = ${usaChatDeVoz}`}
+
+				${//sqlDisp.length > 0 ? ' AND ' + sqlDisp.join(disponivelEmQualquer ? ' OR ' : ' AND ') : ''
+				''}
+				${sqlDisp2.length > 0 ? ' AND ' + sqlDisp2.join(disponivelEmQualquer ? ' OR ' : ' AND ') : ''}
+			
+				GROUP BY Anuncios.idDoAnuncio
 			ORDER BY dataDeCriacao DESC;`;
 		
 		//console.log('sqlAnuncios:');
 		//console.log(sqlAnuncios.replaceAll('\t','').replaceAll('\n',' '));
+		//console.log(sqlDisp);
+		//console.log(sqlDisp2.join(disponivelEmQualquer ? ' OR ' : ' AND ').replaceAll('\t','').replaceAll('\n',' '));
 
-		await db.run('EXPLAIN QUERY PLAN '+sqlAnuncios, [idDoUsuario, query.nomeNoJogo], function(err, rows) {
-			rows.forEach(function (row) {
-				console.log('a');
-			})
-		});
+		//await db.run('EXPLAIN QUERY PLAN '+sqlAnuncios, [idDoUsuario, query.nomeNoJogo], function(err, rows) {
+		//	rows.forEach(function (row) {
+		//		console.log('a');
+		//	})
+		//});
 
-		let anuncios2 = await db.all(sqlAnuncios, [idDoUsuario, query.nomeNoJogo]);
+		let anuncios = await db.all(sqlAnuncios, [query.nomeNoJogo]);
 		//console.log(anuncios2.map(an=>an.idDoAnuncio));
 		//console.log(anuncios2.length);
 
-		let idsDosAnuncios2 = anuncios2.map(an=>an.idDoAnuncio).join();
+		const idsDosAnuncios = anuncios.map(an=>an.idDoAnuncio).join();
 		//console.log(idsDosAnuncios);
 		//let an2 = await db.all(
 		//	`SELECT idDoAnuncio, idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, usaChatDeVoz, dataDeCriacao
 		//	FROM Anuncios
 		//	WHERE idDoAnuncio IN (${idsDosAnuncios2});`
 		//);
-		let disponibilidades2 = await db.all(
-			`SELECT idDoAnuncio, dias, horaDeInicio, horaDeTermino
+		const disponibilidades = await db.all(
+			`SELECT id, idDoAnuncio, horaDeInicio, horaDeTermino
 			FROM Disponibilidades
-			WHERE idDoAnuncio IN (${idsDosAnuncios2});`
+			WHERE idDoAnuncio IN (${idsDosAnuncios});`
 		);
 		//console.log('qtde disp='+disponibilidades.length);
-		anuncios2.map(an=>{
+		const idsDasDisponibilidades = disponibilidades.map(disp=>disp.id).join();
+		const diasDasDisponibilidades = await db.all(
+			`SELECT idDaDisponibilidade, dia
+			FROM DiasDasDisponibilidades
+			WHERE idDaDisponibilidade IN (${idsDasDisponibilidades});`
+		);
+		disponibilidades.map(disp=>{
+			disp.dias = diasDasDisponibilidades.filter(d=>d.idDaDisponibilidade == disp.id).map(d=>d.dia);
+		});
+
+		anuncios.map(an=>{
 			jogos.some(j=>{
 				if (j.id == an.idDoJogo) {
 					an.nomeDoJogo = j.nome;
@@ -1643,8 +1785,17 @@ async function pesquisar(query, idDoUsuario) {
 			//		return j.nome;
 			//})
 			//console.log(an.nomeDoJogo);
-			an.disponibilidades = disponibilidades2.filter(disp=>disp.idDoAnuncio == an.idDoAnuncio);
+			an.disponibilidades = disponibilidades.filter(disp=>disp.idDoAnuncio == an.idDoAnuncio);
 			//console.log(an.disponibilidades);
+		});
+
+		anuncios.map(an=>{
+			an.disponibilidades.map(disp=>{
+				delete disp.idDoAnuncio;
+				//disp.dias = disp.dias.split(',');
+				disp.horaDeInicio = converterMinutosParaHoraString(disp.horaDeInicio);
+				disp.horaDeTermino = converterMinutosParaHoraString(disp.horaDeTermino);
+			});
 		});
 
 		//console.log('anúncios ants d ordenar:');
@@ -1655,14 +1806,14 @@ async function pesquisar(query, idDoUsuario) {
 
 		if (ordenarPor == 'dias'){
 			//console.log(anuncios2[0].disponibilidades[0][ordenarPor]);
-			anuncios2.sort((a,b)=>
+			anuncios.sort((a,b)=>
 				a.disponibilidades[0][ordenarPor].localeCompare(b.disponibilidades[0][ordenarPor].search())
 			);
 		}
 		else 
 		if (ordenarPor == 'horaDeInicio' || ordenarPor == 'horaDeTermino'){
 			//console.log(anuncios2[0].disponibilidades[0][ordenarPor]);
-			anuncios2.sort((a,b)=>a.disponibilidades[0][ordenarPor] - b.disponibilidades[0][ordenarPor]);
+			anuncios.sort((a,b)=>a.disponibilidades[0][ordenarPor] - b.disponibilidades[0][ordenarPor]);
 		}
 		//else if (ordenarPor == 'tempoDeJogoEmMeses')
 		//	anuncios2.sort((a,b)=>a[ordenarPor] - b[ordenarPor]);
@@ -1671,30 +1822,21 @@ async function pesquisar(query, idDoUsuario) {
 		else 
 		if (ordenarPor == 'nomeUrlDoJogo' || ordenarPor == 'nomeNoJogo'){
 			//console.log(anuncios2[0][ordenarPor]);
-			anuncios2.sort((a,b)=>a[ordenarPor].toLowerCase().localeCompare(b[ordenarPor].toLowerCase()));
+			anuncios.sort((a,b)=>a[ordenarPor].toLowerCase().localeCompare(b[ordenarPor].toLowerCase()));
 		}
 		else{
 			//console.log(anuncios2[0][ordenarPor]);
-			anuncios2.sort((a,b)=>a[ordenarPor] - b[ordenarPor]);
+			anuncios.sort((a,b)=>a[ordenarPor] - b[ordenarPor]);
 			//anuncios2.sort();
 		}
 
 		if(emOrdem < 0)
-			anuncios2.reverse();
+			anuncios.reverse();
 
 		//if (ordenarPor == 'dias' || ordenarPor == 'horaDeInicio' || ordenarPor == 'horaDeTermino')
 		//	console.log(anuncios2.map(a=>a.disponibilidades[0][ordenarPor]));
 		//else
 		//	console.log(anuncios2.map(a=>a[ordenarPor]));
-
-		anuncios2.map(an=>{
-			an.disponibilidades.map(disp=>{
-				delete disp.idDoAnuncio;
-				disp.dias = disp.dias.split(',');
-				disp.horaDeInicio = converterMinutosParaHoraString(disp.horaDeInicio);
-				disp.horaDeTermino = converterMinutosParaHoraString(disp.horaDeTermino);
-			});
-		});
 
 		//console.log('anúncios dps d ordenar:');
 		//console.log(anuncios);
@@ -1716,17 +1858,17 @@ async function pesquisar(query, idDoUsuario) {
 		//		disp.horaDeTermino = converterMinutosParaHoraString(disp.horaDeTermino);
 		//	});
 		//});
-		const totalDeAnuncios = anuncios2.length;
+		const totalDeAnuncios = anuncios.length;
 		const totalDePaginas = Math.ceil(totalDeAnuncios / resultadosPorPagina);
 		
 		if (pagina > totalDePaginas)
 			pagina = totalDePaginas;
-		const anuncios = anuncios2.filter((a,i)=>
+		const anunciosDaPagina = anuncios.filter((a,i)=>
 			i >= (pagina-1)*resultadosPorPagina && i < pagina*resultadosPorPagina
 		);
 		//const tempoPesquisa = Date.now() - tempoInicio;
 //		console.log('GET anuncios, qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length+', ip='+req.ip);
-		console.log('qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length);
+		console.log('qtde campos='+qtdeCampos+', qtde resultados='+anuncios.length);
 		//console.log('tempoPesquisa='+tempoPesquisa);
 		//console.log(
 		//	'POST anuncios, qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length
@@ -1734,8 +1876,8 @@ async function pesquisar(query, idDoUsuario) {
 		//);
 		//if (qtdeCampos > 0)
 		//	console.log(camposPesquisados);
-		return {anuncios, totalDeAnuncios, pagina, totalDePaginas};
-		return resp.status(200).json({anuncios, totalDeAnuncios, pagina, totalDePaginas}
+		return {anuncios: anunciosDaPagina, totalDeAnuncios, pagina, totalDePaginas};
+		//return resp.status(200).json({anuncios: anunciosDaPagina, totalDeAnuncios, pagina, totalDePaginas}
 			//.map(anuncio=>{
 			//return {...anuncio,
 				//nomeDoJogo: jogo.anuncio.nomeDoJogo,
@@ -1750,7 +1892,7 @@ async function pesquisar(query, idDoUsuario) {
 				//ateHora: anuncio.disponibilidades[0].horaDeTermino
 		//	};
 		//})
-		);
+		//);
 	}
 	catch (erro) {
 		//console.log('entrou no catch');
@@ -1923,10 +2065,15 @@ servidor.delete('/anuncios/:idDoAnuncio', async (req, resp)=>{
 		const anuncioExiste = await db.get(
 			`SELECT idDoAnuncio,idDoUsuario FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`
 		);
-		const disponibilidadeExiste = await db.get(
-			`SELECT idDoAnuncio FROM Disponibilidades WHERE idDoAnuncio = ${idDoAnuncio};`
+		const disponibilidadesExistem = await db.all(
+			`SELECT id,idDoAnuncio FROM Disponibilidades WHERE idDoAnuncio = ${idDoAnuncio};`
 		);
-		if (!anuncioExiste && !disponibilidadeExiste) {
+		const idsDasDisponibilidades = disponibilidadesExistem.map(d=>d.id).join();
+		const diasExistem = await db.all(
+			`SELECT id FROM DiasDasDisponibilidades
+			WHERE idDaDisponibilidade IN (${idsDasDisponibilidades});`
+		);
+		if (!anuncioExiste && disponibilidadesExistem.length == 0 && diasExistem.length == 0) {
 			console.log('Anúncio não encontrado.');
 			return resp.status(404).json({erro: 'Anúncio não encontrado.'});
 		}
@@ -1934,6 +2081,9 @@ servidor.delete('/anuncios/:idDoAnuncio', async (req, resp)=>{
 			return resp.status(409).json({erro: 'O anúncio não pertence ao usuário informado.'});
 		await db.run(`DELETE FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`);
 		await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = ${idDoAnuncio};`);
+		await db.run(
+			`DELETE FROM DiasDasDisponibilidades WHERE idDaDisponibilidade IN (${idsDasDisponibilidades});`
+		);
 		//await new Promise(r=>setTimeout(r,1000));
 		console.log('Anúncio excluído.');
 		return resp.status(200).json({ok: 'Anúncio excluído.'});
@@ -2150,7 +2300,7 @@ servidor.post('/recuperacao-de-conta', async (req, resp)=>{
 			`INSERT INTO RecuperacoesDeConta (idDoUsuario, token, dataDeExpiracao)
 			VALUES (${usuarioExiste.id}, '${uuidDoTokenHash}', ${dataDeExpiracao});`
 		);
-		const emailEnviado = await enviarEmail(body.email, 'Assunto',
+		const emailEnviado = await enviarEmail(body.email, 'Redefinição de senha',
 			`<a href='http://localhost:3000/redefinir-senha?token=${uuidDoToken}&id=${usuarioExiste.id}'>
 				Redefinir senha
 			</a>`
@@ -2306,13 +2456,20 @@ servidor.delete('/usuarios/:idDoUsuario', async (req, resp)=>{
 		}*/
 		
 		//exclui os anúncios do usuário
-		let idsDosAnuncios = await db.all(
+		const anuncios = await db.all(
 			`SELECT idDoAnuncio FROM Anuncios WHERE idDoUsuario = ${sessaoExiste.idDoUsuario};`
 		);
-		idsDosAnuncios = idsDosAnuncios.map(a=>a.idDoAnuncio);
-		if (idsDosAnuncios.length > 0) {
+		const idsDosAnuncios = anuncios.map(a=>a.idDoAnuncio).join();
+		const disponibilidades = await db.all(
+			`SELECT id FROM Disponibilidades WHERE idDoAnuncio IN (${idsDosAnuncios});`
+		);
+		const idsDasDisponibilidades = disponibilidades.map(d=>d.id).join();
+		if (anuncios.length > 0) {
 			await db.run(`DELETE FROM Anuncios WHERE idDoUsuario = ${sessaoExiste.idDoUsuario};`);
-			await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio IN (${idsDosAnuncios.join()});`);
+			await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio IN (${idsDosAnuncios});`);
+			await db.run(
+				`DELETE FROM DiasDasDisponibilidades WHERE idDaDisponibilidade IN (${idsDasDisponibilidades});`
+			);
 		}
 		//exclui as sessões do usuário
 		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${sessaoExiste.idDoUsuario};`);
@@ -2687,7 +2844,8 @@ servidor.delete('/usuarios/:idDoUsuario/outras-sessoes', async (req, resp)=>{
 
 		const sessoesConectadas = await db.get(
 			`SELECT COUNT(*) AS qtde FROM Sessoes
-			WHERE idDoUsuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`
+			WHERE idDoUsuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}'
+			AND dataDeExpiracao > ${Date.now()};`
 		);
 		//if (!qtde)
 		//	qtde = 0;
