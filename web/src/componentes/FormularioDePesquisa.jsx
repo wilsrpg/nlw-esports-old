@@ -93,17 +93,27 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
       arr.push('');
     if (filtros.usaChatDeVoz)
       document.getElementById('usaChatDeVoz').value = filtros.usaChatDeVoz;
-    if (filtros.resultadosPorPagina)
-      document.getElementById('resultadosPorPagina').value = filtros.resultadosPorPagina;
-    if (componenteExiste && filtros.resultadosPorPagina && !isNaN(filtros.resultadosPorPagina)
-        && filtros.resultadosPorPagina >= 0 && filtros.resultadosPorPagina <= 100)
-      //document.getElementById('tempoDeJogoAnos').value = filtros.tempoDeJogoAnos;
-      definirResultadosPorPaginaState(filtros.resultadosPorPagina);
+    //if (filtros.resultadosPorPagina)
+    //  document.getElementById('resultadosPorPagina').value = filtros.resultadosPorPagina;
+    //if (componenteExiste && filtros.resultadosPorPagina && !isNaN(filtros.resultadosPorPagina)
+    //    && filtros.resultadosPorPagina >= 3 && filtros.resultadosPorPagina <= 100)
+    //  //document.getElementById('tempoDeJogoAnos').value = filtros.tempoDeJogoAnos;
+    //  definirResultadosPorPaginaState(filtros.resultadosPorPagina);
     if (filtros.emOrdem)
       document.getElementById('emOrdem').value = filtros.emOrdem;
     if (filtros.ordenarPor)
       document.getElementById('ordenarPor').value = filtros.ordenarPor;
     if (componenteExiste) {
+      if (filtros.resultadosPorPagina) {
+        if (isNaN(filtros.resultadosPorPagina))
+          definirResultadosPorPaginaState(10);
+        else if(filtros.resultadosPorPagina < 3)
+          definirResultadosPorPaginaState(3);
+        else if (filtros.resultadosPorPagina > 100)
+          definirResultadosPorPaginaState(100);
+        else
+          definirResultadosPorPaginaState(filtros.resultadosPorPagina);
+      }
       definirDiasDisponiveis(arr);
       definirAplicandoDisponilibidade(true);
       definirAguardando(false);
@@ -161,6 +171,10 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
         definirAplicandoDisponilibidade(false);
     }
   }, [aplicandoDisponilibidade])
+
+  //useEffect(()=>{
+  //  document.getElementById('resultadosPorPagina').value = resultadosPorPaginaState;
+  //}, [resultadosPorPaginaState])
 
   function pesquisar(e) {
     e.preventDefault();
@@ -813,27 +827,70 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
             <div className='flex'>
               <label htmlFor='resultadosPorPagina'>Anúncios por página</label>
               <input id='resultadosPorPagina' name='resultadosPorPagina' className='tempoDeJogo'
-                value={resultadosPorPaginaState}
-                onChange={e=>{
-                  if (e.target.value == '')
-                    definirResultadosPorPaginaState('');
-                  const n = parseInt(e.target.value);
-                  if (!isNaN(n) && n >= 3 && n <= 100)
-                    definirResultadosPorPaginaState(n);
+                //value={resultadosPorPaginaState}
+                defaultValue={resultadosPorPaginaState}
+                //onChange={e=>{
+                //  if (e.target.value == '')
+                //    definirResultadosPorPaginaState('');
+                //  const n = parseInt(e.target.value);
+                //  if (!isNaN(n) && n >= 3 && n <= 100)
+                //    definirResultadosPorPaginaState(n);
+                //  else if (n > 100)
+                //    definirResultadosPorPaginaState(100);
+                //  else if (n < 3)
+                //    definirResultadosPorPaginaState(3);
+                //}}
+                onBlur={e=>{
+                  let n = parseInt(e.target.value);
+                  if (isNaN(n))
+                     e.target.value = 10;
                   else if (n > 100)
-                    definirResultadosPorPaginaState(100);
+                    e.target.value = 100;
                   else if (n < 3)
-                    definirResultadosPorPaginaState(3);
+                    e.target.value = 3;
+                  //if (e.target.value == '')
+                  //  definirResultadosPorPaginaState(10);
+                  //const n = parseInt(e.target.value);
+                  //if (!isNaN(n) && n >= 3 && n <= 100)
+                    definirResultadosPorPaginaState(n);
+                  //else if (n > 100){
+                  //  e.target.value = 100;
+                  //  definirResultadosPorPaginaState(100);
+                  //}
+                  //else if (n < 3)
+                  //  definirResultadosPorPaginaState(3);
+                  //console.log('blur')
                 }}
                 onKeyDown={e=>{
                   //console.log(e.key);
                   let n = parseInt(e.target.value);
-                  if (e.target.value == '')
-                    n = 0;
-                  if (e.key == 'ArrowUp' && n < 100)
-                    definirResultadosPorPaginaState(n+1);
-                  if (e.key == 'ArrowDown'&& n > 0)
+                  if (isNaN(n))
+                     e.target.value = 10;
+                  else if (n > 100)
+                    e.target.value = 100;
+                  else if (n < 3)
+                    e.target.value = 3;
+
+                  if (e.key == 'ArrowUp' && n < 100) {
+                    e.target.value = n+1;
+                    definirResultadosPorPaginaState(n+1);}
+                  if (e.key == 'ArrowDown' && n > 3) {
+                    e.target.value = n-1;
                     definirResultadosPorPaginaState(n-1);
+                  }
+                  if (e.key == 'Enter') {
+                      definirResultadosPorPaginaState(n);
+                    //  if (e.target.value == '') {
+                    //  e.target.value = 10;
+                    //  definirResultadosPorPaginaState(10);
+                    //} else if (n > 100) {
+                    //  e.target.value = 100;
+                    //  definirResultadosPorPaginaState(100);
+                    //} else if (n < 3) {
+                    //  e.target.value = 3;
+                    //  definirResultadosPorPaginaState(3);
+                    //}
+                  }
                 }}
               />
             </div>

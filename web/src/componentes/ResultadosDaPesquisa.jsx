@@ -159,7 +159,8 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
         definirPaginacao(paginac);
         //definirAguardando(false);
         
-        if (filtros.resultadosPorPagina)
+        if (filtros.resultadosPorPagina && !isNaN(filtros.resultadosPorPagina)
+        && filtros.resultadosPorPagina >= 3 && filtros.resultadosPorPagina <= 100)
           definirResultadosPorPagina(filtros.resultadosPorPagina);
         else
           definirResultadosPorPagina(10);
