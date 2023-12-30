@@ -207,7 +207,7 @@ export default function BarraSuperior() {
   return (
     <>
     <header className='cabecalho'>
-      <div className='barraSuperior'>
+      <div id='barraSuperior' className='barraSuperior'>
         <nav>
           {telaEstreita ?
             <img className='botaoCopiar' src={iconeMenu} onClick={e=>exibirMenuDaPagina(e)}/>

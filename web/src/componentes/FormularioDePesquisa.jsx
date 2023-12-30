@@ -139,9 +139,12 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
       if (filtros.opcoesDisponibilidade)
         document.getElementById('opcoesDisponibilidade').value = filtros.opcoesDisponibilidade;
       for (let i = 2; i <= diasDisponiveis.length; i++) {
-        document.getElementById('quando'+i).value = filtros['quando'+i];
-        document.getElementById('de'+i).value = filtros['de'+i];
-        document.getElementById('ate'+i).value = filtros['ate'+i];
+        if (filtros['quando'+i])
+          document.getElementById('quando'+i).value = filtros['quando'+i];
+        if (filtros['de'+i])
+          document.getElementById('de'+i).value = filtros['de'+i];
+        if (filtros['ate'+i])
+          document.getElementById('ate'+i).value = filtros['ate'+i];
         const ate = document.getElementById('ate'+i);
         if (ate.value && document.getElementById('de'+i).value
         && ate.value <= document.getElementById('de'+i).value) {
@@ -564,33 +567,33 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
 
           <div className='aoLado'>
             <div className='flex'>
-            <label>Jogo</label>
-            <select disabled={!jogos} id='jogo' name='jogo'>
-              <option value=''>
-                {!jogos ?
-                  (!erroAoObterDados ? 'Buscando jogos...' : 'Erro ao obter dados dos jogos do servidor.')
-                :
-                  'Qualquer um'
-                }
-              </option>
-              {jogos && jogos.map((jogo,i)=>{
-                return <option key={i} value={jogo.nomeUrl}>{jogo.nome}</option>
-              })}
-            </select>
-            </div>
-
-            <div className='flex'>
-            <div className='flex'>
-              <label htmlFor='nomeNoJogo'>Nome no jogo</label>
-              <select id='opcoesNome' name='opcoesNome'>
-                <option value=''>contém</option>
-                <option value='comecaCom'>começa com</option>
-                <option value='terminaCom'>termina com</option>
-                <option value='exatamente'>exatamente</option>
-                <option value='naoContem'>não contém</option>
+              <label>Jogo</label>
+              <select disabled={!jogos} id='jogo' name='jogo'>
+                <option value=''>
+                  {!jogos ?
+                    (!erroAoObterDados ? 'Buscando jogos...' : 'Erro ao obter dados dos jogos do servidor.')
+                  :
+                    'Qualquer um'
+                  }
+                </option>
+                {jogos && jogos.map((jogo,i)=>{
+                  return <option key={i} value={jogo.nomeUrl}>{jogo.nome}</option>
+                })}
               </select>
             </div>
-            <input id='nomeNoJogo' name='nomeNoJogo'/>
+
+            <div className='aoLado formularioDePesquisa'>
+              <div className='flex'>
+                <label htmlFor='nomeNoJogo'>Nome no jogo</label>
+                <select id='opcoesNome' name='opcoesNome'>
+                  <option value=''>contém</option>
+                  <option value='comecaCom'>começa com</option>
+                  <option value='terminaCom'>termina com</option>
+                  <option value='exatamente'>exatamente</option>
+                  <option value='naoContem'>não contém</option>
+                </select>
+              </div>
+              <input id='nomeNoJogo' name='nomeNoJogo'/>
             </div>
 
             <div className='flex'>
@@ -722,18 +725,20 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
               {diasDisponiveis.map((d,i)=>{
                 let id = i == 0 ? '' : i+1;
                 return (
-                  <div key={i} className='flex'>
-                    <select id={'quando'+id} name={'quando'+id}>
-                      <option value='qualquerDia'>Qualquer dia</option>
-                      <option value='todoDia'>Todo dia</option>
-                      <option value='semana'>De segunda a sexta</option>
-                      <option value='finsDeSemana'>Fins de semana</option>
-                      {dias.map((dia,j)=>
-                        <option key={j} value={dia}>{dia[0].toUpperCase()+dia.slice(1)}</option>
-                      )}
-                    </select>
-                    {/*<div className='flex'>*/}
-                      {/*<div className='flex'>*/}
+                  <div key={i} className='aoLado'>
+                    <div className='flex'>
+                      <select id={'quando'+id} name={'quando'+id}>
+                        <option value='qualquerDia'>Qualquer dia</option>
+                        <option value='todoDia'>Todo dia</option>
+                        <option value='semana'>De segunda a sexta</option>
+                        <option value='finsDeSemana'>Fins de semana</option>
+                        {dias.map((dia,j)=>
+                          <option key={j} value={dia}>{dia[0].toUpperCase()+dia.slice(1)}</option>
+                        )}
+                      </select>
+                    </div>
+                    <div className='flex flexWrap'>
+                      <div className='flex'>
                         <label htmlFor={'de'+id}>De</label>
                         <input id={'de'+id} name={'de'+id} type='time'
                           onChange={()=>{
@@ -749,8 +754,8 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
                             }
                           }}
                         />
-                      {/*</div>*/}
-                      {/*<div className='flex'>*/}
+                      </div>
+                      <div className='flex'>
                         <label htmlFor={'ate'+id}>Até</label>
                         <input id={'ate'+id} name={'ate'+id} type='time'
                           onChange={()=>{
@@ -767,6 +772,7 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
                             }
                           }}
                         />
+                      </div>
                         {diasDisponiveis.length > 1 ?
                           <button className='carregando' type='button'
                             onClick={()=>{
@@ -789,7 +795,7 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
                           <div className='carregando'/>
                         }
                       {/*</div>*/}
-                    {/*</div>*/}
+                    </div>
                   </div>
                 )
               })}

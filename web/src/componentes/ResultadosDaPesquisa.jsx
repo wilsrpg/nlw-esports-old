@@ -57,7 +57,11 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
     //      historico.push(urlAtual.pathname);
     //  }
     //});
-    document.body.onscroll = ()=>definirPosicaoScroll(window.scrollY);
+    document.body.onscroll = ()=>definirPosicaoScroll(Math.min(
+      window.scrollY,
+      document.getElementById('resultadosDaPesquisa').offsetTop
+      + document.getElementById('barraSuperior').offsetHeight
+    ));
 
     return ()=>componenteExiste = false;
   }, [])
@@ -85,7 +89,14 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
     //console.log(objString);
     params.delete('pagina');
     params.delete('qtdeFiltrosDisponibilidade');
-    definirQtdeDeFiltros(params.size);
+    let size = 0;
+    for (const k in filtros) {
+      //console.log(k);
+      if (k != 'pagina' && k != 'qtdeFiltrosDisponibilidade')
+        size++;
+    }
+    //definirQtdeDeFiltros(params.size);
+    definirQtdeDeFiltros(size);
 
     let url = apenasDoUsuario ? '/meus-anuncios' : '/anuncios';
     let rota = apenasDoUsuario ? ('/usuarios/'+contexto2.usuarioLogado.id+'/anuncios') : url;
@@ -96,7 +107,8 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
     //const urlSemPagina = url + (params.size > 0 ? '?'+params.toString() : '');
     //definirUrlAtualSemPagina(urlSemPagina);
     definirEnderecoAtual(url);
-    definirSearchDoEnderecoAtual(params.size > 0 ? '?'+params.toString() : '');
+    //definirSearchDoEnderecoAtual(params.size > 0 ? '?'+params.toString() : '');
+    definirSearchDoEnderecoAtual(size > 0 ? '?'+params.toString() : '');
     //console.log(urlSemPagina);
     //if (params.has('pagina'))
     //  definirPaginaAtual(parseInt(params.get('pagina')));
@@ -147,8 +159,10 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
         definirPaginacao(paginac);
         //definirAguardando(false);
         
-        if (filtros.resultadosPorPagina) definirResultadosPorPagina(filtros.resultadosPorPagina);
-        else definirResultadosPorPagina(10);
+        if (filtros.resultadosPorPagina)
+          definirResultadosPorPagina(filtros.resultadosPorPagina);
+        else
+          definirResultadosPorPagina(10);
 
         //if (filtros.ordenarPor) definirOrdenarPor(filtros.ordenarPor);
         //else definirOrdenarPor('');
@@ -266,7 +280,7 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
   }
 
   return (
-    <div className='resultadosDaPesquisa flex flexColumn'>
+    <div id='resultadosDaPesquisa' className='resultadosDaPesquisa flex flexColumn'>
       {!anuncios &&
         (!erroAoObterDados ?
           <img className='carregando' src={carregando}/>

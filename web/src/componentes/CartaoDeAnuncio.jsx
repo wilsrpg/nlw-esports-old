@@ -179,7 +179,7 @@ export default function CartaoDeAnuncio({
                 :
                   ''
                 )
-                + dias[disp.dias.at(-1)]
+                + dias[disp.dias[disp.dias.length-1]]
                 + ', de ' + disp.horaDeInicio + ' a ' + disp.horaDeTermino
           }
         </strong>
