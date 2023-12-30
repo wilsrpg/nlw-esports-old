@@ -20,7 +20,7 @@ import RecuperarConta from './paginas/RecuperarConta'
 import RedefinirSenha from './paginas/RedefinirSenha'
 
 /*falta:
--não reutilizar id no banco de dadoss
+-não reutilizar id no banco de dados
 -mudar nomenclatura no banco de dados pra este_padrao
 -cadastrar jogo?
 */
