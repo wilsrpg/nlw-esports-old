@@ -2,14 +2,12 @@ import express from 'express'
 import cors from 'cors'
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
-//import { config as dotenvConfig } from 'dotenv';
+import { config as dotenvConfig } from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 //import { PORTA } from '../../enderecoDoServidor';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
-
-const PORTA = '3333';
 
 const servidor = express();
 servidor.use(express.json());
@@ -17,7 +15,9 @@ servidor.use(cors({
 	//origin: 'http://meudominio.com'
 }));
 
-//dotenvConfig();
+dotenvConfig();
+
+const PORTA = process.env.PORTA;
 
 const abrirBanco = open({
 	filename: '../db/db.sqlite',
@@ -1292,9 +1292,9 @@ async function pesquisar(query, idDoUsuario) {
 		if(isNaN(resultadosPorPagina))
 			//return resp.status(400).json({erro: 'Resultados por página em formato inválido.'});
 			return {status: 400, erro: 'Resultados por página em formato inválido.'};
-		if (resultadosPorPagina < 3)
+		else if (resultadosPorPagina < 3)
 			resultadosPorPagina = 3;
-		if (resultadosPorPagina > 100)
+		else if (resultadosPorPagina > 100)
 			resultadosPorPagina = 100;
 		//console.log('resultadosPorPagina='+resultadosPorPagina+', pagina='+pagina);
 
@@ -1534,8 +1534,6 @@ async function pesquisar(query, idDoUsuario) {
 						SELECT Disponibilidades.id, idDoAnuncio, dia
 						FROM Disponibilidades JOIN DiasDasDisponibilidades
 						ON Disponibilidades.id = DiasDasDisponibilidades.idDaDisponibilidade
-						${//WHERE (dia = {0} AND consultaHorario) 'OR' (dia = {1} AND consultaHorario)
-						''}
 						WHERE ${qualquerDia ?
 								consultaHorario
 							:
@@ -1546,8 +1544,7 @@ async function pesquisar(query, idDoUsuario) {
 										(' AND ' + consultaHorario))
 									+ ')'
 								);
-							//}).join(disponivelEmQualquer ? ' OR ' : ' AND ')
-							}).join(' AND ')
+							}).join(' OR ')
 						}
 						GROUP BY idDoAnuncio,dia
 					)
@@ -2320,15 +2317,29 @@ async function enviarEmail(email, assunto, texto) {
 	try {
 		//console.log('entrou em enviarEmail');
 		const transporter = nodemailer.createTransport({
-			host: 'sandbox.smtp.mailtrap.io',
-			//service: process.env.SERVICE,
-			port: 587,
-			//secure: true,
+			service: 'Hotmail',
 			auth: {
-				user: '2532e002f2d871',
-				pass: '1d9fa7da00c108',
+				user: process.env.EMAIL,
+				pass: process.env.SENHA
 			},
+				// tls: {
+				// 	// secureProtocol: 'TLSv1_method',
+				// 	rejectUnauthorized: false,
+				// },
 		});
+		// const transporter = nodemailer.createTransport({
+		// 	host: 'sandbox.smtp.mailtrap.io',
+		// 	port: 587,
+		// 	auth: {
+		// 		user: '2532e002f2d871',
+		// 		pass: '1d9fa7da00c108',
+		// 	},
+		// 	// secureConnection: true,
+		// 	tls: {
+		// 		// secureProtocol: 'TLSv1_method',
+		// 		rejectUnauthorized: false,
+		// 	},
+		// });
 		//transporter.verify(function(error, success) {
 		//	if (error) {
 		//		console.log(error);
@@ -2338,7 +2349,7 @@ async function enviarEmail(email, assunto, texto) {
 		//});
 		//console.log('passou d verify');
 		await transporter.sendMail({
-			from: 'naoresponda@teste.com',
+			from: process.env.EMAIL,
 			to: email,
 			subject: assunto,
 			text: texto,
@@ -2352,6 +2363,42 @@ async function enviarEmail(email, assunto, texto) {
 		return {status: 500, erro};
 	}
 }
+
+servidor.get('/recuperacao-de-conta', async (req, resp)=>{
+	try {
+		const query = req.query;
+		console.log('GET recuperacao-de-conta, ip='+req.ip);
+		const db = await abrirBanco;
+		const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE id = (?);`, [query.id]);
+		if (!usuarioExiste) {
+			console.log('Conta não encontrada.');
+			return resp.status(404).json({erro: 'Conta não encontrada.'});
+		}
+		const recuperacaoExiste = await db.get(
+			`SELECT token, dataDeExpiracao FROM RecuperacoesDeConta WHERE idDoUsuario = (?);`, [query.id]
+		);
+		if (!recuperacaoExiste) {
+			console.log('Redefinição de senha inexistente.');
+			return resp.status(401).json({erro: 'Redefinição de senha inexistente.'});
+		}
+		//lembrete: renomear token aki
+		const recuperacaoValida = await bcrypt.compare(query.token, recuperacaoExiste.token);
+		if (!recuperacaoValida) {
+			console.log('Redefinição inválida.');
+			return resp.status(401).json({erro: 'Redefinição de senha inválida.'});
+		}
+		if(recuperacaoExiste.dataDeExpiracao < Date.now()) {
+			console.log('Redefinição de senha expirada.');
+			return resp.status(401).json({erro: 'Redefinição de senha expirada.'});
+		}
+		return resp.status(200).json({ok: true});
+	}
+	catch (erro) {
+		//console.log('entrou no catch');
+		console.log(erro);
+		return resp.status(500).json({erro: 'Erro interno no servidor.'});
+	}
+})
 
 servidor.post('/redefinicao-de-senha', async (req, resp)=>{
 	try {
@@ -2370,15 +2417,15 @@ servidor.post('/redefinicao-de-senha', async (req, resp)=>{
 			console.log('Redefinição de senha inexistente.');
 			return resp.status(401).json({erro: 'Redefinição de senha inexistente.'});
 		}
-		if(recuperacaoExiste.dataDeExpiracao < Date.now()) {
-			console.log('Redefinição de senha expirada.');
-			return resp.status(401).json({erro: 'Redefinição de senha expirada.'});
-		}
 		//lembrete: renomear token aki
 		const recuperacaoValida = await bcrypt.compare(body.token, recuperacaoExiste.token);
 		if (!recuperacaoValida) {
 			console.log('Redefinição inválida.');
-			return {status: 401, erro: {descricao: 'Redefinição inválida.', codigo: 401}};
+			return resp.status(401).json({erro: 'Redefinição de senha inválida.'});
+		}
+		if(recuperacaoExiste.dataDeExpiracao < Date.now()) {
+			console.log('Redefinição de senha expirada.');
+			return resp.status(401).json({erro: 'Redefinição de senha expirada.'});
 		}
 		const novaSenhaHash = await bcrypt.hash(body.novaSenha, BCRYPT_SALT_ROUNDS);
 		await db.run(
