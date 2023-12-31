@@ -7,6 +7,7 @@ import { SERVIDOR } from '../../../enderecoDoServidor';
 export default function RedefinirSenha() {
   let componenteExiste = true;
   const contexto2 = useContext(contexto);
+  const [redefinicaoOk, definirRedefinicaoOk] = useState();
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
   const historico = useHistory();
@@ -16,9 +17,23 @@ export default function RedefinirSenha() {
     document.title = 'Redefinir senha - NLW eSports';
     //console.log('token='+urlParams.get('token')+'\nid='+urlParams.get('id'));
     if (!urlParams.get('token') || !urlParams.get('id'))
-      definirMensagem('Sem dados.');
+      definirMensagem('Página acessada sem dados de redefinição de senha.');
     else {
-
+      fetch(SERVIDOR+`/recuperacao-de-conta/?`+urlParams.toString())
+      .then(resp=>resp.json())
+      .then(resp=>{
+        if (resp.erro)
+          throw resp.erro;
+        if (componenteExiste)
+          definirRedefinicaoOk(true);
+      })
+      .catch(erro=>{
+        console.log(erro);
+        if (componenteExiste) {
+          definirRedefinicaoOk(false);
+          definirMensagem(''+erro);
+        }
+      });
     }
 
     return ()=>componenteExiste = false;
@@ -68,19 +83,21 @@ export default function RedefinirSenha() {
         <>
         <h2>Redefinir senha</h2>
         <div className='comEspacoParaMensagemDeErro'>
-          <form className='flex flexColumn' onSubmit={e=>validarRedefinicaoDeSenha(e)}>
-            <strong>Digite e confirme sua nova senha:</strong>
-            <input id='novaSenha' name='novaSenha' type='password' placeholder='Nova senha' required
-              onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
-            />
-            <input id='confirmarNovaSenha' name='confirmarNovaSenha' type='password'
-              placeholder='Repita a nova senha'
-              onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')} required
-            />
-            <button className='alturaBase' type='submit'>
-              {aguardando ? <img className='carregando' src={carregando}/> : 'Redefinir'}
-            </button>
-          </form>
+          {redefinicaoOk &&
+            <form className='flex flexColumn' onSubmit={e=>validarRedefinicaoDeSenha(e)}>
+              <strong>Digite e confirme sua nova senha:</strong>
+              <input id='novaSenha' name='novaSenha' type='password' placeholder='Nova senha' required
+                onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
+              />
+              <input id='confirmarNovaSenha' name='confirmarNovaSenha' type='password'
+                placeholder='Repita a nova senha'
+                onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')} required
+              />
+              <button className='alturaBase' type='submit'>
+                {aguardando ? <img className='carregando' src={carregando}/> : 'Redefinir'}
+              </button>
+            </form>
+            }
           {mensagem && <p className='mensagemDeErro'>{mensagem}</p>}
         </div>
         </>
