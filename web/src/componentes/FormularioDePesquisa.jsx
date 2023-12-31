@@ -113,7 +113,8 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
           definirResultadosPorPaginaState(100);
         else
           definirResultadosPorPaginaState(filtros.resultadosPorPagina);
-      }
+      } else
+        definirResultadosPorPaginaState(10);
       definirDiasDisponiveis(arr);
       definirAplicandoDisponilibidade(true);
       definirAguardando(false);
@@ -276,6 +277,30 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
   //}
   function carregarPesquisa(destino) {
     historico.push(destino);
+  }
+
+  function controlarValor(e,minimo,maximo,funcDefinir) {
+    if (e.target.value == '')
+      funcDefinir('');
+    let n = parseInt(e.target.value);
+    if (!isNaN(n) && n >= minimo && n <= maximo)
+      funcDefinir(n);
+    else if (n > maximo)
+      funcDefinir(maximo);
+    else if (n < minimo)
+      funcDefinir(minimo);
+  }
+
+  function incDecValor(e,minimo,maximo,funcDefinir) {
+    if (e.key != 'ArrowUp' && e.key != 'ArrowDown')
+      return;
+    let n = parseInt(e.target.value);
+    if (e.target.value == '')
+      funcDefinir(minimo);
+    else if (e.key == 'ArrowUp' && n < maximo)
+      funcDefinir(n+1);
+    else if (e.key == 'ArrowDown' && n > minimo)
+      funcDefinir(n-1);
   }
 
   return (
@@ -624,47 +649,15 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
               <div className='flex'>
                 <input id='tempoDeJogoAnos' className='tempoDeJogo' name='tempoDeJogoAnos'
                   value={tempoDeJogoAnosState}
-                  onChange={e=>{
-                    if (e.target.value == '')
-                      definirTempoDeJogoAnosState('');
-                    const n = parseInt(e.target.value);
-                    if (!isNaN(n) && n >= 0 && n <= 100)
-                      definirTempoDeJogoAnosState(n);
-                    else if (n > 100)
-                      definirTempoDeJogoAnosState(100);
-                  }}
-                  onKeyDown={e=>{
-                    let n = parseInt(e.target.value);
-                    if (e.target.value == '')
-                      n = 0;
-                    if (e.key == 'ArrowUp' && n < 100)
-                      definirTempoDeJogoAnosState(n+1);
-                    if (e.key == 'ArrowDown'&& n > 0)
-                      definirTempoDeJogoAnosState(n-1);
-                  }}
+                  onChange={e=>controlarValor(e,0,100,definirTempoDeJogoAnosState)}
+                  onKeyDown={e=>incDecValor(e,0,100,definirTempoDeJogoAnosState)}
                 />
                 <label htmlFor='tempoDeJogoAnos'>ano(s)</label>
 
                 <input id='tempoDeJogoMeses' className='tempoDeJogo' name='tempoDeJogoMeses'
                   value={tempoDeJogoMesesState}
-                  onChange={e=>{
-                    if (e.target.value == '')
-                      definirTempoDeJogoMesesState('');
-                    const n = parseInt(e.target.value);
-                    if (!isNaN(n) && n >= 0 && n <= 100)
-                      definirTempoDeJogoMesesState(n);
-                    else if (n > 100)
-                      definirTempoDeJogoMesesState(100);
-                  }}
-                  onKeyDown={e=>{
-                    let n = parseInt(e.target.value);
-                    if (e.target.value == '')
-                      n = 0;
-                    if (e.key == 'ArrowUp' && n < 100)
-                      definirTempoDeJogoMesesState(n+1);
-                    if (e.key == 'ArrowDown'&& n > 0)
-                      definirTempoDeJogoMesesState(n-1);
-                  }}
+                  onChange={e=>controlarValor(e,0,100,definirTempoDeJogoMesesState)}
+                  onKeyDown={e=>incDecValor(e,0,100,definirTempoDeJogoMesesState)}
                 />
                 <label htmlFor='tempoDeJogoMeses'>mês(es)</label>
               </div>
@@ -672,47 +665,15 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
                 <div className='flex'>
                   <input id='tempoDeJogoAnos2' className='tempoDeJogo' name='tempoDeJogoAnos2'
                     value={tempoDeJogoAnos2State}
-                    onChange={e=>{
-                      if (e.target.value == '')
-                        definirTempoDeJogoAnos2State('');
-                      const n = parseInt(e.target.value);
-                      if (!isNaN(n) && n >= 0 && n <= 100)
-                        definirTempoDeJogoAnos2State(n);
-                      else if (n > 100)
-                        definirTempoDeJogoAnos2State(100);
-                    }}
-                    onKeyDown={e=>{
-                      let n = parseInt(e.target.value);
-                      if (e.target.value == '')
-                        n = 0;
-                      if (e.key == 'ArrowUp' && n < 100)
-                        definirTempoDeJogoAnos2State(n+1);
-                      if (e.key == 'ArrowDown'&& n > 0)
-                        definirTempoDeJogoAnos2State(n-1);
-                    }}
+                    onChange={e=>controlarValor(e,0,100,definirTempoDeJogoAnos2State)}
+                  onKeyDown={e=>incDecValor(e,0,100,definirTempoDeJogoAnos2State)}
                   />
                   <label htmlFor='tempoDeJogoAnos2'>ano(s)</label>
 
                   <input id='tempoDeJogoMeses2' className='tempoDeJogo' name='tempoDeJogoMeses2'
                     value={tempoDeJogoMeses2State}
-                    onChange={e=>{
-                      if (e.target.value == '')
-                        definirTempoDeJogoMeses2State('');
-                      const n = parseInt(e.target.value);
-                      if (!isNaN(n) && n >= 0 && n <= 100)
-                        definirTempoDeJogoMeses2State(n);
-                      else if (n > 100)
-                        definirTempoDeJogoMeses2State(100);
-                    }}
-                    onKeyDown={e=>{
-                      let n = parseInt(e.target.value);
-                      if (e.target.value == '')
-                        n = 0;
-                      if (e.key == 'ArrowUp' && n < 100)
-                        definirTempoDeJogoMeses2State(n+1);
-                      if (e.key == 'ArrowDown'&& n > 0)
-                        definirTempoDeJogoMeses2State(n-1);
-                    }}
+                    onChange={e=>controlarValor(e,0,100,definirTempoDeJogoMeses2State)}
+                    onKeyDown={e=>incDecValor(e,0,100,definirTempoDeJogoMeses2State)}
                   />
                   <label htmlFor='tempoDeJogoMeses2'>mês(es)</label>
                 </div>
@@ -827,71 +788,9 @@ export default function FormularioDePesquisa({filtros, apenasDoUsuario}) {
             <div className='flex'>
               <label htmlFor='resultadosPorPagina'>Anúncios por página</label>
               <input id='resultadosPorPagina' name='resultadosPorPagina' className='tempoDeJogo'
-                //value={resultadosPorPaginaState}
-                defaultValue={resultadosPorPaginaState}
-                //onChange={e=>{
-                //  if (e.target.value == '')
-                //    definirResultadosPorPaginaState('');
-                //  const n = parseInt(e.target.value);
-                //  if (!isNaN(n) && n >= 3 && n <= 100)
-                //    definirResultadosPorPaginaState(n);
-                //  else if (n > 100)
-                //    definirResultadosPorPaginaState(100);
-                //  else if (n < 3)
-                //    definirResultadosPorPaginaState(3);
-                //}}
-                onBlur={e=>{
-                  let n = parseInt(e.target.value);
-                  if (isNaN(n))
-                     e.target.value = 10;
-                  else if (n > 100)
-                    e.target.value = 100;
-                  else if (n < 3)
-                    e.target.value = 3;
-                  //if (e.target.value == '')
-                  //  definirResultadosPorPaginaState(10);
-                  //const n = parseInt(e.target.value);
-                  //if (!isNaN(n) && n >= 3 && n <= 100)
-                    definirResultadosPorPaginaState(n);
-                  //else if (n > 100){
-                  //  e.target.value = 100;
-                  //  definirResultadosPorPaginaState(100);
-                  //}
-                  //else if (n < 3)
-                  //  definirResultadosPorPaginaState(3);
-                  //console.log('blur')
-                }}
-                onKeyDown={e=>{
-                  //console.log(e.key);
-                  let n = parseInt(e.target.value);
-                  if (isNaN(n))
-                     e.target.value = 10;
-                  else if (n > 100)
-                    e.target.value = 100;
-                  else if (n < 3)
-                    e.target.value = 3;
-
-                  if (e.key == 'ArrowUp' && n < 100) {
-                    e.target.value = n+1;
-                    definirResultadosPorPaginaState(n+1);}
-                  if (e.key == 'ArrowDown' && n > 3) {
-                    e.target.value = n-1;
-                    definirResultadosPorPaginaState(n-1);
-                  }
-                  if (e.key == 'Enter') {
-                      definirResultadosPorPaginaState(n);
-                    //  if (e.target.value == '') {
-                    //  e.target.value = 10;
-                    //  definirResultadosPorPaginaState(10);
-                    //} else if (n > 100) {
-                    //  e.target.value = 100;
-                    //  definirResultadosPorPaginaState(100);
-                    //} else if (n < 3) {
-                    //  e.target.value = 3;
-                    //  definirResultadosPorPaginaState(3);
-                    //}
-                  }
-                }}
+                value={resultadosPorPaginaState}
+                onChange={e=>controlarValor(e,3,100,definirResultadosPorPaginaState)}
+                onKeyDown={e=>incDecValor(e,3,100,definirResultadosPorPaginaState)}
               />
             </div>
 

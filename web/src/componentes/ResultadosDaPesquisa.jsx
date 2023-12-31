@@ -121,7 +121,7 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
       if (componenteExiste) {
         definirErroAoObterDados(false);
         definirAnuncios(resp.anuncios);
-        //definirResultadosPorPagina(resp.anuncios.length);
+        definirResultadosPorPagina(resp.resultadosPorPagina);
         definirTotalDeAnuncios(resp.totalDeAnuncios);
         definirPaginaAtual(resp.pagina);
         const paginac = [];
@@ -159,11 +159,11 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
         definirPaginacao(paginac);
         //definirAguardando(false);
         
-        if (filtros.resultadosPorPagina && !isNaN(filtros.resultadosPorPagina)
-        && filtros.resultadosPorPagina >= 3 && filtros.resultadosPorPagina <= 100)
-          definirResultadosPorPagina(filtros.resultadosPorPagina);
-        else
-          definirResultadosPorPagina(10);
+        // if (filtros.resultadosPorPagina && !isNaN(filtros.resultadosPorPagina)
+        // && filtros.resultadosPorPagina >= 3 && filtros.resultadosPorPagina <= 100)
+        //   definirResultadosPorPagina(filtros.resultadosPorPagina);
+        // else
+        //   definirResultadosPorPagina(10);
 
         //if (filtros.ordenarPor) definirOrdenarPor(filtros.ordenarPor);
         //else definirOrdenarPor('');

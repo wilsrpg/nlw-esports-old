@@ -668,9 +668,9 @@ servidor.get('/anuncios-old', async (req, resp)=>{
 			resultadosPorPagina = parseInt(body.resultadosPorPagina);
 		if(isNaN(resultadosPorPagina))
 			return resp.status(400).json({erro: 'Resultados por página em formato inválido.'});
-		if (resultadosPorPagina < 3)
+		else if (resultadosPorPagina < 3)
 			resultadosPorPagina = 3;
-		if (resultadosPorPagina > 100)
+		else if (resultadosPorPagina > 100)
 			resultadosPorPagina = 100;
 		//console.log('resultadosPorPagina='+resultadosPorPagina+', pagina='+pagina);
 
@@ -1876,7 +1876,7 @@ async function pesquisar(query, idDoUsuario) {
 		//);
 		//if (qtdeCampos > 0)
 		//	console.log(camposPesquisados);
-		return {anuncios: anunciosDaPagina, totalDeAnuncios, pagina, totalDePaginas};
+		return {anuncios: anunciosDaPagina, totalDeAnuncios, pagina, totalDePaginas, resultadosPorPagina};
 		//return resp.status(200).json({anuncios: anunciosDaPagina, totalDeAnuncios, pagina, totalDePaginas}
 			//.map(anuncio=>{
 			//return {...anuncio,
