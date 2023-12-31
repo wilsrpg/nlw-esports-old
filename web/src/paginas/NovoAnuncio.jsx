@@ -229,6 +229,30 @@ export default function NovoAnuncio() {
   //  return '';
   //}
 
+  function controlarValor(e,minimo,maximo,funcDefinir) {
+    if (e.target.value == '')
+      funcDefinir('');
+    let n = parseInt(e.target.value);
+    if (!isNaN(n) && n >= minimo && n <= maximo)
+      funcDefinir(n);
+    else if (n > maximo)
+      funcDefinir(maximo);
+    else if (n < minimo)
+      funcDefinir(minimo);
+  }
+
+  function incDecValor(e,minimo,maximo,funcDefinir) {
+    if (e.key != 'ArrowUp' && e.key != 'ArrowDown')
+      return;
+    let n = parseInt(e.target.value);
+    if (e.target.value == '')
+      funcDefinir(minimo);
+    else if (e.key == 'ArrowUp' && n < maximo)
+      funcDefinir(n+1);
+    else if (e.key == 'ArrowDown' && n > minimo)
+      funcDefinir(n-1);
+  }
+
   return (
     <div className='conteudo'>
       {/*{!contexto2.usuarioLogado ?
@@ -298,24 +322,29 @@ export default function NovoAnuncio() {
                     value={tempoDeJogoAnosState}
                     onChange={e=>{
                       definirMensagemErroTempoDeJogo('');
-                      if (e.target.value == '')
-                        definirTempoDeJogoAnosState('');
-                      const n = parseInt(e.target.value);
-                      if (!isNaN(n) && n >= 0 && n <= 100)
-                        definirTempoDeJogoAnosState(n);
-                      else if (n > 100)
-                        definirTempoDeJogoAnosState(100);
+                      controlarValor(e,0,100,definirTempoDeJogoAnosState);
                     }}
-                    onKeyDown={e=>{
-                      //console.log(e.key);
-                      let n = parseInt(e.target.value);
-                      if (e.target.value == '')
-                        n = 0;
-                      if (e.key == 'ArrowUp' && n < 100)
-                        definirTempoDeJogoAnosState(n+1);
-                      if (e.key == 'ArrowDown'&& n > 0)
-                        definirTempoDeJogoAnosState(n-1);
-                    }}
+                    onKeyDown={e=>incDecValor(e,0,100,definirTempoDeJogoAnosState)}
+                    // onChange={e=>{
+                    //   definirMensagemErroTempoDeJogo('');
+                    //   if (e.target.value == '')
+                    //     definirTempoDeJogoAnosState('');
+                    //   const n = parseInt(e.target.value);
+                    //   if (!isNaN(n) && n >= 0 && n <= 100)
+                    //     definirTempoDeJogoAnosState(n);
+                    //   else if (n > 100)
+                    //     definirTempoDeJogoAnosState(100);
+                    // }}
+                    // onKeyDown={e=>{
+                    //   //console.log(e.key);
+                    //   let n = parseInt(e.target.value);
+                    //   if (e.target.value == '')
+                    //     n = 0;
+                    //   if (e.key == 'ArrowUp' && n < 100)
+                    //     definirTempoDeJogoAnosState(n+1);
+                    //   if (e.key == 'ArrowDown'&& n > 0)
+                    //     definirTempoDeJogoAnosState(n-1);
+                    // }}
                   />
                   <label htmlFor='tempoDeJogoAnos'>ano(s)</label>
 
@@ -326,24 +355,29 @@ export default function NovoAnuncio() {
                     value={tempoDeJogoMesesState}
                     onChange={e=>{
                       definirMensagemErroTempoDeJogo('');
-                      if (e.target.value == '')
-                        definirTempoDeJogoMesesState('');
-                      const n = parseInt(e.target.value);
-                      if (!isNaN(n) && n >= 0 && n <= 100)
-                        definirTempoDeJogoMesesState(n);
-                      else if (n > 100)
-                        definirTempoDeJogoMesesState(100);
+                      controlarValor(e,0,100,definirTempoDeJogoMesesState);
                     }}
-                    onKeyDown={e=>{
-                      //console.log(e.key);
-                      let n = parseInt(e.target.value);
-                      if (e.target.value == '')
-                        n = 0;
-                      if (e.key == 'ArrowUp' && n < 100)
-                        definirTempoDeJogoMesesState(n+1);
-                      if (e.key == 'ArrowDown'&& n > 0)
-                        definirTempoDeJogoMesesState(n-1);
-                    }}
+                    onKeyDown={e=>incDecValor(e,0,100,definirTempoDeJogoMesesState)}
+                    // onChange={e=>{
+                    //   definirMensagemErroTempoDeJogo('');
+                    //   if (e.target.value == '')
+                    //     definirTempoDeJogoMesesState('');
+                    //   const n = parseInt(e.target.value);
+                    //   if (!isNaN(n) && n >= 0 && n <= 100)
+                    //     definirTempoDeJogoMesesState(n);
+                    //   else if (n > 100)
+                    //     definirTempoDeJogoMesesState(100);
+                    // }}
+                    // onKeyDown={e=>{
+                    //   //console.log(e.key);
+                    //   let n = parseInt(e.target.value);
+                    //   if (e.target.value == '')
+                    //     n = 0;
+                    //   if (e.key == 'ArrowUp' && n < 100)
+                    //     definirTempoDeJogoMesesState(n+1);
+                    //   if (e.key == 'ArrowDown'&& n > 0)
+                    //     definirTempoDeJogoMesesState(n-1);
+                    // }}
                   />
                   <label htmlFor='tempoDeJogoMeses'>mês(es)</label>
                 </div>
