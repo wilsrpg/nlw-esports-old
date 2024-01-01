@@ -93,7 +93,7 @@ export default function Registrar() {
         <h2>Criar nova conta</h2>
         <div className='comEspacoParaMensagemDeErro'>
           <form className='flex flexColumn' onSubmit={e=>validarRegistro(e)}>
-            <input id='nomeDoUsuario' name='nomeDoUsuario' placeholder='Usuário' required
+            <input id='nomeDoUsuario' name='nomeDoUsuario' placeholder='Usuário' required autoFocus
               onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
             />
             <input id='senha' name='senha' type='password' placeholder='Senha' required

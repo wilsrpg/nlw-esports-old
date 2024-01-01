@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useHistory, useLocation } from 'react-router-dom';
+// import { useHistory, useLocation } from 'react-router-dom';
 import { contexto } from '../App';
 import carregando from '../imagens/loading.svg'
 import { SERVIDOR } from '../../../enderecoDoServidor';
@@ -9,9 +9,9 @@ export default function RecuperarConta() {
   const contexto2 = useContext(contexto);
   const [aguardando, definirAguardando] = useState(false);
   const [mensagem, definirMensagem] = useState('');
-  const historico = useHistory();
-  const urlAtual = useLocation();
-  const urlParams = new URLSearchParams(urlAtual.search);
+  // const historico = useHistory();
+  // const urlAtual = useLocation();
+  // const urlParams = new URLSearchParams(urlAtual.search);
 
   useEffect(()=>{
     document.title = 'Recuperar conta - NLW eSports';

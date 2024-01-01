@@ -57,13 +57,36 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
     //      historico.push(urlAtual.pathname);
     //  }
     //});
-    document.body.onscroll = ()=>definirPosicaoScroll(Math.min(
-      window.scrollY,
-      document.getElementById('resultadosDaPesquisa').offsetTop
-      + document.getElementById('barraSuperior').offsetHeight
-    ));
+    function obterScrollLimite() {
+      if (componenteExiste) {
+        let offset = document.getElementById('barraSuperior').offsetHeight + (
+          document.getElementById('resultadosDaPesquisa')
+          ? document.getElementById('resultadosDaPesquisa').offsetTop
+          : 0
+        );
+        definirPosicaoScroll(Math.min(window.scrollY,offset));
+      }
+    };
+    // document.body.onscroll = ()=>definirPosicaoScroll(Math.min(
+    //   window.scrollY,
+    //   document.getElementById('resultadosDaPesquisa').offsetTop
+    //   + document.getElementById('barraSuperior').offsetHeight
+    // ));
+    document.addEventListener('scroll',obterScrollLimite);
+    // document.addEventListener('scroll',()=>definirPosicaoScroll(Math.min(
+    //   window.scrollY,
+    //   document.getElementById('resultadosDaPesquisa').offsetTop
+    //   + document.getElementById('barraSuperior').offsetHeight
+    // )));
+    // console.log(document.onscroll);
 
-    return ()=>componenteExiste = false;
+    return ()=>{
+    // console.log(document.onscroll);
+      // document.removeEventListener('scroll',ss);
+      document.onscroll = '';
+      // document.body.scroll = undefined;
+      componenteExiste = false;
+    }
   }, [])
 
   useEffect(()=>{
@@ -174,7 +197,7 @@ export default function ResultadosDaPesquisa({filtros, apenasDoUsuario}) {
         const tempoPesquisa = Date.now() - tempoInicio;
         definirTempoDePesquisa(tempoPesquisa);
         //console.log('tempoPesquisa='+tempoPesquisa);
-        if(urlAtual.state){
+        if(urlAtual.state && urlAtual.state.posicao){
           //console.log(urlAtual.state.posicao);
           window.scrollTo(0,urlAtual.state.posicao);
         }

@@ -139,7 +139,7 @@ export default function Configuracoes() {
             //definirMensagem('Senha alterada com sucesso.');
             definirMensagem('');
             if (email)
-              document.getElementById('email').placeholder = email;
+              document.getElementById('email').value = email;
             document.getElementById('email').value = '';
             document.getElementById('senhaAtual').value = '';
             document.getElementById('novaSenha').value = '';
@@ -336,7 +336,8 @@ export default function Configuracoes() {
             />*/}
             <label htmlFor='email'>E-mail</label>
             <input id='email' name='email' type='email'
-              placeholder={dadosDoUsuario.email || '(conta sem e-mail)'}
+              defaultValue={dadosDoUsuario.email || ''}
+              //placeholder={dadosDoUsuario.email || '(conta sem e-mail)'}
               onClick={()=>definirMensagem('')} onChange={()=>definirMensagem('')}
             />
             <label htmlFor='novaSenha'>Nova senha</label>

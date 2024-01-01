@@ -30,7 +30,8 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
         definirMensagem(urlAtual.state.erro);
         document.getElementById('nomeDoUsuario').value = urlAtual.state.nomeDoUsuario;
         document.getElementById('senha').focus();
-      }
+      } else if (!cabecalho && !suspenso)
+        document.getElementById('nomeDoUsuario').focus();
     }
     //console.log(urlAtual);
   }, [urlAtual])
@@ -96,7 +97,8 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
         id: resp.id,
         nome: resp.nome
       });
-      if (urlParams.get('redir'))
+      if (urlParams.get('redir')
+      && urlParams.get('redir') != 'entrar' && urlParams.get('redir') != 'registrar')
         historico.push('/'+urlParams.get('redir'));
       else
       //if (urlAtual.pathname == '/entrar' || urlAtual.pathname == '/registrar')
@@ -108,7 +110,10 @@ export default function FormularioDeEntrada({funcFecharMenu, cabecalho, suspenso
         if (!cabecalho && !suspenso)
           definirMensagem(''+erro);
         else if (urlAtual.pathname != '/entrar')
-          historico.push('/entrar?redir='+urlAtual.pathname.slice(1), {erro, nomeDoUsuario});
+          historico.push(
+            '/entrar'+(urlAtual.pathname != '/registrar' ? '?redir='+urlAtual.pathname.slice(1) : ''),
+            {erro, nomeDoUsuario}
+          );
         definirAguardando(false);
     //})
     //.finally(()=>{
