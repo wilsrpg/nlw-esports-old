@@ -35,6 +35,99 @@ async function iniciar() {
 	//await db.run(`DELETE FROM Sessoes WHERE dataDeExpiracao < ${Date.now()};`);
 	//await db.run(`DELETE FROM RecuperacoesDeConta WHERE dataDeExpiracao < ${Date.now()};`);
 
+	//await db.run(`CREATE TABLE IF NOT EXISTS usuario (
+	//	id TEXT PRIMARY KEY,
+	//	nome_de_usuario TEXT NOT NULL UNIQUE,
+	//	nome_de_exibicao TEXT NOT NULL,
+	//	email TEXT NOT NULL UNIQUE,
+	//	hash_da_senha TEXT NOT NULL,
+	//	data_de_criacao DATETIME NOT NULL
+	//);`
+	//);
+	//await db.run(
+	//	`INSERT INTO usuario(id,nome_de_usuario,nome_de_exibicao,email,hash_da_senha,data_de_criacao)
+	//	SELECT id,nome,nome,email,senhaHash,dataDeCriacao
+	//	FROM Usuarios;`
+	//);
+
+	//await db.run(`CREATE TABLE IF NOT EXISTS sessao (
+	//	id INTEGER PRIMARY KEY,
+	//	id_do_usuario TEXT NOT NULL,
+	//	seletor TEXT NOT NULL,
+	//	hash_do_token TEXT NOT NULL,
+	//	data_de_criacao DATETIME NOT NULL
+	//	manter_sessao BOOLEAN NOT NULL
+	//);`
+	//);
+
+	//await db.run(`CREATE TABLE IF NOT EXISTS recuperacao_de_conta (
+	//	id INTEGER PRIMARY KEY,
+	//	id_do_usuario TEXT NOT NULL,
+	//	hash_do_token TEXT NOT NULL,
+	//	data_de_criacao DATETIME NOT NULL);`
+	//);
+
+	//db.run(`CREATE TABLE IF NOT EXISTS jogo (
+	//	id TEXT PRIMARY KEY,
+	//	nome TEXT NOT NULL,
+	//	nome_url TEXT NOT NULL,
+	//	url_da_imagem TEXT NOT NULL);`
+	//);
+	//await db.run(
+	//	`INSERT INTO jogo(id,nome,nome_url,url_da_imagem)
+	//	SELECT uuid,nome,nomeUrl,urlImagem
+	//	FROM Jogos;`
+	//);
+
+	//db.run(`CREATE TABLE IF NOT EXISTS anuncio (
+	//	id TEXT PRIMARY KEY,
+	//	id_do_jogo INTEGER NOT NULL,
+	//	nome_do_jogo TEXT NOT NULL,  ?
+	//	id_do_usuario INTEGER NOT NULL,
+	//	nome_do_usuario TEXT NOT NULL,  ?
+	//	tempo_de_jogo_em_meses INTEGER NOT NULL,
+	//	discord TEXT NOT NULL,
+	//	usa_chat_de_voz BOOLEAN NOT NULL,
+	//	data_de_criacao INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP);`
+	//);
+	//await db.run(
+	//	`INSERT INTO anuncio(id,id_do_jogo,nome_do_jogo ?,
+	//	id_do_usuario,nome_do_usuario ?,
+	//  tempo_de_jogo_em_meses,discord,usa_chat_de_voz,data_de_criacao)
+	//	SELECT (uuid,idDoJogo,nomeDoJogo ? ,idDoUsuario,nomeDoUsuario ? ,tempoDeJogoEmMeses,
+	//	discord,usaChatDeVoz,dataDeCriacao)
+	//	FROM Anuncios;`
+	//);
+
+	//await db.run(
+	//	`CREATE TABLE IF NOT EXISTS disponibilidade (
+	//		id INTEGER PRIMARY KEY,
+	//		id_do_anuncio INTEGER NOT NULL,
+	//		hora_de_inicio INTEGER NOT NULL,
+	//		hora_de_termino INTEGER NOT NULL,
+	//		FOREIGN KEY (id_do_anuncio) REFERENCES anuncio (id)
+	//		ON DELETE CASCADE
+	//	);`
+	//);
+	//await db.run(
+	//	`INSERT INTO disponibilidade
+	//	SELECT id,id_do_anuncio,hora_de_inicio,hora_de_termino
+	//	FROM Disponibilidades;`
+	//);
+
+	//await db.run(`CREATE TABLE IF NOT EXISTS dias_das_disponibilidades (
+	//	id INTEGER PRIMARY KEY,
+	//	id_da_disponibilidade INTEGER NOT NULL,
+	//	dia INTEGER NOT NULL,
+	//	FOREIGN KEY (id_da_disponibilidade) REFERENCES disponibilidade (id)
+	//	ON DELETE CASCADE);`
+	//);
+	//await db.run(
+	//	`INSERT INTO dias_das_disponibilidades
+	//	SELECT *
+	//	FROM DiasDasDisponibilidades;`
+	//);
+
 	//await db.run('PRAGMA foreign_keys=off;');
 	//await db.run('ALTER TABLE Disponibilidades RENAME TO Disponibilidades_old;');
 	//await db.run('ALTER TABLE Disponibilidades2 RENAME TO Disponibilidades;');
