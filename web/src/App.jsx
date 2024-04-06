@@ -21,9 +21,9 @@ import RedefinirSenha from './paginas/RedefinirSenha'
 
 /*falta:
 -não reutilizar id no banco de dados
--mudar nomenclatura no banco de dados pra este_padrao
+-mudar nomenclatura no banco de dados pra este_padrao: NÃO, em outro projeto faço isso
 -verificar envio de e-mails
--cadastrar jogo?
+-cadastrar jogo? NÃO
 */
 
 export const contexto = createContext();

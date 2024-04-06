@@ -128,6 +128,7 @@ async function iniciar() {
 	//	FROM DiasDasDisponibilidades;`
 	//);
 
+
 	//await db.run('PRAGMA foreign_keys=off;');
 	//await db.run('ALTER TABLE Disponibilidades RENAME TO Disponibilidades_old;');
 	//await db.run('ALTER TABLE Disponibilidades2 RENAME TO Disponibilidades;');
