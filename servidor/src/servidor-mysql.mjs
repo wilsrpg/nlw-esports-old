@@ -61,12 +61,13 @@ async function iniciar() {
 	con.connect((err) => {
 		if (err) return console.error(err.message);
 
-		const createTodosTable = `create table if not exists todos(
-			id int primary key auto_increment,
-			title varchar(255) not null,
-			completed bool not null default false
-		)`;
-		//const selectTodos = 'select * from todos';
+		// const createTodosTable = `create table if not exists todos(
+		// 	id int primary key auto_increment,
+		// 	title varchar(255) not null,
+		// 	completed bool not null default false
+		// );`;
+
+		//const selectTodos = 'select * from todos;';
 		//const insertTodos = 'insert into todos(title) values ?;';
 		//const todos = [
 		//	['teste1'],['teste2'],['teste3']
@@ -105,8 +106,8 @@ async function iniciar() {
 		//	id_do_usuario CHAR(36) NOT NULL,
 		//	seletor CHAR(8) NOT NULL,
 		//	hash_do_token CHAR(60) NOT NULL,
+		//	manter_sessao BOOLEAN NOT NULL,
 		//	data_de_criacao DATETIME NOT NULL
-		//	manter_sessao BOOLEAN NOT NULL
 		//);`
 		//);
 
@@ -283,7 +284,7 @@ async function iniciar() {
 	//	FROM Disponibilidades;`
 	//);
 
-	//const disps = await db.all(`SELECT id, dias FROM Disponibilidades`);
+	//const disps = await db.all(`SELECT id, dias FROM Disponibilidades;`);
 	//disps.map(disp=>{
 	//	disp.diasArray = disp.dias.split(',').map(d=>Number(d));
 	//});
@@ -774,7 +775,9 @@ servidor.post('/anuncios', async (req, resp)=>{
 					converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeTermino)
 				]
 			);
-			const disp = await db.get(`SELECT MAX(id) AS id FROM Disponibilidades`);
+			const disp = await db.get(
+				`SELECT MAX(id) AS id FROM Disponibilidades WHERE idDoAnuncio = ${anuncioPublicado.idDoAnuncio};`
+			);
 			//console.log(disp);
 			let j = 0;
 			let dias = anuncio.disponibilidades[i].dias.split(',').map(d=>parseInt(d));
@@ -2506,6 +2509,7 @@ servidor.put('/usuarios/:idDoUsuario', async (req, resp)=>{
 	}
 });
 
+//inicia processo de requisição de redefinição de senha
 servidor.post('/recuperacao-de-conta', async (req, resp)=>{
 	try {
 		const body = req.body;
@@ -2516,6 +2520,7 @@ servidor.post('/recuperacao-de-conta', async (req, resp)=>{
 			console.log('Conta não encontrada.');
 			return resp.status(404).json({erro: 'Conta não encontrada.'});
 		}
+		//remove requisições anteriores, caso haja
 		await db.run(`DELETE FROM RecuperacoesDeConta WHERE idDoUsuario = ${usuarioExiste.id};`);
 		const uuidDoToken = uuidv4();
 		const uuidDoTokenHash = await bcrypt.hash(uuidDoToken, BCRYPT_SALT_ROUNDS);

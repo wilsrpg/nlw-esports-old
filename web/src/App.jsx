@@ -24,6 +24,8 @@ import RedefinirSenha from './paginas/RedefinirSenha'
 -mudar nomenclatura no banco de dados pra este_padrao: NÃO, em outro projeto faço isso
 -verificar envio de e-mails
 -cadastrar jogo? NÃO
+-alterar nome da coluna idDoAnuncio da tabela Anuncios para "id" e fazer a correspondência nos arquivos
+  CartaoDeAnuncio e ResultadosDaPesquisa
 */
 
 export const contexto = createContext();

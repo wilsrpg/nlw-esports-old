@@ -100,7 +100,7 @@ export default function NovoAnuncio() {
     diasDisponiveis.map((disp,i)=>{
       if (!tdsdisps)
         return;
-      let id = i == 0 ? '' : i+1;
+      // let id = i == 0 ? '' : i+1;
       if (!disp.some(dia=>dia)) {
         //document.getElementById('quando'+id).style.animation = 'chamarAtencao 1000ms';
         ////dias.map(dia=>document.getElementById(dia.dia).style.animation = 'chamarAtencaoDias 0.5s')
