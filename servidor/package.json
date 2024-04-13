@@ -2,9 +2,9 @@
   "name": "servidor",
   "version": "1.0.0",
   "description": "",
-  "main": "src/servidor.mjs",
+  "main": "src/servidor-mysql.mjs",
   "scripts": {
-    "dev": "node-dev src/servidor.mjs"
+    "dev": "node-dev src/servidor-mysql.mjs"
   },
   "keywords": [],
   "author": "",

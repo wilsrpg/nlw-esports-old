@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import mysql from 'mysql2'
+//import mysqlp from 'mysql2/promise'
 import { config as dotenvConfig } from 'dotenv';
 //import { v4 as uuidv4 } from 'uuid';
 //import bcrypt from 'bcrypt';
@@ -34,6 +35,29 @@ const pool = mysql.createPool({
 	password: process.env.SENHA
 }).promise();
 
+//const poolp = mysqlp.createPool({
+//	host: 'johnny.heliohost.org',
+//	port: '3306',
+//	database: 'wilsrpg_heliodb',
+//	user: 'wilsrpg_helio',
+//	password: process.env.SENHA,
+//});
+
+//const poolp2 = await mysqlp.createPool({
+//	host: 'johnny.heliohost.org',
+//	port: '3306',
+//	database: 'wilsrpg_heliodb',
+//	user: 'wilsrpg_helio',
+//	password: process.env.SENHA,
+//  waitForConnections: true,
+//  connectionLimit: 10,
+//  maxIdle: 10, // max idle connections, the default value is the same as `connectionLimit`
+//  idleTimeout: 60000, // idle connections timeout, in milliseconds, the default value 60000
+//  queueLimit: 0,
+//  enableKeepAlive: true,
+//  keepAliveInitialDelay: 0,
+//});
+
 const BCRYPT_SALT_ROUNDS = 10;
 
 const DURACAO_DO_TOKEN_DE_SESSAO = 7 * 24*60*60*1000; //uma semana
@@ -58,8 +82,12 @@ async function iniciar() {
 	//	//await pool.query('CREATE DATABASE IF NOT EXISTS dbteste;');
 	//}
 
+	//const [a] = await pool.query(`SELECT * FROM todos;`);
+	//console.log(a);
+
 	con.connect((err) => {
 		if (err) return console.error(err.message);
+		console.log('con conectou ao banco de dados');
 
 		// const createTodosTable = `create table if not exists todos(
 		// 	id int primary key auto_increment,
@@ -97,6 +125,7 @@ async function iniciar() {
 		//	nome_de_exibicao VARCHAR(255) NOT NULL,
 		//	email VARCHAR(255) NOT NULL UNIQUE,
 		//	hash_da_senha CHAR(60) NOT NULL,
+		//	timestamp_da_criacao BIGINT NOT NULL,
 		//	data_de_criacao DATETIME NOT NULL
 		//);`
 		//);
@@ -107,6 +136,7 @@ async function iniciar() {
 		//	seletor CHAR(8) NOT NULL,
 		//	hash_do_token CHAR(60) NOT NULL,
 		//	manter_sessao BOOLEAN NOT NULL,
+		//	timestamp_da_criacao BIGINT NOT NULL,
 		//	data_de_criacao DATETIME NOT NULL
 		//);`
 		//);
@@ -115,6 +145,7 @@ async function iniciar() {
 		//	id CHAR(36) PRIMARY KEY,
 		//	id_do_usuario CHAR(36) NOT NULL,
 		//	hash_do_token CHAR(60) NOT NULL,
+		//	timestamp_da_criacao BIGINT NOT NULL,
 		//	data_de_criacao DATETIME NOT NULL
 		//);`
 		//);
@@ -131,9 +162,11 @@ async function iniciar() {
 		//	id CHAR(36) PRIMARY KEY,
 		//	id_do_jogo CHAR(36) NOT NULL,
 		//	id_do_usuario CHAR(36) NOT NULL,
+		//	nome_no_jogo VARCHAR(255) NOT NULL,
 		//	tempo_de_jogo_em_meses INT NOT NULL,
 		//	discord VARCHAR(255) NOT NULL,
 		//	usa_chat_de_voz BOOLEAN NOT NULL,
+		//	timestamp_da_criacao BIGINT NOT NULL,
 		//	data_de_criacao DATETIME NOT NULL
 		//);`
 		//);
@@ -163,6 +196,110 @@ async function iniciar() {
 			if (err) return console.log(err.message);
 		});
 	});
+
+
+	//const db = await abrirBanco;
+	//const usuarios = await db.all(`SELECT * FROM Usuarios;`);
+	//const jogos = await db.all(`SELECT * FROM Jogos;`);
+	//const anuncios = await db.all(`SELECT * FROM Anuncios;`);
+	//const disponibilidades = await db.all(`SELECT * FROM Disponibilidades;`);
+	//const diasDasDisponibilidades = await db.all(`SELECT * FROM DiasDasDisponibilidades;`);
+
+	//usuarios.map(usuario=>{
+	//	usuario.uuid = uuidv4();
+	//	usuario.dataDeCriacaoEmSeg = parseInt(usuario.dataDeCriacao/1000);
+	//});
+
+	//anuncios.map(anuncio=>{
+	//	if (!anuncio.uuid)
+	//		anuncio.uuid = uuidv4();
+	//	anuncio.uuidDoJogo = jogos[anuncio.idDoJogo].uuid;
+	//	usuarios.some(u=>{ if (u.id == anuncio.idDoUsuario)anuncio.uuidDoUsuario = u.uuid;}
+	//	anuncio.dataDeCriacaoEmSeg = parseInt(anuncio.dataDeCriacao/1000);
+	//});
+
+	//disponibilidades.map(disp=>{
+	//	disp.uuidDoAnuncio = jogos[disp.idDoJogo].uuid;
+	//	anuncios.some(a=>{ if (a.id == disp.idDoAnuncio)disp.uuidDoAnuncio = a.uuid;}
+	//});
+
+
+	//let i = 0;
+	//while (i < jogos.length) {
+		//await db.run(
+		//	`INSERT INTO jogo (id, nome, nome_url, url_da_imagem)
+		//	VALUES (?,?,?,?);`,
+		//	[
+		//		jogos.uuid, jogos.nome, jogos.nomeUrl, jogos.urlImagem)
+		//	]
+		//);
+	//}
+
+	//i = 0;
+	//while (i < usuarios.length) {
+		//await db.run(
+		//	`INSERT INTO usuario (id, nome_de_usuario, nome_de_exibicao, email, hash_da_senha, data_de_criacao)
+		//	VALUES (?,?,?,?,?);`,
+		//	[
+		//		usuarios.uuid, usuarios.nome, usuarios.nome, usuarios.email, usuarios.senhaHash, usuarios.dataDeCriacao)
+		//	]
+		//);
+	//}
+
+	//i = 0;
+	//while (i < anuncios.length) {
+		//await db.run(
+		//	`INSERT INTO anuncio (id, id_do_jogo, id_do_usuario, anuncios.nome_no_jogo, tempo_de_jogo_em_meses,
+		//	discord, usa_chat_de_voz, data_de_criacao)
+		//	VALUES (?,?,?,?);`,
+		//	[
+		//		anuncios.uuid, anuncios.uuidDoJogo, anuncios.uuidDoUsuario, anuncios.nomeNoJogo,
+		//		anuncios.tempoDeJogoEmMeses, anuncios.discord, anuncios.usaChatDeVoz, anuncios.dataDeCriacao)
+		//	]
+		//);
+	//}
+	
+	//i = 0;
+	//while (i < disponibilidades.length) {
+		//await db.run(
+		//	`INSERT INTO Disponibilidades (idDoAnuncio, dias, horaDeInicio, horaDeTermino)
+		//	VALUES (?,?,?,?);`,
+		//	[
+		//		disponibilidades.id,disponibilidades.horaDeInicio,disponibilidades.horaDeTermino)
+		//	]
+		//);
+		
+		//await db.run(
+		//	`INSERT INTO disponibilidades (idDoAnuncio, horaDeInicio, horaDeTermino) VALUES (?,?,?);`,
+		//	[
+		//		anuncioPublicado.idDoAnuncio,
+		//		converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeInicio),
+		//		converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeTermino)
+		//	]
+		//);
+		//const disp = await db.get(
+		//	`SELECT MAX(id) AS id FROM Disponibilidades WHERE idDoAnuncio = ${anuncioPublicado.idDoAnuncio};`
+		//);
+		//console.log(disp);
+		//let j = 0;
+		//let dias = anuncio.disponibilidades[i].dias.split(',').map(d=>parseInt(d));
+		//while (j < dias.length) {
+		//	await db.run(
+		//		`INSERT INTO DiasDasDisponibilidades (idDaDisponibilidade, dia) VALUES (?,?);`,
+		//		[disp.id, dias[j]]
+		//	);
+		//	j++;
+		//}
+		//i++;
+		//console.log(i+','+body.disponibilidades.length);
+	//}
+	//con.query(`INSERT INTO usuario (
+	//	id,nome_de_usuario,nome_de_exibicao,email,hash_da_senha,data_de_criacao)
+	//	VALUES;`
+	//);
+	
+	const [a] = await pool.query('SELECT UNIX_TIMESTAMP();');
+	console.log(a);
 
 
 	//const db = await abrirBanco;
@@ -219,6 +356,7 @@ async function iniciar() {
 	//	nome_do_jogo TEXT NOT NULL,  ?
 	//	id_do_usuario INTEGER NOT NULL,
 	//	nome_do_usuario TEXT NOT NULL,  ?
+	//	nome_no_jogo TEXT NOT NULL,
 	//	tempo_de_jogo_em_meses INTEGER NOT NULL,
 	//	discord TEXT NOT NULL,
 	//	usa_chat_de_voz BOOLEAN NOT NULL,
@@ -492,7 +630,7 @@ async function iniciar() {
 	//await db.run(`DELETE FROM Anuncios2;`);
 
 	//let i=0;
-	//while(i < a.length) {
+	//while (i < a.length) {
 	//	await db.run(`INSERT INTO Anuncios2
 	//		(idDoJogo, nomeDoJogo, idDoUsuario, nomeDoUsuario, tempoDeJogoEmAnos, tempoDeJogoEmMeses, discord,
 	//			diasQueJoga, horaDeInicio, horaDeTermino, usaChatDeVoz, dataDeCriacao, uuid)
