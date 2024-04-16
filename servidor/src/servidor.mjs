@@ -17,8 +17,6 @@ servidor.use(cors({
 
 dotenvConfig();
 
-const PORTA = process.env.PORTA;
-
 const abrirBanco = open({
 	filename: '../db/db.sqlite',
 	driver: sqlite3.Database
@@ -2418,7 +2416,7 @@ async function enviarEmail(email, assunto, texto) {
 			service: 'Hotmail',
 			auth: {
 				user: process.env.EMAIL,
-				pass: process.env.SENHA
+				pass: process.env.SENHA_DO_EMAIL
 			},
 				// tls: {
 				// 	// secureProtocol: 'TLSv1_method',
@@ -3005,4 +3003,4 @@ servidor.delete('/usuarios/:idDoUsuario/outras-sessoes', async (req, resp)=>{
 	}
 });
 
-servidor.listen(PORTA, ()=>console.log('iniciou server, ouvindo porta '+PORTA));
+servidor.listen(process.env.PORTA_DO_SERVIDOR, ()=>console.log('iniciou server, ouvindo porta '+process.env.PORTA_DO_SERVIDOR));
