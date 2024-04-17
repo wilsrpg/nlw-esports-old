@@ -1,13 +1,15 @@
 import express from 'express'
 import cors from 'cors'
-import mysql from 'mysql2'
-//import mysqlp from 'mysql2/promise'
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
 import { config as dotenvConfig } from 'dotenv';
-//import { v4 as uuidv4 } from 'uuid';
-//import bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcrypt';
 //import { PORTA } from '../../enderecoDoServidor';
-//import crypto from 'crypto';
-//import nodemailer from 'nodemailer';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+import mysql from 'mysql2'
+// import mysqlp from 'mysql2/promise'
 
 const servidor = express();
 servidor.use(express.json());
@@ -17,14 +19,17 @@ servidor.use(cors({
 
 dotenvConfig();
 
-const PORTA = process.env.PORTA;
+const abrirBanco = open({
+	filename: '../db/db.sqlite',
+	driver: sqlite3.Database
+});
 
 const con = mysql.createConnection({
 	host: 'johnny.heliohost.org',
 	port: '3306',
 	database: 'wilsrpg_heliodb',
 	user: 'wilsrpg_helio',
-	password: process.env.SENHA
+	password: process.env.SENHA_DO_DB
 });
 
 const pool = mysql.createPool({
@@ -32,23 +37,23 @@ const pool = mysql.createPool({
 	port: '3306',
 	database: 'wilsrpg_heliodb',
 	user: 'wilsrpg_helio',
-	password: process.env.SENHA
+	password: process.env.SENHA_DO_DB
 }).promise();
 
-//const poolp = mysqlp.createPool({
-//	host: 'johnny.heliohost.org',
-//	port: '3306',
-//	database: 'wilsrpg_heliodb',
-//	user: 'wilsrpg_helio',
-//	password: process.env.SENHA,
-//});
+// const poolp = mysqlp.createPool({
+// 	host: 'johnny.heliohost.org',
+// 	port: '3306',
+// 	database: 'wilsrpg_heliodb',
+// 	user: 'wilsrpg_helio',
+// 	password: process.env.SENHA_DO_DB,
+// });
 
 //const poolp2 = await mysqlp.createPool({
 //	host: 'johnny.heliohost.org',
 //	port: '3306',
 //	database: 'wilsrpg_heliodb',
 //	user: 'wilsrpg_helio',
-//	password: process.env.SENHA,
+//	password: process.env.SENHA_DO_DB,
 //  waitForConnections: true,
 //  connectionLimit: 10,
 //  maxIdle: 10, // max idle connections, the default value is the same as `connectionLimit`
@@ -167,7 +172,9 @@ async function iniciar() {
 		//	discord VARCHAR(255) NOT NULL,
 		//	usa_chat_de_voz BOOLEAN NOT NULL,
 		//	timestamp_da_criacao BIGINT NOT NULL,
-		//	data_de_criacao DATETIME NOT NULL
+		//	data_de_criacao DATETIME NOT NULL,
+		//	FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
+		//	ON DELETE CASCADE
 		//);`
 		//);
 
@@ -187,7 +194,8 @@ async function iniciar() {
 		//	id_da_disponibilidade INT NOT NULL,
 		//	dia INT NOT NULL,
 		//	FOREIGN KEY (id_da_disponibilidade) REFERENCES disponibilidade (id)
-		//	ON DELETE CASCADE);`
+		//	ON DELETE CASCADE
+		//);`
 		//);
 
 
@@ -198,30 +206,39 @@ async function iniciar() {
 	});
 
 
-	//const db = await abrirBanco;
-	//const usuarios = await db.all(`SELECT * FROM Usuarios;`);
-	//const jogos = await db.all(`SELECT * FROM Jogos;`);
-	//const anuncios = await db.all(`SELECT * FROM Anuncios;`);
-	//const disponibilidades = await db.all(`SELECT * FROM Disponibilidades;`);
-	//const diasDasDisponibilidades = await db.all(`SELECT * FROM DiasDasDisponibilidades;`);
+	const db = await abrirBanco;
+	const usuarios = await db.all(`SELECT * FROM Usuarios;`);
+	const jogos = await db.all(`SELECT * FROM Jogos;`);
+	const anuncios = await db.all(`SELECT * FROM Anuncios;`);
+	const disponibilidades = await db.all(`SELECT * FROM Disponibilidades;`);
+	const diasDasDisponibilidades = await db.all(`SELECT * FROM DiasDasDisponibilidades;`);
 
-	//usuarios.map(usuario=>{
-	//	usuario.uuid = uuidv4();
-	//	usuario.dataDeCriacaoEmSeg = parseInt(usuario.dataDeCriacao/1000);
-	//});
+	usuarios.map(usuario=>{
+		usuario.uuid = uuidv4();
+		usuario.dataDeCriacaoEmSeg = parseInt(usuario.dataDeCriacao/1000);
+	});
+	console.log(usuarios.filter((a,i)=>i<10));
 
-	//anuncios.map(anuncio=>{
-	//	if (!anuncio.uuid)
-	//		anuncio.uuid = uuidv4();
-	//	anuncio.uuidDoJogo = jogos[anuncio.idDoJogo].uuid;
-	//	usuarios.some(u=>{ if (u.id == anuncio.idDoUsuario)anuncio.uuidDoUsuario = u.uuid;}
-	//	anuncio.dataDeCriacaoEmSeg = parseInt(anuncio.dataDeCriacao/1000);
-	//});
+	console.log(jogos);
 
-	//disponibilidades.map(disp=>{
-	//	disp.uuidDoAnuncio = jogos[disp.idDoJogo].uuid;
-	//	anuncios.some(a=>{ if (a.id == disp.idDoAnuncio)disp.uuidDoAnuncio = a.uuid;}
-	//});
+	anuncios.map(anuncio=>{
+		if (!anuncio.uuid)
+			anuncio.uuid = uuidv4();
+		anuncio.uuidDoJogo = jogos[anuncio.idDoJogo].uuid;
+		usuarios.some(u=>{ if (u.id == anuncio.idDoUsuario)anuncio.uuidDoUsuario = u.uuid;})
+		anuncio.dataDeCriacaoEmSeg = parseInt(anuncio.dataDeCriacao/1000);
+	});
+	console.log(anuncios.filter((a,i)=>i<10));
+
+	// console.log(disponibilidades[0]);
+	disponibilidades.map(disp=>{
+		// console.log(jogos[disp.idDoJogo-1]);
+		// disp.uuidDoAnuncio = anuncios[disp.idDoAnuncio-1].uuid;
+		anuncios.some(a=>{ if (a.idDoAnuncio == disp.idDoAnuncio)disp.uuidDoAnuncio = a.uuid;})
+	});
+	console.log(disponibilidades.filter((a,i)=>i<10));
+
+	console.log(diasDasDisponibilidades.filter((a,i)=>i<10));
 
 
 	//let i = 0;
@@ -299,6 +316,13 @@ async function iniciar() {
 	//);
 	
 	const [a] = await pool.query('SELECT UNIX_TIMESTAMP();');
+	// const [a] = await pool.query('SELECT FROM_UNIXTIME(UNIX_TIMESTAMP());');
+	// const [a] = await pool.query('SELECT NOW();');
+	// const [a] = await pool.query('SELECT CURRENT_DATE();');
+	// const [a] = await poolp.query('SELECT UNIX_TIMESTAMP();');
+	// const conn = await pool.getConnection();
+	// const [a] = await conn.query('SELECT UNIX_TIMESTAMP();');
+	// const [a] = await conn.query('SELECT UNIX_TIMESTAMP();');
 	console.log(a);
 
 
@@ -2690,7 +2714,7 @@ async function enviarEmail(email, assunto, texto) {
 			service: 'Hotmail',
 			auth: {
 				user: process.env.EMAIL,
-				pass: process.env.SENHA
+				pass: process.env.SENHA_DO_EMAIL
 			},
 				// tls: {
 				// 	// secureProtocol: 'TLSv1_method',
@@ -3277,4 +3301,4 @@ servidor.delete('/usuarios/:idDoUsuario/outras-sessoes', async (req, resp)=>{
 	}
 });
 
-servidor.listen(PORTA, ()=>console.log('iniciou server, ouvindo porta '+PORTA));
+servidor.listen(process.env.PORTA_DO_SERVIDOR, ()=>console.log('iniciou server, ouvindo porta '+process.env.PORTA_DO_SERVIDOR));
