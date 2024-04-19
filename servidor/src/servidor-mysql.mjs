@@ -124,13 +124,22 @@ async function iniciar() {
 
 
 		//criação das tabelas
+
+		//con.query(`CREATE TABLE IF NOT EXISTS jogo (
+		//	id CHAR(36) PRIMARY KEY,
+		//	nome VARCHAR(255) NOT NULL,
+		//	nome_url VARCHAR(255) NOT NULL,
+		//	url_da_imagem VARCHAR(255) NOT NULL
+		//);`
+		//);
+
 		//con.query(`CREATE TABLE IF NOT EXISTS usuario (
 		//	id CHAR(36) PRIMARY KEY,
 		//	nome_de_usuario VARCHAR(255) NOT NULL UNIQUE,
 		//	nome_de_exibicao VARCHAR(255) NOT NULL,
 		//	email VARCHAR(255) NOT NULL UNIQUE,
 		//	hash_da_senha CHAR(60) NOT NULL,
-		//	timestamp_da_criacao BIGINT NOT NULL,
+		//	timestamp_da_criacao_em_ms BIGINT NOT NULL,
 		//	data_de_criacao DATETIME NOT NULL
 		//);`
 		//);
@@ -141,8 +150,9 @@ async function iniciar() {
 		//	seletor CHAR(8) NOT NULL,
 		//	hash_do_token CHAR(60) NOT NULL,
 		//	manter_sessao BOOLEAN NOT NULL,
-		//	timestamp_da_criacao BIGINT NOT NULL,
-		//	data_de_criacao DATETIME NOT NULL
+		//	data_de_criacao DATETIME NOT NULL,
+		//	FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
+		//	ON DELETE CASCADE
 		//);`
 		//);
 
@@ -150,16 +160,9 @@ async function iniciar() {
 		//	id CHAR(36) PRIMARY KEY,
 		//	id_do_usuario CHAR(36) NOT NULL,
 		//	hash_do_token CHAR(60) NOT NULL,
-		//	timestamp_da_criacao BIGINT NOT NULL,
-		//	data_de_criacao DATETIME NOT NULL
-		//);`
-		//);
-
-		//con.query(`CREATE TABLE IF NOT EXISTS jogo (
-		//	id CHAR(36) PRIMARY KEY,
-		//	nome VARCHAR(255) NOT NULL,
-		//	nome_url VARCHAR(255) NOT NULL,
-		//	url_da_imagem VARCHAR(255) NOT NULL
+		//	data_de_criacao DATETIME NOT NULL,
+		//	FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
+		//	ON DELETE CASCADE
 		//);`
 		//);
 
@@ -171,7 +174,7 @@ async function iniciar() {
 		//	tempo_de_jogo_em_meses INT NOT NULL,
 		//	discord VARCHAR(255) NOT NULL,
 		//	usa_chat_de_voz BOOLEAN NOT NULL,
-		//	timestamp_da_criacao BIGINT NOT NULL,
+		//	timestamp_da_criacao_em_ms BIGINT NOT NULL,
 		//	data_de_criacao DATETIME NOT NULL,
 		//	FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
 		//	ON DELETE CASCADE
@@ -189,7 +192,7 @@ async function iniciar() {
 		//	);`
 		//);
 
-		//con.query(`CREATE TABLE IF NOT EXISTS dias_das_disponibilidades (
+		//con.query(`CREATE TABLE IF NOT EXISTS dia_da_disponibilidade (
 		//	id INT AUTO_INCREMENT PRIMARY KEY,
 		//	id_da_disponibilidade INT NOT NULL,
 		//	dia INT NOT NULL,
@@ -207,11 +210,13 @@ async function iniciar() {
 
 
 	const db = await abrirBanco;
-	const usuarios = await db.all(`SELECT * FROM Usuarios;`);
 	const jogos = await db.all(`SELECT * FROM Jogos;`);
+	const usuarios = await db.all(`SELECT * FROM Usuarios;`);
 	const anuncios = await db.all(`SELECT * FROM Anuncios;`);
 	const disponibilidades = await db.all(`SELECT * FROM Disponibilidades;`);
 	const diasDasDisponibilidades = await db.all(`SELECT * FROM DiasDasDisponibilidades;`);
+
+	console.log(jogos);
 
 	usuarios.map(usuario=>{
 		usuario.uuid = uuidv4();
@@ -219,13 +224,14 @@ async function iniciar() {
 	});
 	console.log(usuarios.filter((a,i)=>i<10));
 
-	console.log(jogos);
-
 	anuncios.map(anuncio=>{
 		if (!anuncio.uuid)
 			anuncio.uuid = uuidv4();
-		anuncio.uuidDoJogo = jogos[anuncio.idDoJogo].uuid;
-		usuarios.some(u=>{ if (u.id == anuncio.idDoUsuario)anuncio.uuidDoUsuario = u.uuid;})
+		anuncio.uuidDoJogo = jogos[anuncio.idDoJogo-1].uuid;
+		usuarios.some(usuario=>{
+			if (usuario.id == anuncio.idDoUsuario)
+				anuncio.uuidDoUsuario = usuario.uuid;
+		})
 		anuncio.dataDeCriacaoEmSeg = parseInt(anuncio.dataDeCriacao/1000);
 	});
 	console.log(anuncios.filter((a,i)=>i<10));
@@ -234,7 +240,10 @@ async function iniciar() {
 	disponibilidades.map(disp=>{
 		// console.log(jogos[disp.idDoJogo-1]);
 		// disp.uuidDoAnuncio = anuncios[disp.idDoAnuncio-1].uuid;
-		anuncios.some(a=>{ if (a.idDoAnuncio == disp.idDoAnuncio)disp.uuidDoAnuncio = a.uuid;})
+		anuncios.some(anuncio=>{
+			if (anuncio.idDoAnuncio == disp.idDoAnuncio)
+				disp.uuidDoAnuncio = anuncio.uuid;
+		})
 	});
 	console.log(disponibilidades.filter((a,i)=>i<10));
 
@@ -247,74 +256,67 @@ async function iniciar() {
 		//	`INSERT INTO jogo (id, nome, nome_url, url_da_imagem)
 		//	VALUES (?,?,?,?);`,
 		//	[
-		//		jogos.uuid, jogos.nome, jogos.nomeUrl, jogos.urlImagem)
+		//		jogos[i].uuid, jogos[i].nome, jogos[i].nomeUrl, jogos[i].urlImagem
 		//	]
 		//);
+		//i++;
 	//}
 
 	//i = 0;
 	//while (i < usuarios.length) {
 		//await db.run(
-		//	`INSERT INTO usuario (id, nome_de_usuario, nome_de_exibicao, email, hash_da_senha, data_de_criacao)
-		//	VALUES (?,?,?,?,?);`,
+		//	`INSERT INTO usuario (id, nome_de_usuario, nome_de_exibicao, email, hash_da_senha,
+		//		timestamp_da_criacao_em_ms, data_de_criacao)
+		//	VALUES (?,?,?,?,?,?,?);`,
 		//	[
-		//		usuarios.uuid, usuarios.nome, usuarios.nome, usuarios.email, usuarios.senhaHash, usuarios.dataDeCriacao)
+		//		usuarios[i].uuid, usuarios[i].nome, usuarios[i].nome, usuarios[i].email, usuarios[i].senhaHash,
+		// 		usuarios[i].dataDeCriacao, usuarios[i].dataDeCriacaoEmSeg
 		//	]
 		//);
+		//i++;
 	//}
 
 	//i = 0;
 	//while (i < anuncios.length) {
 		//await db.run(
-		//	`INSERT INTO anuncio (id, id_do_jogo, id_do_usuario, anuncios.nome_no_jogo, tempo_de_jogo_em_meses,
-		//	discord, usa_chat_de_voz, data_de_criacao)
+		//	`INSERT INTO anuncio (id, id_do_jogo, id_do_usuario, nome_no_jogo, tempo_de_jogo_em_meses,
+		//	discord, usa_chat_de_voz, timestamp_da_criacao_em_ms, data_de_criacao)
 		//	VALUES (?,?,?,?);`,
 		//	[
-		//		anuncios.uuid, anuncios.uuidDoJogo, anuncios.uuidDoUsuario, anuncios.nomeNoJogo,
-		//		anuncios.tempoDeJogoEmMeses, anuncios.discord, anuncios.usaChatDeVoz, anuncios.dataDeCriacao)
+		//		anuncios[i].uuid, anuncios[i].uuidDoJogo, anuncios[i].uuidDoUsuario, anuncios[i].nomeNoJogo,
+		//		anuncios[i].tempoDeJogoEmMeses, anuncios[i].discord, anuncios[i].usaChatDeVoz,
+		// 		anuncios[i].dataDeCriacao, anuncios[i].dataDeCriacaoEmSeg
 		//	]
 		//);
+		//i++;
 	//}
-	
+
 	//i = 0;
 	//while (i < disponibilidades.length) {
 		//await db.run(
-		//	`INSERT INTO Disponibilidades (idDoAnuncio, dias, horaDeInicio, horaDeTermino)
-		//	VALUES (?,?,?,?);`,
+		//	`INSERT INTO disponibilidade (id_do_anuncio, hora_de_inicio, hora_de_termino)
+		//	VALUES (?,?,?);`,
 		//	[
-		//		disponibilidades.id,disponibilidades.horaDeInicio,disponibilidades.horaDeTermino)
+		//		disponibilidades[i].uuidDoAnuncio, disponibilidades[i].horaDeInicio,
+		//		disponibilidades[i].horaDeTermino
 		//	]
 		//);
-		
-		//await db.run(
-		//	`INSERT INTO disponibilidades (idDoAnuncio, horaDeInicio, horaDeTermino) VALUES (?,?,?);`,
-		//	[
-		//		anuncioPublicado.idDoAnuncio,
-		//		converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeInicio),
-		//		converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeTermino)
-		//	]
-		//);
-		//const disp = await db.get(
-		//	`SELECT MAX(id) AS id FROM Disponibilidades WHERE idDoAnuncio = ${anuncioPublicado.idDoAnuncio};`
-		//);
-		//console.log(disp);
-		//let j = 0;
-		//let dias = anuncio.disponibilidades[i].dias.split(',').map(d=>parseInt(d));
-		//while (j < dias.length) {
-		//	await db.run(
-		//		`INSERT INTO DiasDasDisponibilidades (idDaDisponibilidade, dia) VALUES (?,?);`,
-		//		[disp.id, dias[j]]
-		//	);
-		//	j++;
-		//}
 		//i++;
-		//console.log(i+','+body.disponibilidades.length);
 	//}
-	//con.query(`INSERT INTO usuario (
-	//	id,nome_de_usuario,nome_de_exibicao,email,hash_da_senha,data_de_criacao)
-	//	VALUES;`
-	//);
-	
+
+	//i = 0;
+	//while (i < diasDasDisponibilidades.length) {
+		//await db.run(
+		//	`INSERT INTO dia_da_disponibilidade (id_da_disponibilidade, dia)
+		//	VALUES (?);`,
+		//	[
+		//		diasDasDisponibilidades[i].idDaDisponibilidade, diasDasDisponibilidades[i].dia
+		//	]
+		//);
+		//i++;
+	//}
+
+
 	const [a] = await pool.query('SELECT UNIX_TIMESTAMP();');
 	// const [a] = await pool.query('SELECT FROM_UNIXTIME(UNIX_TIMESTAMP());');
 	// const [a] = await pool.query('SELECT NOW();');

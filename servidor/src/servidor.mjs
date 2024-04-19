@@ -356,7 +356,7 @@ async function iniciar() {
 	//await db.run(`DELETE FROM Anuncios2;`);
 
 	//let i=0;
-	//while(i < a.length) {
+	//while (i < a.length) {
 	//	await db.run(`INSERT INTO Anuncios2
 	//		(idDoJogo, nomeDoJogo, idDoUsuario, nomeDoUsuario, tempoDeJogoEmAnos, tempoDeJogoEmMeses, discord,
 	//			diasQueJoga, horaDeInicio, horaDeTermino, usaChatDeVoz, dataDeCriacao, uuid)
