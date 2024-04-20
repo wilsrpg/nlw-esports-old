@@ -125,81 +125,81 @@ async function iniciar() {
 
 		//criação das tabelas
 
-		//con.query(`CREATE TABLE IF NOT EXISTS jogo (
-		//	id CHAR(36) PRIMARY KEY,
-		//	nome VARCHAR(255) NOT NULL,
-		//	nome_url VARCHAR(255) NOT NULL,
-		//	url_da_imagem VARCHAR(255) NOT NULL
-		//);`
-		//);
+		con.query(`CREATE TABLE IF NOT EXISTS jogo (
+			id CHAR(36) PRIMARY KEY,
+			nome VARCHAR(255) NOT NULL,
+			nome_url VARCHAR(255) NOT NULL,
+			url_da_imagem VARCHAR(255) NOT NULL
+		);`
+		);
 
-		//con.query(`CREATE TABLE IF NOT EXISTS usuario (
-		//	id CHAR(36) PRIMARY KEY,
-		//	nome_de_usuario VARCHAR(255) NOT NULL UNIQUE,
-		//	nome_de_exibicao VARCHAR(255) NOT NULL,
-		//	email VARCHAR(255) NOT NULL UNIQUE,
-		//	hash_da_senha CHAR(60) NOT NULL,
-		//	timestamp_da_criacao_em_ms BIGINT NOT NULL,
-		//	data_de_criacao DATETIME NOT NULL
-		//);`
-		//);
+		con.query(`CREATE TABLE IF NOT EXISTS usuario (
+			id CHAR(36) PRIMARY KEY,
+			nome_de_usuario VARCHAR(255) NOT NULL UNIQUE,
+			nome_de_exibicao VARCHAR(255) NOT NULL,
+			email VARCHAR(255) NOT NULL UNIQUE,
+			hash_da_senha CHAR(60) NOT NULL,
+			timestamp_da_criacao_em_ms BIGINT NOT NULL,
+			data_de_criacao DATETIME NOT NULL
+		);`
+		);
 
-		//con.query(`CREATE TABLE IF NOT EXISTS sessao (
-		//	id CHAR(36) PRIMARY KEY,
-		//	id_do_usuario CHAR(36) NOT NULL,
-		//	seletor CHAR(8) NOT NULL,
-		//	hash_do_token CHAR(60) NOT NULL,
-		//	manter_sessao BOOLEAN NOT NULL,
-		//	data_de_criacao DATETIME NOT NULL,
-		//	FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
-		//	ON DELETE CASCADE
-		//);`
-		//);
+		con.query(`CREATE TABLE IF NOT EXISTS sessao (
+			id CHAR(36) PRIMARY KEY,
+			id_do_usuario CHAR(36) NOT NULL,
+			seletor CHAR(8) NOT NULL,
+			hash_do_token CHAR(60) NOT NULL,
+			manter_sessao BOOLEAN NOT NULL,
+			data_de_criacao DATETIME NOT NULL,
+			FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
+			ON DELETE CASCADE
+		);`
+		);
 
-		//con.query(`CREATE TABLE IF NOT EXISTS recuperacao_de_conta (
-		//	id CHAR(36) PRIMARY KEY,
-		//	id_do_usuario CHAR(36) NOT NULL,
-		//	hash_do_token CHAR(60) NOT NULL,
-		//	data_de_criacao DATETIME NOT NULL,
-		//	FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
-		//	ON DELETE CASCADE
-		//);`
-		//);
+		con.query(`CREATE TABLE IF NOT EXISTS recuperacao_de_conta (
+			id CHAR(36) PRIMARY KEY,
+			id_do_usuario CHAR(36) NOT NULL,
+			hash_do_token CHAR(60) NOT NULL,
+			data_de_criacao DATETIME NOT NULL,
+			FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
+			ON DELETE CASCADE
+		);`
+		);
 
-		//con.query(`CREATE TABLE IF NOT EXISTS anuncio (
-		//	id CHAR(36) PRIMARY KEY,
-		//	id_do_jogo CHAR(36) NOT NULL,
-		//	id_do_usuario CHAR(36) NOT NULL,
-		//	nome_no_jogo VARCHAR(255) NOT NULL,
-		//	tempo_de_jogo_em_meses INT NOT NULL,
-		//	discord VARCHAR(255) NOT NULL,
-		//	usa_chat_de_voz BOOLEAN NOT NULL,
-		//	timestamp_da_criacao_em_ms BIGINT NOT NULL,
-		//	data_de_criacao DATETIME NOT NULL,
-		//	FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
-		//	ON DELETE CASCADE
-		//);`
-		//);
+		con.query(`CREATE TABLE IF NOT EXISTS anuncio (
+			id CHAR(36) PRIMARY KEY,
+			id_do_jogo CHAR(36) NOT NULL,
+			id_do_usuario CHAR(36) NOT NULL,
+			nome_no_jogo VARCHAR(255) NOT NULL,
+			tempo_de_jogo_em_meses INT NOT NULL,
+			discord VARCHAR(255) NOT NULL,
+			usa_chat_de_voz BOOLEAN NOT NULL,
+			timestamp_da_criacao_em_ms BIGINT NOT NULL,
+			data_de_criacao DATETIME NOT NULL,
+			FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
+			ON DELETE CASCADE
+		);`
+		);
 
-		//con.query(
-		//	`CREATE TABLE IF NOT EXISTS disponibilidade (
-		//		id INT AUTO_INCREMENT PRIMARY KEY,
-		//		id_do_anuncio CHAR(36) NOT NULL,
-		//		hora_de_inicio INT NOT NULL,
-		//		hora_de_termino INT NOT NULL,
-		//		FOREIGN KEY (id_do_anuncio) REFERENCES anuncio (id)
-		//		ON DELETE CASCADE
-		//	);`
-		//);
+		con.query(
+			`CREATE TABLE IF NOT EXISTS disponibilidade (
+				id INT AUTO_INCREMENT PRIMARY KEY,
+				id_do_anuncio CHAR(36) NOT NULL,
+				hora_de_inicio INT NOT NULL,
+				hora_de_termino INT NOT NULL,
+				FOREIGN KEY (id_do_anuncio) REFERENCES anuncio (id)
+				ON DELETE CASCADE
+			);`
+		);
 
-		//con.query(`CREATE TABLE IF NOT EXISTS dia_da_disponibilidade (
-		//	id INT AUTO_INCREMENT PRIMARY KEY,
-		//	id_da_disponibilidade INT NOT NULL,
-		//	dia INT NOT NULL,
-		//	FOREIGN KEY (id_da_disponibilidade) REFERENCES disponibilidade (id)
-		//	ON DELETE CASCADE
-		//);`
-		//);
+		con.query(`CREATE TABLE IF NOT EXISTS dia_da_disponibilidade (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			id_da_disponibilidade INT NOT NULL,
+			dia INT NOT NULL,
+			FOREIGN KEY (id_da_disponibilidade) REFERENCES disponibilidade (id)
+			ON DELETE CASCADE
+		);`
+		);
 
 
 		// close the connection
@@ -209,115 +209,159 @@ async function iniciar() {
 	});
 
 
-	const db = await abrirBanco;
-	const jogos = await db.all(`SELECT * FROM Jogos;`);
-	const usuarios = await db.all(`SELECT * FROM Usuarios;`);
-	const anuncios = await db.all(`SELECT * FROM Anuncios;`);
-	const disponibilidades = await db.all(`SELECT * FROM Disponibilidades;`);
-	const diasDasDisponibilidades = await db.all(`SELECT * FROM DiasDasDisponibilidades;`);
+	//const db = await abrirBanco;
+	//const jogos = await db.all(`SELECT * FROM Jogos;`);
+	//const usuarios = await db.all(`SELECT * FROM Usuarios;`);
+	//const anuncios = await db.all(`SELECT * FROM Anuncios;`);
+	//const disponibilidades = await db.all(`SELECT * FROM Disponibilidades;`);
+	//const diasDasDisponibilidades = await db.all(`SELECT * FROM DiasDasDisponibilidades;`);
 
-	console.log(jogos);
+	////await pool.query(`DELETE FROM usuario;`);
+	//const [usuarios2] = await pool.query(`SELECT * FROM usuario;`);
+	//console.log(usuarios2.filter((a,i)=>i<5));
+	//await pool.query(`DELETE FROM disponibilidade;`);
+	//console.log('deletou disponibilidade');
+	//await pool.query(`DELETE FROM dia_da_disponibilidade;`);
+	//console.log('deletou dia_da_disponibilidade');
+	//const [anuncios2] = await pool.query(`SELECT * FROM anuncio;`);
 
-	usuarios.map(usuario=>{
-		usuario.uuid = uuidv4();
-		usuario.dataDeCriacaoEmSeg = parseInt(usuario.dataDeCriacao/1000);
-	});
-	console.log(usuarios.filter((a,i)=>i<10));
+	//console.log(jogos);
 
-	anuncios.map(anuncio=>{
-		if (!anuncio.uuid)
-			anuncio.uuid = uuidv4();
-		anuncio.uuidDoJogo = jogos[anuncio.idDoJogo-1].uuid;
-		usuarios.some(usuario=>{
-			if (usuario.id == anuncio.idDoUsuario)
-				anuncio.uuidDoUsuario = usuario.uuid;
-		})
-		anuncio.dataDeCriacaoEmSeg = parseInt(anuncio.dataDeCriacao/1000);
-	});
-	console.log(anuncios.filter((a,i)=>i<10));
+	//usuarios.map((usuario,i)=>{
+	//	//usuario.uuid = uuidv4();
+	//	usuarios2.some(usuario2=>{
+	//		if (usuario2.nome_de_usuario == usuario.nome)
+	//			usuario.uuid = usuario2.id;
+	//	})
+	//	if (!usuario.email)
+	//		usuario.email = 'email'+i+'@vaz.io';
+	//	usuario.dataDeCriacaoEmSeg = parseInt(usuario.dataDeCriacao/1000);
+	//});
+	//console.log(usuarios.filter((a,i)=>i<5));
 
-	// console.log(disponibilidades[0]);
-	disponibilidades.map(disp=>{
-		// console.log(jogos[disp.idDoJogo-1]);
-		// disp.uuidDoAnuncio = anuncios[disp.idDoAnuncio-1].uuid;
-		anuncios.some(anuncio=>{
-			if (anuncio.idDoAnuncio == disp.idDoAnuncio)
-				disp.uuidDoAnuncio = anuncio.uuid;
-		})
-	});
-	console.log(disponibilidades.filter((a,i)=>i<10));
+	//anuncios.map(anuncio=>{
+	//	if (!anuncio.uuid)
+	//		anuncio.uuid = uuidv4();
+	//	anuncio.uuidDoJogo = jogos[anuncio.idDoJogo-1].uuid;
+	//	usuarios.some(usuario=>{
+	//		if (usuario.id == anuncio.idDoUsuario)
+	//			anuncio.uuidDoUsuario = usuario.uuid;
+	//	})
+	//	anuncio.dataDeCriacaoEmSeg = parseInt(anuncio.dataDeCriacao/1000);
+	//});
+	//console.log(anuncios.filter((a,i)=>i<5));
 
-	console.log(diasDasDisponibilidades.filter((a,i)=>i<10));
+	//anuncios.map(anuncio=>{
+	//	if (!anuncio.uuid)
+	//		//anuncio.uuid = uuidv4();
+	//		anuncios2.some(anuncio2=>{
+	//			if (anuncio2.timestamp_da_criacao_em_ms == anuncio.dataDeCriacao)
+	//				anuncio.uuid = anuncio2.id;
+	//		})
+	//});
+
+	//disponibilidades.map(disp=>{
+	//	anuncios.some(anuncio=>{
+	//		if (anuncio.idDoAnuncio == disp.idDoAnuncio)
+	//			disp.uuidDoAnuncio = anuncio.uuid;
+	//	})
+	//	//anuncios2.some(anuncio2=>{
+	//	//	if (anuncio2.idDoAnuncio == disp.idDoAnuncio)
+	//	//		disp.uuidDoAnuncio = anuncio2.uuid;
+	//	//})
+	//});
+	//console.log(disponibilidades.filter((a,i)=>i<5));
+
+	//console.log(diasDasDisponibilidades.filter((a,i)=>i<5));
 
 
+	//importação dos dados
 	//let i = 0;
+	//console.log('importando...');
+
+	//i = 0;
 	//while (i < jogos.length) {
-		//await db.run(
-		//	`INSERT INTO jogo (id, nome, nome_url, url_da_imagem)
-		//	VALUES (?,?,?,?);`,
-		//	[
-		//		jogos[i].uuid, jogos[i].nome, jogos[i].nomeUrl, jogos[i].urlImagem
-		//	]
-		//);
-		//i++;
+	//	await pool.query(
+	//		`INSERT INTO jogo (id, nome, nome_url, url_da_imagem)
+	//		VALUES (?,?,?,?);`,
+	//		[
+	//			jogos[i].uuid, jogos[i].nome, jogos[i].nomeUrl, jogos[i].urlImagem
+	//		]
+	//	);
+	//	i++;
 	//}
+	//const [jogoMysql] = await pool.query(`SELECT * FROM jogo;`);
+	//console.log('importou jogos');
+	//console.log(jogoMysql);
 
 	//i = 0;
 	//while (i < usuarios.length) {
-		//await db.run(
-		//	`INSERT INTO usuario (id, nome_de_usuario, nome_de_exibicao, email, hash_da_senha,
-		//		timestamp_da_criacao_em_ms, data_de_criacao)
-		//	VALUES (?,?,?,?,?,?,?);`,
-		//	[
-		//		usuarios[i].uuid, usuarios[i].nome, usuarios[i].nome, usuarios[i].email, usuarios[i].senhaHash,
-		// 		usuarios[i].dataDeCriacao, usuarios[i].dataDeCriacaoEmSeg
-		//	]
-		//);
-		//i++;
+	//	await pool.query(
+	//		`INSERT INTO usuario (id, nome_de_usuario, nome_de_exibicao, email, hash_da_senha,
+	//			timestamp_da_criacao_em_ms, data_de_criacao)
+	//		VALUES (?,?,?,?,?,?,FROM_UNIXTIME(?));`,
+	//		[
+	//			usuarios[i].uuid, usuarios[i].nome, usuarios[i].nome, usuarios[i].email, usuarios[i].senhaHash,
+	//	 		usuarios[i].dataDeCriacao, usuarios[i].dataDeCriacaoEmSeg
+	//		]
+	//	);
+	//	i++;
 	//}
+	//const [usuarioMysql] = await pool.query(`SELECT * FROM usuario;`);
+	//console.log('importou usuarios');
+	//console.log(usuarioMysql);
 
 	//i = 0;
 	//while (i < anuncios.length) {
-		//await db.run(
-		//	`INSERT INTO anuncio (id, id_do_jogo, id_do_usuario, nome_no_jogo, tempo_de_jogo_em_meses,
-		//	discord, usa_chat_de_voz, timestamp_da_criacao_em_ms, data_de_criacao)
-		//	VALUES (?,?,?,?);`,
-		//	[
-		//		anuncios[i].uuid, anuncios[i].uuidDoJogo, anuncios[i].uuidDoUsuario, anuncios[i].nomeNoJogo,
-		//		anuncios[i].tempoDeJogoEmMeses, anuncios[i].discord, anuncios[i].usaChatDeVoz,
-		// 		anuncios[i].dataDeCriacao, anuncios[i].dataDeCriacaoEmSeg
-		//	]
-		//);
-		//i++;
+	//	await pool.query(
+	//		`INSERT INTO anuncio (id, id_do_jogo, id_do_usuario, nome_no_jogo, tempo_de_jogo_em_meses,
+	//		discord, usa_chat_de_voz, timestamp_da_criacao_em_ms, data_de_criacao)
+	//		VALUES (?,?,?,?,?,?,?,?,FROM_UNIXTIME(?));`,
+	//		[
+	//			anuncios[i].uuid, anuncios[i].uuidDoJogo, anuncios[i].uuidDoUsuario, anuncios[i].nomeNoJogo,
+	//			anuncios[i].tempoDeJogoEmMeses, anuncios[i].discord, anuncios[i].usaChatDeVoz,
+	//	 		anuncios[i].dataDeCriacao, anuncios[i].dataDeCriacaoEmSeg
+	//		]
+	//	);
+	//	i++;
 	//}
+	//const [anuncioMysql] = await pool.query(`SELECT * FROM anuncio;`);
+	//console.log('importou anuncios');
+	//console.log(anuncioMysql.filter((a,i)=>i<5));
 
 	//i = 0;
 	//while (i < disponibilidades.length) {
-		//await db.run(
-		//	`INSERT INTO disponibilidade (id_do_anuncio, hora_de_inicio, hora_de_termino)
-		//	VALUES (?,?,?);`,
-		//	[
-		//		disponibilidades[i].uuidDoAnuncio, disponibilidades[i].horaDeInicio,
-		//		disponibilidades[i].horaDeTermino
-		//	]
-		//);
-		//i++;
+	//	await pool.query(
+	//		`INSERT INTO disponibilidade (id, id_do_anuncio, hora_de_inicio, hora_de_termino)
+	//		VALUES (?,?,?,?);`,
+	//		[
+	//			disponibilidades[i].id, disponibilidades[i].uuidDoAnuncio, disponibilidades[i].horaDeInicio,
+	//			disponibilidades[i].horaDeTermino
+	//		]
+	//	);
+	//	i++;
 	//}
+	//const [disponibilidadeMysql] = await pool.query(`SELECT * FROM disponibilidade;`);
+	//console.log('importou disponibilidades');
+	//console.log(disponibilidadeMysql.filter((a,i)=>i<5));
 
 	//i = 0;
 	//while (i < diasDasDisponibilidades.length) {
-		//await db.run(
-		//	`INSERT INTO dia_da_disponibilidade (id_da_disponibilidade, dia)
-		//	VALUES (?);`,
-		//	[
-		//		diasDasDisponibilidades[i].idDaDisponibilidade, diasDasDisponibilidades[i].dia
-		//	]
-		//);
-		//i++;
+	//	await pool.query(
+	//		`INSERT INTO dia_da_disponibilidade (id_da_disponibilidade, dia)
+	//		VALUES (?,?);`,
+	//		[
+	//			diasDasDisponibilidades[i].idDaDisponibilidade, diasDasDisponibilidades[i].dia
+	//		]
+	//	);
+	//	i++;
 	//}
+	//const [dia_da_disponibilidadeMysql] = await pool.query(`SELECT * FROM dia_da_disponibilidade;`);
+	//console.log('importou dias das disponibilidades');
+	//console.log(dia_da_disponibilidadeMysql.filter((a,i)=>i<5));
 
 
-	const [a] = await pool.query('SELECT UNIX_TIMESTAMP();');
+	//const [a] = await pool.query('SELECT UNIX_TIMESTAMP();');
 	// const [a] = await pool.query('SELECT FROM_UNIXTIME(UNIX_TIMESTAMP());');
 	// const [a] = await pool.query('SELECT NOW();');
 	// const [a] = await pool.query('SELECT CURRENT_DATE();');
@@ -325,7 +369,7 @@ async function iniciar() {
 	// const conn = await pool.getConnection();
 	// const [a] = await conn.query('SELECT UNIX_TIMESTAMP();');
 	// const [a] = await conn.query('SELECT UNIX_TIMESTAMP();');
-	console.log(a);
+	//console.log(a);
 
 
 	//const db = await abrirBanco;
