@@ -5,11 +5,9 @@ import { open } from 'sqlite';
 import { config as dotenvConfig } from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
-//import { PORTA } from '../../enderecoDoServidor';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import mysql from 'mysql2'
-// import mysqlp from 'mysql2/promise'
 
 const servidor = express();
 servidor.use(express.json());
@@ -24,13 +22,13 @@ const abrirBanco = open({
 	driver: sqlite3.Database
 });
 
-const con = mysql.createConnection({
-	host: 'johnny.heliohost.org',
-	port: '3306',
-	database: 'wilsrpg_heliodb',
-	user: 'wilsrpg_helio',
-	password: process.env.SENHA_DO_DB
-});
+//const con = mysql.createConnection({
+//	host: 'johnny.heliohost.org',
+//	port: '3306',
+//	database: 'wilsrpg_heliodb',
+//	user: 'wilsrpg_helio',
+//	password: process.env.SENHA_DO_DB
+//});
 
 const pool = mysql.createPool({
 	host: 'johnny.heliohost.org',
@@ -39,14 +37,6 @@ const pool = mysql.createPool({
 	user: 'wilsrpg_helio',
 	password: process.env.SENHA_DO_DB
 }).promise();
-
-// const poolp = mysqlp.createPool({
-// 	host: 'johnny.heliohost.org',
-// 	port: '3306',
-// 	database: 'wilsrpg_heliodb',
-// 	user: 'wilsrpg_helio',
-// 	password: process.env.SENHA_DO_DB,
-// });
 
 //const poolp2 = await mysqlp.createPool({
 //	host: 'johnny.heliohost.org',
@@ -90,9 +80,9 @@ async function iniciar() {
 	//const [a] = await pool.query(`SELECT * FROM todos;`);
 	//console.log(a);
 
-	con.connect((err) => {
-		if (err) return console.error(err.message);
-		console.log('con conectou ao banco de dados');
+	//con.connect((err) => {
+		//if (err) return console.error(err.message);
+		//console.log('con conectou ao banco de dados');
 
 		// const createTodosTable = `create table if not exists todos(
 		// 	id int primary key auto_increment,
@@ -122,91 +112,94 @@ async function iniciar() {
 		//	return console.log(results);
 		//});
 
+		//const res = await pool.query('INSERT INTO todos(title) VALUES ("testando");');
+		//console.log(res);
+
 
 		//criação das tabelas
 
-		con.query(`CREATE TABLE IF NOT EXISTS jogo (
-			id CHAR(36) PRIMARY KEY,
-			nome VARCHAR(255) NOT NULL,
-			nome_url VARCHAR(255) NOT NULL,
-			url_da_imagem VARCHAR(255) NOT NULL
-		);`
-		);
+		//con.query(`CREATE TABLE IF NOT EXISTS jogo (
+		//	id CHAR(36) PRIMARY KEY,
+		//	nome VARCHAR(255) NOT NULL,
+		//	nome_url VARCHAR(255) NOT NULL,
+		//	url_da_imagem VARCHAR(255) NOT NULL
+		//);`
+		//);
 
-		con.query(`CREATE TABLE IF NOT EXISTS usuario (
-			id CHAR(36) PRIMARY KEY,
-			nome_de_usuario VARCHAR(255) NOT NULL UNIQUE,
-			nome_de_exibicao VARCHAR(255) NOT NULL,
-			email VARCHAR(255) NOT NULL UNIQUE,
-			hash_da_senha CHAR(60) NOT NULL,
-			timestamp_da_criacao_em_ms BIGINT NOT NULL,
-			data_de_criacao DATETIME NOT NULL
-		);`
-		);
+		//con.query(`CREATE TABLE IF NOT EXISTS usuario (
+		//	id CHAR(36) PRIMARY KEY,
+		//	nome_de_usuario VARCHAR(255) NOT NULL UNIQUE,
+		//	nome_de_exibicao VARCHAR(255) NOT NULL,
+		//	email VARCHAR(255) NOT NULL UNIQUE,
+		//	hash_da_senha CHAR(60) NOT NULL,
+		//	timestamp_da_criacao_em_ms BIGINT NOT NULL,
+		//	data_de_criacao DATETIME NOT NULL
+		//);`
+		//);
 
-		con.query(`CREATE TABLE IF NOT EXISTS sessao (
-			id CHAR(36) PRIMARY KEY,
-			id_do_usuario CHAR(36) NOT NULL,
-			seletor CHAR(8) NOT NULL,
-			hash_do_token CHAR(60) NOT NULL,
-			manter_sessao BOOLEAN NOT NULL,
-			data_de_criacao DATETIME NOT NULL,
-			FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
-			ON DELETE CASCADE
-		);`
-		);
+		//con.query(`CREATE TABLE IF NOT EXISTS sessao (
+		//	id CHAR(36) PRIMARY KEY,
+		//	id_do_usuario CHAR(36) NOT NULL,
+		//	seletor CHAR(8) NOT NULL,
+		//	hash_do_token CHAR(60) NOT NULL,
+		//	manter_sessao BOOLEAN NOT NULL,
+		//	data_de_criacao DATETIME NOT NULL,
+		//	FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
+		//	ON DELETE CASCADE
+		//);`
+		//);
 
-		con.query(`CREATE TABLE IF NOT EXISTS recuperacao_de_conta (
-			id CHAR(36) PRIMARY KEY,
-			id_do_usuario CHAR(36) NOT NULL,
-			hash_do_token CHAR(60) NOT NULL,
-			data_de_criacao DATETIME NOT NULL,
-			FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
-			ON DELETE CASCADE
-		);`
-		);
+		//con.query(`CREATE TABLE IF NOT EXISTS recuperacao_de_conta (
+		//	id CHAR(36) PRIMARY KEY,
+		//	id_do_usuario CHAR(36) NOT NULL,
+		//	hash_do_token CHAR(60) NOT NULL,
+		//	data_de_criacao DATETIME NOT NULL,
+		//	FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
+		//	ON DELETE CASCADE
+		//);`
+		//);
 
-		con.query(`CREATE TABLE IF NOT EXISTS anuncio (
-			id CHAR(36) PRIMARY KEY,
-			id_do_jogo CHAR(36) NOT NULL,
-			id_do_usuario CHAR(36) NOT NULL,
-			nome_no_jogo VARCHAR(255) NOT NULL,
-			tempo_de_jogo_em_meses INT NOT NULL,
-			discord VARCHAR(255) NOT NULL,
-			usa_chat_de_voz BOOLEAN NOT NULL,
-			timestamp_da_criacao_em_ms BIGINT NOT NULL,
-			data_de_criacao DATETIME NOT NULL,
-			FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
-			ON DELETE CASCADE
-		);`
-		);
+		//con.query(`CREATE TABLE IF NOT EXISTS anuncio (
+		//	id CHAR(36) PRIMARY KEY,
+		//	id_do_jogo CHAR(36) NOT NULL,
+		//	id_do_usuario CHAR(36) NOT NULL,
+		//	nome_no_jogo VARCHAR(255) NOT NULL,
+		//	tempo_de_jogo_em_meses INT NOT NULL,
+		//	discord VARCHAR(255) NOT NULL,
+		//	usa_chat_de_voz BOOLEAN NOT NULL,
+		//	timestamp_da_criacao_em_ms BIGINT NOT NULL,
+		//	data_de_criacao DATETIME NOT NULL,
+		//	FOREIGN KEY (id_do_usuario) REFERENCES usuario (id)
+		//	ON DELETE CASCADE
+		//);`
+		//);
 
-		con.query(
-			`CREATE TABLE IF NOT EXISTS disponibilidade (
-				id INT AUTO_INCREMENT PRIMARY KEY,
-				id_do_anuncio CHAR(36) NOT NULL,
-				hora_de_inicio INT NOT NULL,
-				hora_de_termino INT NOT NULL,
-				FOREIGN KEY (id_do_anuncio) REFERENCES anuncio (id)
-				ON DELETE CASCADE
-			);`
-		);
+		//con.query(
+		//	`CREATE TABLE IF NOT EXISTS disponibilidade (
+		//		id INT AUTO_INCREMENT PRIMARY KEY,
+		//		id_do_anuncio CHAR(36) NOT NULL,
+		//		hora_de_inicio INT NOT NULL,
+		//		hora_de_termino INT NOT NULL,
+		//		FOREIGN KEY (id_do_anuncio) REFERENCES anuncio (id)
+		//		ON DELETE CASCADE
+		//	);`
+		//);
 
-		con.query(`CREATE TABLE IF NOT EXISTS dia_da_disponibilidade (
-			id INT AUTO_INCREMENT PRIMARY KEY,
-			id_da_disponibilidade INT NOT NULL,
-			dia INT NOT NULL,
-			FOREIGN KEY (id_da_disponibilidade) REFERENCES disponibilidade (id)
-			ON DELETE CASCADE
-		);`
-		);
+		//con.query(`CREATE TABLE IF NOT EXISTS dia_da_disponibilidade (
+		//	id INT AUTO_INCREMENT PRIMARY KEY,
+		//	id_da_disponibilidade INT NOT NULL,
+		//	dia INT NOT NULL,
+		//	FOREIGN KEY (id_da_disponibilidade) REFERENCES disponibilidade (id)
+		//	ON DELETE CASCADE
+		//);`
+		//);
 
 
 		// close the connection
-		con.end((err) => {
-			if (err) return console.log(err.message);
-		});
-	});
+		//con.end((err) => {
+		//	if (err) return console.log(err.message);
+		//});
+	//});
 
 
 	//const db = await abrirBanco;
@@ -219,9 +212,9 @@ async function iniciar() {
 	////await pool.query(`DELETE FROM usuario;`);
 	//const [usuarios2] = await pool.query(`SELECT * FROM usuario;`);
 	//console.log(usuarios2.filter((a,i)=>i<5));
-	//await pool.query(`DELETE FROM disponibilidade;`);
+	////await pool.query(`DELETE FROM disponibilidade;`);
 	//console.log('deletou disponibilidade');
-	//await pool.query(`DELETE FROM dia_da_disponibilidade;`);
+	////await pool.query(`DELETE FROM dia_da_disponibilidade;`);
 	//console.log('deletou dia_da_disponibilidade');
 	//const [anuncios2] = await pool.query(`SELECT * FROM anuncio;`);
 
@@ -362,15 +355,23 @@ async function iniciar() {
 
 
 	//const [a] = await pool.query('SELECT UNIX_TIMESTAMP();');
-	// const [a] = await pool.query('SELECT FROM_UNIXTIME(UNIX_TIMESTAMP());');
-	// const [a] = await pool.query('SELECT NOW();');
-	// const [a] = await pool.query('SELECT CURRENT_DATE();');
-	// const [a] = await poolp.query('SELECT UNIX_TIMESTAMP();');
-	// const conn = await pool.getConnection();
-	// const [a] = await conn.query('SELECT UNIX_TIMESTAMP();');
-	// const [a] = await conn.query('SELECT UNIX_TIMESTAMP();');
+	//const [a] = await pool.query('SELECT FROM_UNIXTIME(UNIX_TIMESTAMP());');
+	//const [a] = await pool.query('SELECT NOW();');
+	//const [a] = await pool.query('SELECT CURRENT_DATE();');
+	//const [a] = await poolp.query('SELECT UNIX_TIMESTAMP();');
+	//const conn = await pool.getConnection();
+	//const [a] = await conn.query('SELECT UNIX_TIMESTAMP();');
+	//const [a] = await conn.query('SELECT UNIX_TIMESTAMP();');
 	//console.log(a);
 
+	//await pool.query('ALTER TABLE usuario ALTER COLUMN data_de_criacao SET DEFAULT CURRENT_TIMESTAMP;');
+	//await pool.query('ALTER TABLE sessao ALTER COLUMN data_de_criacao SET DEFAULT CURRENT_TIMESTAMP;');
+	//await pool.query('ALTER TABLE recuperacao_de_conta ALTER COLUMN data_de_criacao SET DEFAULT CURRENT_TIMESTAMP;');
+	//await pool.query('ALTER TABLE anuncio ALTER COLUMN data_de_criacao SET DEFAULT CURRENT_TIMESTAMP;');
+	await pool.query('ALTER TABLE sessao ADD data_de_expiracao DATETIME NOT NULL;');
+
+	//await pool.query('ALTER TABLE usuario DROP COLUMN timestamp_da_criacao_em_ms;');
+	//await pool.query('ALTER TABLE anuncio DROP COLUMN timestamp_da_criacao_em_ms;');
 
 	//const db = await abrirBanco;
 	//await db.run(`DELETE FROM Sessoes WHERE dataDeExpiracao < ${Date.now()};`);
@@ -769,29 +770,6 @@ async function iniciar() {
 }
 iniciar();
 
-/*/
-servidor.get('/jogos', async (req, resp)=>{
-	const db = await abrirBanco;
-	const jogos = await db.all(
-		`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.jogoId) AS qtdeAnuncios
-		FROM Jogos JOIN Anuncios
-		ON Jogos.id = jogoId
-		GROUP BY Jogos.id
-		ORDER BY MAX(dataDeCriacao) DESC;`
-	);
-	console.log('GET jogos, qtde='+jogos.length+', ip='+req.ip);
-	//const jogosQtde = await db.all(
-	//	`SELECT Jogos.id, COUNT(Anuncios.jogoId) AS qtdeAnuncios
-	//	FROM Jogos JOIN Anuncios
-	//	ON Jogos.id=Anuncios.jogoId
-	//	GROUP BY Jogos.id;`
-	//);
-	//jogos.map(jogo=>jogo._count = {anuncios: jogosQtde.find(j=>j.id==jogo.id).qtdeAnuncios});
-	jogos.map(jogo=>jogo._count = {anuncios: jogo.qtdeAnuncios});
-	return resp.json(jogos);
-});
-//*/
-
 //retorna uma lista de jogos
 servidor.get('/jogos', async (req, resp)=>{
 	try {
@@ -800,13 +778,21 @@ servidor.get('/jogos', async (req, resp)=>{
 		if (req.query.qtde && isNaN(qtde))
 			return resp.status(400).json({erro: 'Quantidade em formato inválido.'});
 		//console.log('ordenarPor='+ordenarPor+', qtde='+qtde);
-		const db = await abrirBanco;
-		const jogos = await db.all(
-			`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.idDoJogo) AS qtdeAnuncios
-			FROM Jogos LEFT JOIN Anuncios
-			ON Jogos.id = Anuncios.idDoJogo
-			GROUP BY Jogos.id
-			ORDER BY ${ordenarPor == 'anuncio' ? 'MAX(Anuncios.dataDeCriacao) DESC' : 'nomeUrl ASC'}
+		//const db = await abrirBanco;
+		//const jogos = await db.all(
+		//	`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.idDoJogo) AS qtdeAnuncios
+		//	FROM Jogos LEFT JOIN Anuncios
+		//	ON Jogos.id = Anuncios.idDoJogo
+		//	GROUP BY Jogos.id
+		//	ORDER BY ${ordenarPor == 'anuncio' ? 'MAX(Anuncios.dataDeCriacao) DESC' : 'nomeUrl ASC'}
+		//	${qtde > 0 ? 'LIMIT '+qtde : ''};`
+		//);
+		const [jogos] = await pool.query(
+			`SELECT jogo.id, nome, nome_url AS nomeUrl, url_da_imagem AS urlImagem, COUNT(anuncio.id) AS qtdeAnuncios
+			FROM jogo LEFT JOIN anuncio
+			ON jogo.id = anuncio.id_do_jogo
+			GROUP BY jogo.id
+			ORDER BY ${ordenarPor == 'anuncio' ? 'MAX(anuncio.data_de_criacao) DESC' : 'nomeUrl ASC'}
 			${qtde > 0 ? 'LIMIT '+qtde : ''};`
 		);
 		console.log('GET jogos, qtde='+jogos.length+', ip='+req.ip);
@@ -826,47 +812,6 @@ servidor.get('/jogos', async (req, resp)=>{
 		return resp.status(500).json({erro: 'Erro interno no servidor.'});
 	}
 });
-
-/*/nunca é chamado (seria chamado numa página de informações de jogo, se eu implementasse)
-servidor.get('/jogos/:jogoNomeUrl', async (req, resp)=>{
-	const jogoNomeUrl = req.params.jogoNomeUrl;
-	const db = await abrirBanco;
-	const jogo = await db.get(`SELECT id,nome,nomeUrl,urlImagem
-		FROM Jogos
-		WHERE nomeUrl = '${jogoNomeUrl}';`
-	);
-	console.log('GET jogos/jogo='+jogo.nome+', ip='+req.ip);
-	return resp.json(jogo);
-});
-//*/
-
-//retorna a quantidade informada de jogos distintos que tiveram anúncios publicados mais recentemente
-/*servidor.get('/jogos-recentes/:qtde', async (req, resp)=>{
-	try {
-		const db = await abrirBanco;
-		const qtde = parseInt(req.params.qtde);
-		if (isNaN(qtde))
-			return resp.status(400).json({erro: 'Quantidade em formato inválido.'});
-		const jogos = await db.all(
-			`SELECT Jogos.id,nome,nomeUrl,urlImagem,COUNT(Anuncios.idDoJogo) AS qtdeAnuncios
-			FROM Jogos JOIN Anuncios
-			ON Jogos.id = Anuncios.idDoJogo
-			GROUP BY Jogos.id
-			ORDER BY MAX(Anuncios.dataDeCriacao) DESC
-			LIMIT (?);`,
-			[qtde]
-		);
-		console.log('GET jogos-recentes/:'+qtde+', qtde='+jogos.length+', ip='+req.ip);
-		//jogos.map(jogo=>jogo._count = {anuncios: jogo.qtdeAnuncios});
-		//resp.statusMessage = 'teste';
-		return resp.status(200).json(jogos);
-	}
-	catch (erro) {
-		//console.log('entrou no catch');
-		console.log(erro);
-		return resp.status(500).json({erro: 'Erro interno no servidor.'});
-	}
-});*/
 
 //para guardar no banco de dados
 function converterHoraStringParaMinutos(horaString) {
@@ -931,7 +876,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 		//	horarioDeInicio: converterHoraStringParaMinutos(body.deHora),
 		//	horarioDeTermino: converterHoraStringParaMinutos(body.ateHora)
 		//});
-		const db = await abrirBanco;
+	//const db = await abrirBanco;
 		/*const sessaoExiste = await db.get(
 			`SELECT tokenDaSessaoHash, dataDeExpiracao, idDoUsuario FROM Sessoes WHERE seletor = '${seletor}';`
 		);
@@ -950,48 +895,91 @@ servidor.post('/anuncios', async (req, resp)=>{
 			//cookie roubado? oq deve ser feito nesse caso?
 		}*/
 
-		const timeStampDaPublicacao = Date.now();
-		await db.run(
-			`INSERT INTO Anuncios (idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, discord, usaChatDeVoz,
-				dataDeCriacao)
+		//const timeStampDaPublicacao = Date.now();
+		//await db.run(
+		//	`INSERT INTO Anuncios (idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, discord, usaChatDeVoz,
+		//		dataDeCriacao)
+		//	VALUES (?,?,?,?,?,?,?);`,
+		//	[
+		//		anuncio.idDoJogo, sessaoExiste.idDoUsuario, anuncio.nomeNoJogo, anuncio.tempoDeJogoEmMeses,
+		//		anuncio.discord, anuncio.usaChatDeVoz, timeStampDaPublicacao
+		//	]
+		//);
+		//const anuncioPublicado = await db.get(
+		//	`SELECT idDoAnuncio FROM Anuncios WHERE dataDeCriacao = ${timeStampDaPublicacao};`
+		//);
+
+		const anuncioPublicado = {};
+		anuncioPublicado.idDoAnuncio = uuidv4();
+		await pool.query(
+			`INSERT INTO anuncio (id, id_do_jogo, id_do_usuario, nome_no_jogo, tempo_de_jogo_em_meses,
+			discord, usa_chat_de_voz)
 			VALUES (?,?,?,?,?,?,?);`,
 			[
-				anuncio.idDoJogo, sessaoExiste.idDoUsuario, anuncio.nomeNoJogo, anuncio.tempoDeJogoEmMeses,
-				anuncio.discord, anuncio.usaChatDeVoz, timeStampDaPublicacao
+				anuncioPublicado.idDoAnuncio, anuncio.idDoJogo, sessaoExiste.idDoUsuario, anuncio.nomeNoJogo,
+				anuncio.tempoDeJogoEmMeses, anuncio.discord, anuncio.usaChatDeVoz
 			]
 		);
-		const anuncioPublicado = await db.get(
-			`SELECT idDoAnuncio FROM Anuncios WHERE dataDeCriacao = ${timeStampDaPublicacao};`
-		);
+		//const anuncioPublicado = await pool.query(
+		//	`SELECT id FROM anuncio WHERE id = ${uuidDoAnuncio};`
+		//);
+
+		//let i = 0;
+		//while (i < anuncio.disponibilidades.length) {
+		//	//await db.run(
+		//	//	`INSERT INTO Disponibilidades (idDoAnuncio, dias, horaDeInicio, horaDeTermino)
+		//	//	VALUES (?,?,?,?);`,
+		//	//	[
+		//	//		anuncioPublicado.idDoAnuncio, anuncio.disponibilidades[i].dias,
+		//	//		converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeInicio),
+		//	//		converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeTermino)
+		//	//	]
+		//	//);
+		//	await db.run(
+		//		`INSERT INTO Disponibilidades (idDoAnuncio, horaDeInicio, horaDeTermino) VALUES (?,?,?);`,
+		//		[
+		//			anuncioPublicado.idDoAnuncio,
+		//			converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeInicio),
+		//			converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeTermino)
+		//		]
+		//	);
+		//	const disp = await db.get(
+		//		`SELECT MAX(id) AS id FROM Disponibilidades WHERE idDoAnuncio = ${anuncioPublicado.idDoAnuncio};`
+		//	);
+		//	//console.log(disp);
+		//	let j = 0;
+		//	let dias = anuncio.disponibilidades[i].dias.split(',').map(d=>parseInt(d));
+		//	while (j < dias.length) {
+		//		await db.run(
+		//			`INSERT INTO DiasDasDisponibilidades (idDaDisponibilidade, dia) VALUES (?,?);`,
+		//			[disp.id, dias[j]]
+		//		);
+		//		j++;
+		//	}
+		//	i++;
+		//	//console.log(i+','+body.disponibilidades.length);
+		//}
+
 
 		let i = 0;
 		while (i < anuncio.disponibilidades.length) {
-			//await db.run(
-			//	`INSERT INTO Disponibilidades (idDoAnuncio, dias, horaDeInicio, horaDeTermino)
-			//	VALUES (?,?,?,?);`,
-			//	[
-			//		anuncioPublicado.idDoAnuncio, anuncio.disponibilidades[i].dias,
-			//		converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeInicio),
-			//		converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeTermino)
-			//	]
-			//);
-			await db.run(
-				`INSERT INTO Disponibilidades (idDoAnuncio, horaDeInicio, horaDeTermino) VALUES (?,?,?);`,
+			await pool.query(
+				`INSERT INTO disponibilidade (id_do_anuncio, hora_de_inicio, hora_de_termino) VALUES (?,?,?);`,
 				[
 					anuncioPublicado.idDoAnuncio,
 					converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeInicio),
 					converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeTermino)
 				]
 			);
-			const disp = await db.get(
-				`SELECT MAX(id) AS id FROM Disponibilidades WHERE idDoAnuncio = ${anuncioPublicado.idDoAnuncio};`
+			const [disp] = await pool.query(
+				`SELECT MAX(id) AS id FROM disponibilidade WHERE id_do_anuncio = ${anuncioPublicado.idDoAnuncio};`
 			);
 			//console.log(disp);
 			let j = 0;
 			let dias = anuncio.disponibilidades[i].dias.split(',').map(d=>parseInt(d));
 			while (j < dias.length) {
-				await db.run(
-					`INSERT INTO DiasDasDisponibilidades (idDaDisponibilidade, dia) VALUES (?,?);`,
+				await pool.query(
+					`INSERT INTO dia_da_disponibilidade (id_da_disponibilidade, dia) VALUES (?,?);`,
 					[disp.id, dias[j]]
 				);
 				j++;
@@ -999,631 +987,11 @@ servidor.post('/anuncios', async (req, resp)=>{
 			i++;
 			//console.log(i+','+body.disponibilidades.length);
 		}
+
+
 		//console.log(anuncioPublicado);
 		console.log('Anúncio publicado, id='+anuncioPublicado.idDoAnuncio+'.');
-		return resp.status(201).json(anuncioPublicado);
-	}
-	catch (erro) {
-		//console.log('entrou no catch');
-		console.log(erro);
-		return resp.status(500).json({erro: 'Erro interno no servidor.'});
-	}
-});
-
-//pesquisa anúncios (com erro)
-servidor.get('/anuncios-old', async (req, resp)=>{
-	try {
-		//const body = req.body;
-		//const query = req.query;
-		const body = req.query;
-		//console.log('body:');
-		//console.log('query params:');
-		//console.log(body);
-		//console.log(query);
-
-		const camposPesquisados = {};
-		for (let c in body)
-			if(body[c])
-				camposPesquisados[c] = body[c];
-		if (camposPesquisados.qtdeFiltrosDisponibilidade)
-			delete camposPesquisados.qtdeFiltrosDisponibilidade;
-		const qtdeCampos = Object.entries(camposPesquisados).length;
-		
-		if (!body.jogo) body.jogo = '%';
-
-		if (!body.idDoUsuario) body.idDoUsuario = '%';
-		//console.log('body.idDoUsuario='+body.idDoUsuario);
-		
-		let naoContem = false, exatamente = false;
-		if (!body.nomeNoJogo) body.nomeNoJogo = '%';
-		else if (!body.opcoesNome) body.nomeNoJogo = '%'+body.nomeNoJogo+'%';
-		else if (body.opcoesNome == 'comecaCom') body.nomeNoJogo = body.nomeNoJogo+'%';
-		else if (body.opcoesNome == 'terminaCom') body.nomeNoJogo = '%'+body.nomeNoJogo;
-		else if (body.opcoesNome == 'exatamente') exatamente = true;
-		else if (body.opcoesNome == 'naoContem') {
-			naoContem = true;
-			body.nomeNoJogo = '%'+body.nomeNoJogo+'%';
-		}
-
-		//if (!body.discord) body.discord = '%';
-		
-		let tempoDeJogoEmMeses = 0;
-		let tempoDeJogoEmMeses2 = 0;
-		let noMaximo = false, entre = false;
-		if (body.tempoDeJogoAnos) {
-			tempoDeJogoEmMeses += parseInt(body.tempoDeJogoAnos)*12;
-		}
-		if (body.tempoDeJogoMeses) {
-			tempoDeJogoEmMeses += parseInt(body.tempoDeJogoMeses);
-		}
-		if (body.opcoesTempo) {
-			if (body.opcoesTempo == 'noMaximo')
-				noMaximo = true;
-			else if (body.opcoesTempo == 'entre' && (body.tempoDeJogoAnos2 || body.tempoDeJogoMeses2)) {
-				entre = true;
-				if (body.tempoDeJogoAnos2)
-					tempoDeJogoEmMeses2 += parseInt(body.tempoDeJogoAnos2)*12;
-				if (body.tempoDeJogoMeses2)
-					tempoDeJogoEmMeses2 += parseInt(body.tempoDeJogoMeses2);
-			}
-		}
-		if(isNaN(tempoDeJogoEmMeses) || isNaN(tempoDeJogoEmMeses2))
-			return resp.status(400).json({erro: 'Tempo de jogo em formato inválido.'});
-
-		let disponivelEmQualquer = false;
-		if (body.opcoesDisponibilidade && body.opcoesDisponibilidade == 'emQualquer')
-			disponivelEmQualquer = true;
-
-		for (let i = 0; i < body.qtdeFiltrosDisponibilidade; i++) {
-			let id = i == 0 ? '' : i+1;
-			//formato da hora deve ser 2 números, ":", 2 números, sem caracteres antes nem depois
-			if (body['de'+id] && !body['de'+id].match(/^\d{2}:\d{2}$/))
-				return resp.status(400).json({erro: 'Horário em formato inválido.'});
-			if (body['ate'+id] && !body['ate'+id].match(/^\d{2}:\d{2}$/))
-				return resp.status(400).json({erro: 'Horário em formato inválido.'});
-		}
-
-		let usaChatDeVoz = '%';
-		if (body.usaChatDeVoz) {
-			if (body.usaChatDeVoz == 'sim')
-				usaChatDeVoz = 1;
-			else
-				usaChatDeVoz = 0;
-		}
-		//if (!body.usaChatDeVoz) body.usaChatDeVoz = '%';
-		//else if (body.usaChatDeVoz == 'sim') body.usaChatDeVoz = 1;
-		//else if (body.usaChatDeVoz == 'não') body.usaChatDeVoz = 0;
-
-		let pagina = 1;
-		let resultadosPorPagina = 10;
-		if (body.pagina)
-			pagina = parseInt(body.pagina);
-		if(isNaN(pagina))
-			return resp.status(400).json({erro: 'Página em formato inválido.'});
-		if (pagina < 1)
-			pagina = 1;
-		if (body.resultadosPorPagina)
-			resultadosPorPagina = parseInt(body.resultadosPorPagina);
-		if(isNaN(resultadosPorPagina))
-			return resp.status(400).json({erro: 'Resultados por página em formato inválido.'});
-		else if (resultadosPorPagina < 3)
-			resultadosPorPagina = 3;
-		else if (resultadosPorPagina > 100)
-			resultadosPorPagina = 100;
-		//console.log('resultadosPorPagina='+resultadosPorPagina+', pagina='+pagina);
-
-		let ordenarPor = 'dataDeCriacao';
-		if (body.ordenarPor) {
-			if (body.ordenarPor == 'nomeDoJogo')
-				ordenarPor = 'nomeUrlDoJogo';
-			else if (body.ordenarPor == 'diasQueJoga')
-				ordenarPor = 'dias';
-			else if (body.ordenarPor == 'nomeNoJogo' || body.ordenarPor == 'tempoDeJogoEmMeses'
-			|| body.ordenarPor == 'horaDeInicio' || body.ordenarPor == 'horaDeTermino'
-			|| body.ordenarPor == 'usaChatDeVoz')
-				ordenarPor = body.ordenarPor;
-			else if (body.ordenarPor != 'dataDePublicacao')
-				return resp.status(400).json({erro: 'Critério de organização em formato inválido.'});
-		}
-		let emOrdem = -1;
-		if (body.emOrdem) {
-			if (body.emOrdem == 'crescente')
-				emOrdem = 1;
-			else if (body.emOrdem != 'decrescente')
-				return resp.status(400).json({erro: 'Ordem de organização em formato inválido.'});
-		}
-
-		//console.log(body);
-
-		//const {id: jogoId} = await db.get(`SELECT id FROM Jogos WHERE nomeUrl = (?);`, [body.jogo]);
-		//console.log(jogoId);
-
-		//const b2 = {
-		//	//jogoId: jogoId,
-		//	jogo: body.jogo,
-		//	nomeNoJogo: body.nomeNoJogo,
-		//	naoContem: naoContem,
-		//	//discord: body.discord,
-		//	tempoDeJogoEmAnos: tempoDeJogoEmAnos,
-		//	noMaximo: noMaximo,
-		//	entre: entre,
-		//	tempoDeJogoEmAnos2: tempoDeJogoEmAnos2,
-		//	//emTodos: emTodos,
-		//	//diasQueJoga: diasQueJoga,
-		//	//deHora: deHora,
-		//	//ateHora: ateHora,
-		//	usaChatDeVoz: body.usaChatDeVoz
-		//}
-		//console.log('body convertido:');
-		//console.log(b2);
-
-		const db = await abrirBanco;
-		/*let anuncios = await db.all(
-			`SELECT idDoAnuncio, idDoJogo, idDoUsuario, Jogos.nome AS nomeDoJogo, nomeNoJogo, tempoDeJogoEmMeses,
-				usaChatDeVoz, dataDeCriacao
-			FROM Anuncios JOIN Jogos
-			ON Anuncios.idDoJogo = Jogos.id
-			WHERE Jogos.nomeUrl ${body.jogo == '%' ? 'LIKE' : '=' } (?)
-				AND idDoUsuario ${body.idDoUsuario == '%' ? 'LIKE' : '=' } (?)
-				AND nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
-				AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} ${tempoDeJogoEmMeses}
-				${entre ? 'AND tempoDeJogoEmMeses <='+tempoDeJogoEmMeses2 : ''}
-				AND usaChatDeVoz LIKE '${usaChatDeVoz}'
-			ORDER BY dataDeCriacao DESC;`,
-			[body.jogo, body.idDoUsuario, body.nomeNoJogo]
-		);*/
-
-		//let anuncios = await db.all(
-		//	`SELECT Anuncios.id, jogoId, Jogos.nome AS nomeDoJogo, nomeDoUsuario, tempoDeJogoEmAnos,
-		//		diasQueJoga, deHora, ateHora, usaChatDeVoz, dataDeCriacao
-		//	FROM Anuncios JOIN Jogos ON jogoId = Jogos.id
-		//	WHERE Jogos.nomeUrl LIKE (?)
-		//	  AND nomeDoUsuario ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
-		//		AND tempoDeJogoEmAnos ${noMaximo ? '<=' : '>='} (?)
-		//		${''/*AND diasQueJoga LIKE (?)
-		//		AND deHora <= (?)
-		//		AND ateHora >= (?)*/}
-		//		AND usaChatDeVoz LIKE (?)
-		//	ORDER BY dataDeCriacao DESC;`,
-		//	[body.jogo, body.nome, tempoDeJogoEmAnos, body.usaChatDeVoz]
-		//);
-
-		//console.log('qtde an='+anuncios.length);
-		//console.log(anuncios);
-		
-		//let idsDosAnuncios = anuncios.map(an=>an.idDoAnuncio).join();
-		//console.log(idsDosAnuncios);
-		//let disponibilidades = await db.all(
-		//	`SELECT idDoAnuncio,dias,horaDeInicio,horaDeTermino
-		//	FROM Disponibilidades
-		//	WHERE idDoAnuncio IN (${idsDosAnuncios});`
-		//);
-		//console.log('qtde disp='+disponibilidades.length);
-		//anuncios.map(an=>{
-		//	an.disponibilidades = disponibilidades.filter(disp=>disp.idDoAnuncio == an.idDoAnuncio);
-		//	//console.log(an.disponibilidades);
-		//});
-		//disponibilidades.map(disp=>{
-
-		//})
-		//console.log(disponibilidades);
-		//console.log(anuncios);
-
-		//console.log('ants do filtro d tempoDeJogoEntre, qtde= '+anuncios.length);
-
-		//if (entre)
-			//anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmAnos <= tempoDeJogoEmAnos2);
-			//anuncios = anuncios.filter(anuncio=>anuncio.tempoDeJogoEmMeses <= tempoDeJogoEmMeses2);
-		
-		//console.log('dps do filtro d tempoDeJogoEntre e ants do d disponibilidade, qtde= '+anuncios.length);
-		
-		const sqlDisp = [];
-
-		if (body.qtdeFiltrosDisponibilidade) {
-			//const disponibilidades = [];
-			let qualquerDia = false;
-			//let diasQueJoga;
-			const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
-			let deHora;
-			let ateHora;
-			//let anunciosOu = [];
-			let diasQueJogaString = '';
-
-			for (let i = 0; i < body.qtdeFiltrosDisponibilidade; i++) {
-				//console.log('ants do filtro '+i);
-				//console.log(anuncios);
-				
-				let id = i == 0 ? '' : i+1;
-				if (body['quando'+id] == 'qualquerDia')
-					qualquerDia = true;
-				if (body['quando'+id] == 'qualquerDia' || body['quando'+id] == 'todoDia') {
-					//diasQueJoga = '.*';
-				//	diasQueJoga = [];
-				//else if (body['quando'+id] == 'todoDia')
-					//diasQueJoga = '0,1,2,3,4,5,6';
-					diasQueJogaString = '0,1,2,3,4,5,6';
-					//diasQueJoga = [0,1,2,3,4,5,6];
-				} else if (body['quando'+id] == 'semana') {
-					//diasQueJoga = '.*1,2,3,4,5.*';
-					diasQueJogaString = '%1,2,3,4,5%';
-					//diasQueJoga = [1,2,3,4,5];
-				} else if (body['quando'+id] == 'finsDeSemana') {
-					//diasQueJoga = '0.*6';
-					diasQueJogaString = '0%6';
-					//diasQueJoga = [0,6];
-				} else
-					dias.some((dia,i)=>{
-						if (dia == body['quando'+id]) {
-							//diasQueJoga = '.*'+i+'.*';
-							diasQueJogaString = '%'+i+'%';
-							//diasQueJoga = [i];
-							return true;
-						}
-					});
-
-				//console.log('diasQueJoga'+id+'= '+diasQueJoga);
-
-				if (body['de'+id])
-					deHora = converterHoraStringParaMinutos(body['de'+id]);
-				else
-					deHora = undefined;
-				if (body['ate'+id])
-					ateHora = converterHoraStringParaMinutos(body['ate'+id]);
-				else
-					ateHora = undefined;
-
-				//////////////////////////////
-
-				let pesqHoraDeInicio = deHora;
-				let pesqHoraDeTermino = ateHora;
-				//if (pesqHoraDeInicio == undefined && pesqHoraDeTermino != undefined)
-				//	pesqHoraDeInicio = pesqHoraDeTermino;
-				//if (pesqHoraDeInicio != undefined && pesqHoraDeTermino == undefined)
-				//	pesqHoraDeTermino = pesqHoraDeInicio;
-				//if (pesqHoraDeInicio == undefined && pesqHoraDeTermino == undefined)
-				//	pesqHoraDeInicio = pesqHoraDeTermino = 0;
-
-				//Explicação da query abaixo:
-				//-horaDeInicio == horaDeTermino: [jogaDiaTodo] o anunciante joga durante 24h
-				//-(horaDeTermino - horaDeInicio + 1440) % 1440: [periodoDisp] valor positivo da qtde de tempo
-				//	q o anunciante joga
-				//-(pesqHoraDeInicio - horaDeInicio + 1440) % 1440: [difInicio] valor positivo da diferença d tempo
-				//	entre o horário de início pesquisado e o q consta no anúncio
-				//-(pesqHoraDeTermino - pesqHoraDeInicio + 1440) % 1440: [periodoPesq] valor positivo da qtde de tempo
-				//	pesquisada
-				//-dias LIKE diasQueJogaString: [diasBatem] os dias q constam na disponibilidade se enquadram na pesquisa
-				//Logo, a disponibilidade atual corresponde à pesquisa se:
-				// (
-				//	jogaDiaTodo
-				//	OU
-				//	periodoDisp - difInicio >= periodoPesq
-				// )
-				//E
-				// diasBatem (exceto se puder ser qualquer dia)
-				sqlDisp.push(`(
-						horaDeInicio = horaDeTermino
-					OR
-						((horaDeTermino - horaDeInicio + 1440) % 1440)
-						- ((${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} - horaDeInicio + 1440) % 1440)
-						>= ((${pesqHoraDeTermino == undefined ? 'horaDeTermino' : pesqHoraDeTermino} - ${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} + 1440) % 1440)
-					)
-					${qualquerDia ? '' : ` AND dias LIKE '${diasQueJogaString}'`}
-				`);
-				//ERRO: se pesquisando mais de um dia de uma vez só (ex.: finsDeSemana), essa consulta não encontra
-				//anúncios com dias em disponibilidades diferentes (ex.: sábado em hora X e domingo em hora X ou Y);
-				//só encontra se estiverem na mesma disponibilidade (ex.: sábado e domingo em hora X)
-
-				//sqlDisp.push(`AND EXISTS
-				//(
-				//	SELECT * FROM Disponibilidades WHERE
-				//	(
-				//		horaDeInicio = horaDeTermino
-				//	OR
-				//		((horaDeTermino - horaDeInicio + 1440) % 1440)
-				//		- ((${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} - horaDeInicio + 1440) % 1440)
-				//		>= ((${pesqHoraDeTermino == undefined ? 'horaDeTermino' : pesqHoraDeTermino} - ${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} + 1440) % 1440)
-				//	)
-				//	${qualquerDia ? '' : ` AND dias LIKE '${diasQueJogaString}'`}
-				//)
-				//`);
-
-				//////////////////////////////
-
-				//disponibilidades.push({diasQueJoga, deHora, ateHora});
-				//console.log('deHora~ateHora= '+deHora+'~'+ateHora);
-
-				//if(!disponivelEmTodos) {
-				//	;
-				//} else
-				/*anuncios = anuncios.filter(anuncio=>{
-					//anuncio.disponibilidades;
-					//for (let j = 0; j < anuncio.disponibilidades.length; j++) {
-					//	const element = anuncio.disponibilidades[j];
-					//}
-					let dispEncontradas = [];
-					let encontrouTodas = false;
-					//console.log('diasQueJoga busca=');
-					//console.log(diasQueJoga);
-					diasQueJoga.map(dia=>{
-						//console.log('dia='+dia);
-						//anuncio.disponibilidades.map(disp=>{
-						for (let j = 0; j < anuncio.disponibilidades.length && !encontrouTodas; j++) {
-							const anDispAtual = anuncio.disponibilidades[j];
-							
-							let diasAnDispAtual = anDispAtual.dias.split(',');
-							//console.log('j='+j+', disp e arrDisp=');
-							//console.log(disp);
-							//console.log(arrDisp);
-						
-							//console.log('deHora~ateHora= '+deHora+'~'+ateHora);
-							let horaDeInicio = deHora;
-							if (horaDeInicio == undefined)
-								horaDeInicio = anDispAtual.horaDeInicio;
-							let horaDeTermino = ateHora;
-							if (horaDeTermino == undefined)
-								horaDeTermino = anDispAtual.horaDeTermino;
-							//console.log('horaDeInicio~horaDeTermino= '+horaDeInicio+'~'+horaDeTermino);
-							let duracaoBusca = (1440 + horaDeTermino - horaDeInicio) % 1440;
-							let duracaoAnuncio = (1440 + anDispAtual.horaDeTermino - anDispAtual.horaDeInicio) % 1440;
-							let diferencaInicio = (1440 - anDispAtual.horaDeInicio + horaDeInicio) % 1440;
-							//console.log('duracaoBusca,duracaoAnuncio,diferencaInicio= '+duracaoBusca+','
-							//	+duracaoAnuncio+','+diferencaInicio);
-							//if (anuncio.idDoAnuncio == 38)
-							//console.log(diasAnDispAtual);
-							//if (anuncio.idDoAnuncio == 38)
-							//console.log(dia);
-							//if (anuncio.idDoAnuncio == 38 && diasAnDispAtual.some(d=>d==dia))
-							//console.log(dia);
-
-							if ((duracaoAnuncio - diferencaInicio >= duracaoBusca || duracaoAnuncio == 0)
-							&& diasAnDispAtual.some(d=>d==dia) && !dispEncontradas.some(d=>d==dia)) {
-								dispEncontradas.push(dia);
-								dispEncontradas.sort();
-								//if (anuncio.idDoAnuncio == 38){
-								//	console.log('dia='+dia+', dispEncontradas=');
-								//	console.log(dispEncontradas);}
-								if (qualquerDia)
-									encontrouTodas = true;
-							}
-							//console.log('dispEncontradas e diasQueJoga=');
-							//console.log(dispEncontradas);
-							//console.log(diasQueJoga);
-							if (dispEncontradas.join() == diasQueJoga.join())
-								encontrouTodas = true;
-							//console.log(encontrouTodas);
-						}
-						//});
-					});
-					//let passou2 = disp.diasQueJoga.match(diasQueJoga)
-					//							&& duracaoAnuncio - diferencaInicio >= duracaoBusca;
-					let passou2 = encontrouTodas;
-					if (!disponivelEmTodos){
-						if (passou2)
-							anunciosOu.push(anuncio);
-						passou2 = !passou2;
-					}
-					//console.log('anuncio '+anuncio.idDoAnuncio+'='+passou2);
-					return passou2;
-
-					/*let horaDeInicio = deHora || anuncio.disponibilidades[0].horaDeInicio;
-					let horaDeTermino = ateHora || anuncio.disponibilidades[0].horaDeTermino;
-					console.log('horaDeInicio~horaDeTermino= '+horaDeInicio+'~'+horaDeTermino);
-					//if (!body['de'+id])
-					//if (deHora == undefined)
-					//		horaDeInicio = anuncio.disponibilidades[0].horaDeInicio;
-					//if (!body['ate'+id])
-					//if (ateHora == undefined)
-					//		horaDeTermino = anuncio.disponibilidades[0].horaDeTermino;
-					let duracaoBusca = (1440 + horaDeTermino - horaDeInicio) % 1440;
-					//if (duracaoBusca < 0) duracaoBusca += 1440;
-					let duracaoAnuncio = (1440 + anuncio.disponibilidades[0].horaDeTermino
-						- anuncio.disponibilidades[0].horaDeInicio) % 1440;
-					//if (duracaoAnuncio < 0) duracaoAnuncio += 1440;
-					//console.log('duração busca/anúncio= '+duracaoBusca+'/'+duracaoAnuncio);
-					let diferencaInicio = (1440 - anuncio.disponibilidades[0].horaDeInicio + horaDeInicio) % 1440;
-					//duracaoAnuncio = anuncio.horaDeInicio > horaDeInicio ?
-					//	anuncio.horaDeInicio + duracaoAnuncio - 1440 - horaDeInicio :
-					//	duracaoAnuncio;
-					//console.log('duração anúncio2= '+duracaoAnuncio+', condições:');
-
-					//console.log('tá nos dias que joga='+anuncio.diasQueJoga.match(diasQueJoga) ? true : false);
-					//console.log('tá no período q joga='+duracaoAnuncio - diferençaInicio >= duracaoBusca);
-
-					let passou = anuncio.disponibilidades[0].diasQueJoga.match(diasQueJoga)
-											&& duracaoAnuncio - diferencaInicio >= duracaoBusca;
-					if (!disponivelEmTodos){
-						if (passou)
-							anunciosOu.push(anuncio);
-						passou = !passou;
-					}
-					return passou; * /
-				});*/
-				//console.log('dps do filtro '+i);
-				//console.log(anuncios);
-			}
-			//console.log(anunciosOu.map(a=>a.idDoAnuncio).join());
-
-			//if (!disponivelEmTodos)
-			//	anuncios = anunciosOu.sort((a,b)=>b.dataDeCriacao - a.dataDeCriacao);
-				
-			//console.log(disponibilidades);
-		}
-		//console.log('dps do filtro d disponibilidade, qtde='+anuncios.length);
-
-		//////////////////////////////
-
-		//console.log('sqlDisp:');
-		//console.log(sqlDisp.map(s=>s.replaceAll('\t','').replaceAll('\n',' ')));
-
-		const jogos = await db.all(`SELECT id, nome, nomeUrl FROM Jogos;`);
-
-		const jogo = jogos.find(j=>j.nomeUrl == body.jogo);
-		//console.log(jogo);
-		//let jogo;
-		//if (body.jogo != '%')
-		//	jogos.some(j=>{
-		//		if(j.nomeUrl == body.jogo) {
-		//			jogo = j;
-		//			return true;
-		//		}
-		//	});
-			//jogo = jogos.filter(j=>j.nomeUrl==body.jogo);
-		//if (body.jogo != '%') {
-		//	console.log(jogos.find(j=>j.nomeUrl == body.jogo));
-		//}
-		//	jogo = await db.get(`SELECT id FROM Jogos WHERE nomeUrl = (?);`, [body.jogo]);
-		//lembrete: remover idDoUsuario do resultado (vazamento de informação?)
-		let sqlAnuncios = `SELECT Anuncios.idDoAnuncio
-				, idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, usaChatDeVoz, dataDeCriacao
-			FROM Anuncios JOIN Disponibilidades
-			ON Anuncios.idDoAnuncio = Disponibilidades.idDoAnuncio
-			WHERE idDoUsuario ${body.idDoUsuario == '%' ? 'LIKE' : '=' } (?)
-				${jogo ? `AND idDoJogo = ${jogo.id}` : ''}
-				AND nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
-				AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} ${tempoDeJogoEmMeses}
-				${entre ? 'AND tempoDeJogoEmMeses <='+tempoDeJogoEmMeses2 : ''}
-				AND usaChatDeVoz LIKE '${usaChatDeVoz}'
-				${sqlDisp.length > 0 ? ' AND ' : ' '} ${sqlDisp.join(disponivelEmQualquer ? ' OR ' : ' AND ')}
-			GROUP BY Anuncios.idDoAnuncio
-			ORDER BY dataDeCriacao DESC;`;
-		
-		//console.log('sqlAnuncios:');
-		//console.log(sqlAnuncios.replaceAll('\t','').replaceAll('\n',' '));
-
-		let anuncios2 = await db.all(sqlAnuncios, [body.idDoUsuario, body.nomeNoJogo]);
-		//console.log(anuncios2.map(an=>an.idDoAnuncio));
-		//console.log(anuncios2.length);
-
-		let idsDosAnuncios2 = anuncios2.map(an=>an.idDoAnuncio).join();
-		//console.log(idsDosAnuncios);
-		//let an2 = await db.all(
-		//	`SELECT idDoAnuncio, idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, usaChatDeVoz, dataDeCriacao
-		//	FROM Anuncios
-		//	WHERE idDoAnuncio IN (${idsDosAnuncios2});`
-		//);
-		let disponibilidades2 = await db.all(
-			`SELECT idDoAnuncio, dias, horaDeInicio, horaDeTermino
-			FROM Disponibilidades
-			WHERE idDoAnuncio IN (${idsDosAnuncios2});`
-		);
-		//console.log('qtde disp='+disponibilidades.length);
-		anuncios2.map(an=>{
-			jogos.some(j=>{
-				if (j.id == an.idDoJogo) {
-					an.nomeDoJogo = j.nome;
-					an.nomeUrlDoJogo = j.nomeUrl;
-					return true;
-				}
-			});
-			//an.nomeDoJogo = jogos.find(j=>{
-			//	if(j.id == an.idDoJogo)
-			//		return j.nome;
-			//})
-			//console.log(an.nomeDoJogo);
-			an.disponibilidades = disponibilidades2.filter(disp=>disp.idDoAnuncio == an.idDoAnuncio);
-			//console.log(an.disponibilidades);
-		});
-
-		//console.log('anúncios ants d ordenar:');
-		//console.log(anuncios2);
-		//console.log('ordenarPor, emOrdem');
-		//console.log(ordenarPor+', '+emOrdem);
-		//console.log(anuncios2[0][ordenarPor]);
-
-		if (ordenarPor == 'dias'){
-			//console.log(anuncios2[0].disponibilidades[0][ordenarPor]);
-			anuncios2.sort((a,b)=>
-				a.disponibilidades[0][ordenarPor].localeCompare(b.disponibilidades[0][ordenarPor].search())
-			);
-		}
-		else 
-		if (ordenarPor == 'horaDeInicio' || ordenarPor == 'horaDeTermino'){
-			//console.log(anuncios2[0].disponibilidades[0][ordenarPor]);
-			anuncios2.sort((a,b)=>a.disponibilidades[0][ordenarPor] - b.disponibilidades[0][ordenarPor]);
-		}
-		//else if (ordenarPor == 'tempoDeJogoEmMeses')
-		//	anuncios2.sort((a,b)=>a[ordenarPor] - b[ordenarPor]);
-		//else if (ordenarPor == 'usaChatDeVoz')
-		//	anuncios2.sort((a,b)=>a[ordenarPor] - b[ordenarPor]);
-		else 
-		if (ordenarPor == 'nomeUrlDoJogo' || ordenarPor == 'nomeNoJogo'){
-			//console.log(anuncios2[0][ordenarPor]);
-			anuncios2.sort((a,b)=>a[ordenarPor].toLowerCase().localeCompare(b[ordenarPor].toLowerCase()));
-		}
-		else{
-			//console.log(anuncios2[0][ordenarPor]);
-			anuncios2.sort((a,b)=>a[ordenarPor] - b[ordenarPor]);
-			//anuncios2.sort();
-		}
-
-		if(emOrdem < 0)
-			anuncios2.reverse();
-
-		//if (ordenarPor == 'dias' || ordenarPor == 'horaDeInicio' || ordenarPor == 'horaDeTermino')
-		//	console.log(anuncios2.map(a=>a.disponibilidades[0][ordenarPor]));
-		//else
-		//	console.log(anuncios2.map(a=>a[ordenarPor]));
-
-		anuncios2.map(an=>{
-			an.disponibilidades.map(disp=>{
-				delete disp.idDoAnuncio;
-				disp.dias = disp.dias.split(',');
-				disp.horaDeInicio = converterMinutosParaHoraString(disp.horaDeInicio);
-				disp.horaDeTermino = converterMinutosParaHoraString(disp.horaDeTermino);
-			});
-		});
-
-		//console.log('anúncios dps d ordenar:');
-		//console.log(anuncios);
-		//console.log(anuncios2.map(a=>a.disponibilidades));
-
-		//////////////////////////////
-		
-		//console.log({
-		//	diasQueJoga: anuncios[0].diasQueJoga.split(','),
-		//	horarioDeInicio: converterMinutosParaHoraString(anuncios[0].deHora),
-		//	horarioDeTermino: converterMinutosParaHoraString(anuncios[0].ateHora)
-		//});
-		//anuncios2.map(anuncio=>{
-		//	anuncio.disponibilidades.sort((a,b)=>a.dias - b.dias);
-		//	anuncio.disponibilidades.map(disp=>{
-		//		delete disp.idDoAnuncio;
-		//		disp.dias = disp.dias.split(',');
-		//		disp.horaDeInicio = converterMinutosParaHoraString(disp.horaDeInicio);
-		//		disp.horaDeTermino = converterMinutosParaHoraString(disp.horaDeTermino);
-		//	});
-		//});
-		const totalDeAnuncios = anuncios2.length;
-		const totalDePaginas = Math.ceil(totalDeAnuncios / resultadosPorPagina);
-		
-		if (pagina > totalDePaginas)
-			pagina = totalDePaginas;
-		const anuncios = anuncios2.filter((a,i)=>
-			i >= (pagina-1)*resultadosPorPagina && i < pagina*resultadosPorPagina
-		);
-		console.log('GET anuncios, qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length+', ip='+req.ip);
-		//console.log(
-		//	'POST anuncios, qtde campos='+qtdeCampos+', qtde resultados='+anuncios2.length
-		//	+', ip='+req.ip+(qtdeCampos > 0 ? ', campos:' : '')
-		//);
-		//if (qtdeCampos > 0)
-		//	console.log(camposPesquisados);
-		return resp.status(200).json({anuncios, totalDeAnuncios, pagina, totalDePaginas}
-			//.map(anuncio=>{
-			//return {...anuncio,
-				//nomeDoJogo: jogo.anuncio.nomeDoJogo,
-				//nomeDoUsuario: anuncio.nomeNoJogo,
-				//tempoDeJogoEmAnos: anuncio.tempoDeJogoEmMeses/12,
-				//tempoDeJogoEmMeses: anuncio.tempoDeJogoEmMeses,
-				//diasQueJoga: anuncio.diasQueJoga.split(','),
-				//diasQueJoga: anuncio.disponibilidades[0].dias,
-				//deHora: converterMinutosParaHoraString(anuncio.disponibilidades[0].horaDeInicio),
-				//ateHora: converterMinutosParaHoraString(anuncio.disponibilidades[0].horaDeTermino)
-				//deHora: anuncio.disponibilidades[0].horaDeInicio,
-				//ateHora: anuncio.disponibilidades[0].horaDeTermino
-		//	};
-		//})
-		);
+		return resp.status(201).json({ok: 'Anúncio publicado.'});
 	}
 	catch (erro) {
 		//console.log('entrou no catch');
@@ -2358,29 +1726,6 @@ servidor.get('/usuarios/:idDoUsuario/anuncios', async (req, resp)=>{
 	return resp.status(200).json(anuncios);
 });
 
-/*/só chamado no modal de jogo selecionado, na antiga página inicial
-servidor.get('/jogos/:jogoNomeUrl/anuncios', async (req, resp)=>{
-	const jogoNomeUrl = req.params.jogoNomeUrl;
-	const db = await abrirBanco;
-	const jogo = await db.get(`SELECT id FROM Jogos WHERE nomeUrl = '${jogoNomeUrl}';`);
-	//console.log(jogo.id);
-	const anuncios = await db.all(
-		`SELECT id,nomeDoUsuario,tempoDeJogoEmAnos,diasQueJoga,deHora,ateHora,usaChatDeVoz,dataDeCriacao
-		FROM Anuncios
-		WHERE jogoId = ${jogo.id}
-		ORDER BY dataDeCriacao DESC;`
-	);
-	console.log('GET jogos/'+jogoNomeUrl+'/anuncios, qtde='+anuncios.length+', ip='+req.ip);
-	return resp.json(anuncios.map(anuncio=>{
-		return {...anuncio,
-			diasQueJoga: anuncio.diasQueJoga.split(','),
-			deHora: converterMinutosParaHoraString(anuncio.deHora),
-			ateHora: converterMinutosParaHoraString(anuncio.ateHora)
-		};
-	}));
-});
-//*/
-
 //retorna o discord do anúncio do id informado (chamado no modal conectar, nos cartões de anúncios)
 //lembrete: mudar pra autenticar ants d retornar
 servidor.get('/anuncios/:idDoAnuncio/discord', async (req, resp)=>{
@@ -2389,8 +1734,9 @@ servidor.get('/anuncios/:idDoAnuncio/discord', async (req, resp)=>{
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
-		const db = await abrirBanco;
-		const anuncioExiste = await db.get(`SELECT discord FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`);
+		//const db = await abrirBanco;
+		//const anuncioExiste = await db.get(`SELECT discord FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`);
+		const [anuncioExiste] = await pool.query(`SELECT discord FROM anuncio WHERE id = ${idDoAnuncio};`);
 		if (!anuncioExiste) {
 			console.log('Anúncio não encontrado.');
 			return resp.status(404).json({erro: 'Anúncio não encontrado.'});
@@ -2404,65 +1750,6 @@ servidor.get('/anuncios/:idDoAnuncio/discord', async (req, resp)=>{
 		return resp.status(500).json({erro: 'Erro interno no servidor.'});
 	}
 });
-
-/*/chamado no modal para criar anúncio, na antiga página inicial
-servidor.put('/jogos/:id/anuncios', async (req, resp)=>{
-	const jogoId = req.params.id;
-	const body = req.body;
-	console.log('PUT anuncio, usuário='+body.nomeDoUsuario+', ip='+req.ip);
-	const db = await abrirBanco;
-	//const anuncio = {
-	//	id: uuid(),
-	//	jogoId: jogoId,
-	//	nomeDoUsuario: body.nomeDoUsuario,
-	//	tempoDeJogoEmAnos: body.tempoDeJogoEmAnos,
-	//	discord: body.discord,
-	//	diasQueJoga: body.diasQueJoga,
-	//	deHora: converterHoraStringParaMinutos(body.deHora),
-	//	ateHora: converterHoraStringParaMinutos(body.ateHora),
-	//	usaChatDeVoz: body.usaChatDeVoz
-	//};
-	//console.log(Object.values(anuncio).join(' / '));
-	//const teste = 
-	await db.run(
-		`INSERT INTO Anuncios (id, jogoId, nomeDoUsuario, tempoDeJogoEmAnos, discord, diasQueJoga,
-			deHora, ateHora, usaChatDeVoz, dataDeCriacao)
-		VALUES (?,?,?,?,?,?,?,?,?,?);`,
-		[uuidv4(), jogoId, body.nomeDoUsuario, body.tempoDeJogoEmAnos, body.discord, body.diasQueJoga,
-		converterHoraStringParaMinutos(body.deHora), converterHoraStringParaMinutos(body.ateHora),
-		body.usaChatDeVoz, Date.now()],
-		//[`${anuncio.id}, ${anuncio.jogoId}, ${anuncio.nomeDoUsuario}, ${anuncio.tempoDeJogoEmAnos},
-		//${anuncio.discord}, ${anuncio.diasQueJoga}, ${anuncio.deHora}, ${anuncio.ateHora},
-		//${anuncio.usaChatDeVoz}`],
-		//[anuncio.id, anuncio.jogoId, anuncio.nomeDoUsuario, anuncio.tempoDeJogoEmAnos, anuncio.discord,
-		//anuncio.diasQueJoga, anuncio.deHora, anuncio.ateHora, anuncio.usaChatDeVoz],
-		function(erro) {
-			console.log('quando isso é executado??');
-			if (erro) {
-				console.log('erro:');
-				console.log(erro);
-				return console.log(erro);
-			}
-			console.log(`A row has been inserted with rowid ${this.lastID}`);
-			return this.lastID;
-		}
-	)
-	.then(async dados=>{
-		//console.log('dados:');
-		//console.log(dados);
-		const anuncioPublicado = await db.get(
-			`SELECT * FROM Anuncios WHERE dataDeCriacao = (SELECT MAX(dataDeCriacao) FROM Anuncios);`
-		);
-		//console.log(anuncioPublicado);
-		return resp.status(201).json(anuncioPublicado);
-	})
-	.catch(erro=>{
-		console.log('entrou no catch');
-		console.log(erro);
-		return resp.status(500).json(erro);
-	});
-});
-//*/
 
 //exclui um anúncio
 servidor.delete('/anuncios/:idDoAnuncio', async (req, resp)=>{
@@ -2497,28 +1784,48 @@ servidor.delete('/anuncios/:idDoAnuncio', async (req, resp)=>{
 			//cookie roubado? oq deve ser feito nesse caso?
 		}*/
 
-		const anuncioExiste = await db.get(
-			`SELECT idDoAnuncio,idDoUsuario FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`
+		//const anuncioExiste = await db.get(
+		//	`SELECT idDoAnuncio,idDoUsuario FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`
+		//);
+		//const disponibilidadesExistem = await db.all(
+		//	`SELECT id,idDoAnuncio FROM Disponibilidades WHERE idDoAnuncio = ${idDoAnuncio};`
+		//);
+		//const idsDasDisponibilidades = disponibilidadesExistem.map(d=>d.id).join();
+		//const diasExistem = await db.all(
+		//	`SELECT id FROM DiasDasDisponibilidades
+		//	WHERE idDaDisponibilidade IN (${idsDasDisponibilidades});`
+		//);
+		
+		const [anuncioExiste] = await pool.query(
+			`SELECT id, id_do_usuario AS idDoUsuario FROM anuncio WHERE id = ${idDoAnuncio};`
 		);
-		const disponibilidadesExistem = await db.all(
-			`SELECT id,idDoAnuncio FROM Disponibilidades WHERE idDoAnuncio = ${idDoAnuncio};`
+		const disponibilidadesExistem = await pool.query(
+			`SELECT id, id_do_anuncio FROM disponibilidade WHERE id_do_anuncio = ${idDoAnuncio};`
 		);
 		const idsDasDisponibilidades = disponibilidadesExistem.map(d=>d.id).join();
-		const diasExistem = await db.all(
-			`SELECT id FROM DiasDasDisponibilidades
-			WHERE idDaDisponibilidade IN (${idsDasDisponibilidades});`
+		const diasExistem = await pool.query(
+			`SELECT id FROM dia_da_disponibilidade
+			WHERE id_da_disponibilidade IN (${idsDasDisponibilidades});`
 		);
+
 		if (!anuncioExiste && disponibilidadesExistem.length == 0 && diasExistem.length == 0) {
 			console.log('Anúncio não encontrado.');
 			return resp.status(404).json({erro: 'Anúncio não encontrado.'});
 		}
 		if (sessaoExiste.idDoUsuario != anuncioExiste.idDoUsuario)
 			return resp.status(409).json({erro: 'O anúncio não pertence ao usuário informado.'});
-		await db.run(`DELETE FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`);
-		await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = ${idDoAnuncio};`);
-		await db.run(
-			`DELETE FROM DiasDasDisponibilidades WHERE idDaDisponibilidade IN (${idsDasDisponibilidades});`
+		//await db.run(`DELETE FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`);
+		//await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio = ${idDoAnuncio};`);
+		//await db.run(
+		//	`DELETE FROM DiasDasDisponibilidades WHERE idDaDisponibilidade IN (${idsDasDisponibilidades});`
+		//);
+		
+		await pool.query(`DELETE FROM anuncio WHERE id = ${idDoAnuncio};`);
+		await pool.query(`DELETE FROM disponibilidade WHERE id_do_anuncio = ${idDoAnuncio};`);
+		await pool.query(
+			`DELETE FROM dia_da_disponibilidade WHERE id_da_disponibilidade IN (${idsDasDisponibilidades});`
 		);
+
 		//await new Promise(r=>setTimeout(r,1000));
 		console.log('Anúncio excluído.');
 		return resp.status(200).json({ok: 'Anúncio excluído.'});
@@ -2536,9 +1843,13 @@ servidor.post('/usuarios', async (req, resp)=>{
 		const body = req.body;
 		console.log('POST usuarios, usuário='+body.nomeDoUsuario+', ip='+req.ip);
 		//console.log('sql='+`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
-		const db = await abrirBanco;
-		const usuarioJaExiste = await db.get(
-			`SELECT nome FROM Usuarios WHERE nome = (?);`,
+		//const db = await abrirBanco;
+		//const usuarioJaExiste = await db.get(
+		//	`SELECT nome FROM Usuarios WHERE nome = (?);`,
+		//	[body.nomeDoUsuario]
+		//);
+		const [usuarioJaExiste] = await pool.query(
+			`SELECT id FROM usuario WHERE nome_de_usuario = (?);`,
 			[body.nomeDoUsuario]
 		);
 		//console.log('já existe='+usuarioJaExiste);
@@ -2550,27 +1861,36 @@ servidor.post('/usuarios', async (req, resp)=>{
 		//console.log('senhaHash='+senhaHash);
 		//await db.run(`INSERT INTO Usuarios (id, nome, senhaHash, dataDeCriacao) VALUES (?,?,?,?);`,
 			//[uuidv4(), body.nomeDoUsuario, senhaHash, Date.now()],
-		const timeStampDoRegistro = Date.now();
-		await db.run(`INSERT INTO Usuarios (nome, senhaHash, email, dataDeCriacao) VALUES (?,?,?,?);`,
-			[body.nomeDoUsuario, senhaHash, body.email, timeStampDoRegistro],
-			function(erro) {
-				console.log('quando isso é executado??');
-				if (erro) {
-					console.log('erro:');
-					console.log(erro);
-					return console.log(erro);
-				}
-				console.log(`A row has been inserted with rowid ${this.lastID}`);
-				return this.lastID;
-			}
+		
+		//const timeStampDoRegistro = Date.now();
+		//await db.run(`INSERT INTO Usuarios (nome, senhaHash, email, dataDeCriacao) VALUES (?,?,?,?);`,
+		//	[body.nomeDoUsuario, senhaHash, body.email, timeStampDoRegistro],
+		//	function(erro) {
+		//		console.log('quando isso é executado??');
+		//		if (erro) {
+		//			console.log('erro:');
+		//			console.log(erro);
+		//			return console.log(erro);
+		//		}
+		//		console.log(`A row has been inserted with rowid ${this.lastID}`);
+		//		return this.lastID;
+		//	}
+		//);
+		//const usuarioRegistrado = await db.get(
+		//	`SELECT id, nome FROM Usuarios WHERE dataDeCriacao = ${timeStampDoRegistro};`
+		//);
+
+		const usuarioRegistrado = {};
+		usuarioRegistrado.id = uuidv4();
+		await pool.query(`INSERT INTO usuario (id, nome_de_usuario, hash_da_senha, email) VALUES (?,?,?,?);`,
+			[usuarioRegistrado.id, body.nomeDoUsuario, senhaHash, body.email]
 		);
-		const usuarioRegistrado = await db.get(
-			`SELECT id, nome FROM Usuarios WHERE dataDeCriacao = ${timeStampDoRegistro};`
-		);
+		usuarioRegistrado.nome = body.nomeDoUsuario;
+
 		console.log('Usuário registrado, id='+usuarioRegistrado.id+'.');
 		//console.log(usuarioRegistrado);
 		//return resp.status(201).json({usuario: usuarioRegistrado});
-		return resp.status(201).json({id: usuarioRegistrado.id, nome: usuarioRegistrado.nome});
+		return resp.status(201).json(usuarioRegistrado);
 		//const token = {id: usuarioRegistrado.id, nome: usuarioRegistrado.nome, tokenDaSessao: uuidv4()};
 		//const tokenDaSessaoHash = await bcrypt.hash(token.tokenDaSessao, bcryptSaltRounds);
 		//const daquiAUmMes = Date.now()+30*24*60*60*1000;
@@ -2606,8 +1926,11 @@ servidor.get('/usuarios/:idDoUsuario/dados', async (req, resp)=>{
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
 		if (sessaoExiste.idDoUsuario != idDoUsuario) //lembrete: é possível isso?
 			return resp.status(409).json({erro: 'O token não pertence ao usuário informado.'});
-		const db = await abrirBanco;
-		const usuario = await db.get(`SELECT nome, email FROM Usuarios WHERE id = ${idDoUsuario};`);
+		//const db = await abrirBanco;
+		//const usuario = await db.get(`SELECT nome, email FROM Usuarios WHERE id = ${idDoUsuario};`);
+		const [usuario] = await pool.query(
+			`SELECT nome_de_usuario AS nome, email FROM usuario WHERE id = ${idDoUsuario};`
+		);
 		return resp.status(200).json(usuario);
 	}
 	catch (erro) {
@@ -2636,7 +1959,7 @@ servidor.put('/usuarios/:idDoUsuario', async (req, resp)=>{
 		const usuarioExiste = await verificarCredenciais('', body.senha, sessaoExiste.idDoUsuario);
 		if (usuarioExiste.erro)
 			return resp.status(usuarioExiste.status).json({erro: usuarioExiste.erro});
-		const db = await abrirBanco;
+		//const db = await abrirBanco;
 		/*const sessaoExiste = await db.get(
 			`SELECT id, tokenDaSessaoHash, dataDeExpiracao, idDoUsuario FROM Sessoes WHERE seletor = '${seletor}';`
 		);
@@ -2684,7 +2007,8 @@ servidor.put('/usuarios/:idDoUsuario', async (req, resp)=>{
 				console.log('E-mail em formato inválido.');
 				return resp.status(400).json({erro: 'E-mail em formato inválido.'});
 			}
-			await db.run(`UPDATE Usuarios SET email = '${body.email}' WHERE id = ${sessaoExiste.idDoUsuario};`);
+			//await db.run(`UPDATE Usuarios SET email = '${body.email}' WHERE id = ${sessaoExiste.idDoUsuario};`);
+			await pool.query(`UPDATE usuario SET email = '${body.email}' WHERE id = ${sessaoExiste.idDoUsuario};`);
 		}
 		if (body.novaSenha) {
 			const novaSenhaIgual = await bcrypt.compare(body.novaSenha, usuarioExiste.senhaHash);
@@ -2693,8 +2017,11 @@ servidor.put('/usuarios/:idDoUsuario', async (req, resp)=>{
 				return resp.status(422).json({erro: 'A nova senha não pode ser igual à atual.'});
 			}
 			const novaSenhaHash = await bcrypt.hash(body.novaSenha, BCRYPT_SALT_ROUNDS);
-			await db.run(
-				`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE id = ${sessaoExiste.idDoUsuario};`
+			//await db.run(
+			//	`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE id = ${sessaoExiste.idDoUsuario};`
+			//);
+			await pool.query(
+				`UPDATE usuario SET hash_da_senha = '${novaSenhaHash}' WHERE id = ${sessaoExiste.idDoUsuario};`
 			);
 		}
 		//await db.run(`INSERT INTO Usuarios (id, nome, senhaHash, dataDeCriacao) VALUES (?,?,?,?);`,
@@ -2703,9 +2030,13 @@ servidor.put('/usuarios/:idDoUsuario', async (req, resp)=>{
 		//	`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE nome = '${body.nomeDoUsuario}';`
 		//);
 		//exclui sessões de outros dispositivos
-		await db.run(
-			`DELETE FROM Sessoes
-			WHERE idDoUsuario = ${sessaoExiste.idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`
+		//await db.run(
+		//	`DELETE FROM Sessoes
+		//	WHERE idDoUsuario = ${sessaoExiste.idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`
+		//);
+		await pool.query(
+			`DELETE FROM sessao
+			WHERE id_do_usuario = ${sessaoExiste.idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`
 		);
 		console.log('Dados alterados com sucesso.');
 		return resp.status(200).json({ok: 'Dados alterados com sucesso.'});
@@ -2722,20 +2053,26 @@ servidor.post('/recuperacao-de-conta', async (req, resp)=>{
 	try {
 		const body = req.body;
 		console.log('POST recuperacao-de-conta, ip='+req.ip);
-		const db = await abrirBanco;
-		const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE email = (?);`, [body.email]);
+		//const db = await abrirBanco;
+		//const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE email = (?);`, [body.email]);
+		const [usuarioExiste] = await pool.query(`SELECT id FROM Usuarios WHERE email = (?);`, [body.email]);
 		if (!usuarioExiste) {
 			console.log('Conta não encontrada.');
 			return resp.status(404).json({erro: 'Conta não encontrada.'});
 		}
 		//remove requisições anteriores, caso haja
-		await db.run(`DELETE FROM RecuperacoesDeConta WHERE idDoUsuario = ${usuarioExiste.id};`);
+		//await db.run(`DELETE FROM RecuperacoesDeConta WHERE idDoUsuario = ${usuarioExiste.id};`);
+		await pool.query(`DELETE FROM recuperacao_de_conta WHERE id_do_usuario = ${usuarioExiste.id};`);
 		const uuidDoToken = uuidv4();
 		const uuidDoTokenHash = await bcrypt.hash(uuidDoToken, BCRYPT_SALT_ROUNDS);
-		const dataDeExpiracao = Date.now() + DURACAO_DO_TOKEN_DE_RECUPERACAO;
-		await db.run(//renomear token aki
-			`INSERT INTO RecuperacoesDeConta (idDoUsuario, token, dataDeExpiracao)
-			VALUES (${usuarioExiste.id}, '${uuidDoTokenHash}', ${dataDeExpiracao});`
+		//const dataDeExpiracao = Date.now() + DURACAO_DO_TOKEN_DE_RECUPERACAO;
+		//await db.run(//renomear token aki
+		//	`INSERT INTO RecuperacoesDeConta (idDoUsuario, token, dataDeExpiracao)
+		//	VALUES (${usuarioExiste.id}, '${uuidDoTokenHash}', ${dataDeExpiracao});`
+		//);
+		await pool.query(
+			`INSERT INTO recuperacao_de_conta (id_do_usuario, hash_do_token)
+			VALUES (${usuarioExiste.id}, '${uuidDoTokenHash}');`
 		);
 		const emailEnviado = await enviarEmail(body.email, 'Redefinição de senha',
 			`<a href='http://localhost:3000/redefinir-senha?token=${uuidDoToken}&id=${usuarioExiste.id}'>
@@ -2804,30 +2141,72 @@ async function enviarEmail(email, assunto, texto) {
 	}
 }
 
+//lembrete
+async function validarRecuperacaoDeConta() {
+	//const db = await abrirBanco;
+	//const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE id = (?);`, [query.id]);
+	const [usuarioExiste] = await pool.query(`SELECT id FROM usuario WHERE id = (?);`, [query.id]);
+	if (!usuarioExiste) {
+		console.log('Conta não encontrada.');
+		return resp.status(404).json({erro: 'Conta não encontrada.'});
+	}
+	//const recuperacaoExiste = await db.get(
+	//	`SELECT token, dataDeExpiracao FROM RecuperacoesDeConta WHERE idDoUsuario = (?);`, [query.id]
+	//);
+	const [recuperacaoExiste] = await pool.query(
+		`SELECT hash_do_token AS tokenDaSessaoHash, UNIX_TIMESTAMP(data_de_criacao) AS dataDeCriacaoEmSeg
+		FROM recuperacao_de_conta
+		WHERE id_do_usuario = (?);`, [query.id]
+	);
+	if (!recuperacaoExiste) {
+		console.log('Redefinição de senha inexistente.');
+		return resp.status(401).json({erro: 'Redefinição de senha inexistente.'});
+	}
+	//lembrete: renomear token aki
+	const recuperacaoValida = await bcrypt.compare(query.token, recuperacaoExiste.tokenDaSessaoHash);
+	if (!recuperacaoValida) {
+		console.log('Redefinição inválida.');
+		return resp.status(401).json({erro: 'Redefinição de senha inválida.'});
+	}
+	//if(recuperacaoExiste.dataDeExpiracao < Date.now()) {
+	if(recuperacaoExiste.dataDeCriacaoEmSeg*1000 + DURACAO_DO_TOKEN_DE_RECUPERACAO < Date.now()) {
+		console.log('Redefinição de senha expirada.');
+		return resp.status(401).json({erro: 'Redefinição de senha expirada.'});
+	}
+	return {ok: true};
+}
+
 servidor.get('/recuperacao-de-conta', async (req, resp)=>{
 	try {
 		const query = req.query;
 		console.log('GET recuperacao-de-conta, ip='+req.ip);
-		const db = await abrirBanco;
-		const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE id = (?);`, [query.id]);
+		//const db = await abrirBanco;
+		//const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE id = (?);`, [query.id]);
+		const [usuarioExiste] = await pool.query(`SELECT id FROM usuario WHERE id = (?);`, [query.id]);
 		if (!usuarioExiste) {
 			console.log('Conta não encontrada.');
 			return resp.status(404).json({erro: 'Conta não encontrada.'});
 		}
-		const recuperacaoExiste = await db.get(
-			`SELECT token, dataDeExpiracao FROM RecuperacoesDeConta WHERE idDoUsuario = (?);`, [query.id]
+		//const recuperacaoExiste = await db.get(
+		//	`SELECT token, dataDeExpiracao FROM RecuperacoesDeConta WHERE idDoUsuario = (?);`, [query.id]
+		//);
+		const [recuperacaoExiste] = await pool.query(
+			`SELECT hash_do_token AS tokenDaSessaoHash, UNIX_TIMESTAMP(data_de_criacao) AS dataDeCriacaoEmSeg
+			FROM recuperacao_de_conta
+			WHERE id_do_usuario = (?);`, [query.id]
 		);
 		if (!recuperacaoExiste) {
 			console.log('Redefinição de senha inexistente.');
 			return resp.status(401).json({erro: 'Redefinição de senha inexistente.'});
 		}
 		//lembrete: renomear token aki
-		const recuperacaoValida = await bcrypt.compare(query.token, recuperacaoExiste.token);
+		const recuperacaoValida = await bcrypt.compare(query.token, recuperacaoExiste.tokenDaSessaoHash);
 		if (!recuperacaoValida) {
 			console.log('Redefinição inválida.');
 			return resp.status(401).json({erro: 'Redefinição de senha inválida.'});
 		}
-		if(recuperacaoExiste.dataDeExpiracao < Date.now()) {
+		//if(recuperacaoExiste.dataDeExpiracao < Date.now()) {
+		if(recuperacaoExiste.dataDeCriacaoEmSeg*1000 + DURACAO_DO_TOKEN_DE_RECUPERACAO < Date.now()) {
 			console.log('Redefinição de senha expirada.');
 			return resp.status(401).json({erro: 'Redefinição de senha expirada.'});
 		}
@@ -2844,34 +2223,42 @@ servidor.post('/redefinicao-de-senha', async (req, resp)=>{
 	try {
 		const body = req.body;
 		console.log('POST redefinicao-de-senha, ip='+req.ip);
-		const db = await abrirBanco;
-		const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE id = (?);`, [body.idDoUsuario]);
+		//const db = await abrirBanco;
+		//const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE id = (?);`, [body.idDoUsuario]);
+		const [usuarioExiste] = await pool.query(`SELECT id FROM usuario WHERE id = (?);`, [body.idDoUsuario]);
 		if (!usuarioExiste) {
 			console.log('Conta não encontrada.');
 			return resp.status(404).json({erro: 'Conta não encontrada.'});
 		}
-		const recuperacaoExiste = await db.get(
-			`SELECT token, dataDeExpiracao FROM RecuperacoesDeConta WHERE idDoUsuario = ${body.idDoUsuario};`
+		//const recuperacaoExiste = await db.get(
+		//	`SELECT token, dataDeExpiracao FROM RecuperacoesDeConta WHERE idDoUsuario = ${body.idDoUsuario};`
+		//);
+		const [recuperacaoExiste] = await pool.query(
+			`SELECT hash_do_token AS tokenDaSessaoHash, UNIX_TIMESTAMP(data_de_criacao) AS dataDeCriacaoEmSeg
+			FROM recuperacao_de_conta
+			WHERE id_do_usuario = (?);`, [body.idDoUsuario]
 		);
 		if (!recuperacaoExiste) {
 			console.log('Redefinição de senha inexistente.');
 			return resp.status(401).json({erro: 'Redefinição de senha inexistente.'});
 		}
 		//lembrete: renomear token aki
-		const recuperacaoValida = await bcrypt.compare(body.token, recuperacaoExiste.token);
+		const recuperacaoValida = await bcrypt.compare(body.token, recuperacaoExiste.tokenDaSessaoHash);
 		if (!recuperacaoValida) {
 			console.log('Redefinição inválida.');
 			return resp.status(401).json({erro: 'Redefinição de senha inválida.'});
 		}
-		if(recuperacaoExiste.dataDeExpiracao < Date.now()) {
+		//if(recuperacaoExiste.dataDeExpiracao < Date.now()) {
+		if(recuperacaoExiste.dataDeCriacaoEmSeg*1000 + DURACAO_DO_TOKEN_DE_RECUPERACAO < Date.now()) {
 			console.log('Redefinição de senha expirada.');
 			return resp.status(401).json({erro: 'Redefinição de senha expirada.'});
 		}
+
 		const novaSenhaHash = await bcrypt.hash(body.novaSenha, BCRYPT_SALT_ROUNDS);
-		await db.run(
-			`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE id = ${body.idDoUsuario};`
-		);
-		await db.run(`DELETE FROM RecuperacoesDeConta WHERE idDoUsuario = ${body.idDoUsuario};`);
+		//await db.run(`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE id = ${body.idDoUsuario};`);
+		await pool.query(`UPDATE usuario SET hash_da_senha = '${novaSenhaHash}' WHERE id = ${body.idDoUsuario};`);
+		//await db.run(`DELETE FROM RecuperacoesDeConta WHERE idDoUsuario = ${body.idDoUsuario};`);
+		await pool.query(`DELETE FROM recuperacao_de_conta WHERE id_do_usuario = ${body.idDoUsuario};`);
 		return resp.status(200).json({ok: 'Senha redefinida com sucesso.'});
 	}
 	catch (erro) {
@@ -2900,7 +2287,7 @@ servidor.delete('/usuarios/:idDoUsuario', async (req, resp)=>{
 		const usuarioExiste = await verificarCredenciais('', body.senha, sessaoExiste.idDoUsuario);
 		if (usuarioExiste.erro)
 			return resp.status(usuarioExiste.status).json({erro: usuarioExiste.erro});
-		const db = await abrirBanco;
+		//const db = await abrirBanco;
 		/*const sessaoExiste = await db.get(
 			`SELECT id, tokenDaSessaoHash, dataDeExpiracao, idDoUsuario FROM Sessoes WHERE seletor = '${seletor}';`
 		);
@@ -2942,26 +2329,30 @@ servidor.delete('/usuarios/:idDoUsuario', async (req, resp)=>{
 			return resp.status(200).json({erro: 'Senha incorreta.'});
 		}*/
 		
-		//exclui os anúncios do usuário
-		const anuncios = await db.all(
-			`SELECT idDoAnuncio FROM Anuncios WHERE idDoUsuario = ${sessaoExiste.idDoUsuario};`
-		);
-		const idsDosAnuncios = anuncios.map(a=>a.idDoAnuncio).join();
-		const disponibilidades = await db.all(
-			`SELECT id FROM Disponibilidades WHERE idDoAnuncio IN (${idsDosAnuncios});`
-		);
-		const idsDasDisponibilidades = disponibilidades.map(d=>d.id).join();
-		if (anuncios.length > 0) {
-			await db.run(`DELETE FROM Anuncios WHERE idDoUsuario = ${sessaoExiste.idDoUsuario};`);
-			await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio IN (${idsDosAnuncios});`);
-			await db.run(
-				`DELETE FROM DiasDasDisponibilidades WHERE idDaDisponibilidade IN (${idsDasDisponibilidades});`
-			);
-		}
-		//exclui as sessões do usuário
-		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${sessaoExiste.idDoUsuario};`);
-		//exclui usuário
-		await db.run(`DELETE FROM Usuarios WHERE id = ${sessaoExiste.idDoUsuario};`);
+		////exclui os anúncios do usuário
+		//const anuncios = await db.all(
+		//	`SELECT idDoAnuncio FROM Anuncios WHERE idDoUsuario = ${sessaoExiste.idDoUsuario};`
+		//);
+		//const idsDosAnuncios = anuncios.map(a=>a.idDoAnuncio).join();
+		//const disponibilidades = await db.all(
+		//	`SELECT id FROM Disponibilidades WHERE idDoAnuncio IN (${idsDosAnuncios});`
+		//);
+		//const idsDasDisponibilidades = disponibilidades.map(d=>d.id).join();
+		//if (anuncios.length > 0) {
+		//	await db.run(`DELETE FROM Anuncios WHERE idDoUsuario = ${sessaoExiste.idDoUsuario};`);
+		//	await db.run(`DELETE FROM Disponibilidades WHERE idDoAnuncio IN (${idsDosAnuncios});`);
+		//	await db.run(
+		//		`DELETE FROM DiasDasDisponibilidades WHERE idDaDisponibilidade IN (${idsDasDisponibilidades});`
+		//	);
+		//}
+		////exclui as sessões do usuário
+		//await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${sessaoExiste.idDoUsuario};`);
+		////exclui usuário
+		//await db.run(`DELETE FROM Usuarios WHERE id = ${sessaoExiste.idDoUsuario};`);
+
+		//todos os dados relacionados ao usuário estão referenciados por chave estrangeira, logo, basta excluí-lo
+		await pool.query(`DELETE FROM usuario WHERE id = ${sessaoExiste.idDoUsuario};`);
+
 		console.log('Conta excluída, id='+sessaoExiste.idDoUsuario+'.');
 		return resp.status(200).json({ok: 'Conta excluída.'});
 	}
@@ -2977,19 +2368,28 @@ async function autenticarSessao(token){
 	try {
 		const seletor = token.slice(0,8);
 		const uuidDoToken = token.slice(9);
-		const db = await abrirBanco;
-		const sessaoExiste = await db.get(//renomear token aki
-			`SELECT Sessoes.id, idDoUsuario, tokenDaSessaoHash, dataDeExpiracao, manterSessao,
-				Usuarios.nome AS nomeDoUsuario
-			FROM Sessoes JOIN Usuarios
-			ON Sessoes.idDoUsuario = Usuarios.id
-			WHERE seletor = '${seletor}';`
-		);
+		//const db = await abrirBanco;
+		//const sessaoExiste = await db.get(//renomear token aki
+		//	`SELECT Sessoes.id, idDoUsuario, tokenDaSessaoHash, dataDeExpiracao, manterSessao,
+		//		Usuarios.nome AS nomeDoUsuario
+		//	FROM Sessoes JOIN Usuarios
+		//	ON Sessoes.idDoUsuario = Usuarios.id
+		//	WHERE seletor = '${seletor}';`
+		//);
+		const sessaoExiste = await pool.query(//renomear token aki
+		`SELECT sessao.id, id_do_usuario AS idDoUsuario, hash_do_token AS tokenDaSessaoHash,
+			UNIX_TIMESTAMP(data_de_criacao) AS dataDeCriacaoEmSeg, manter_sessao AS manterSessao,
+			usuario.nome_de_usuario AS nomeDoUsuario
+		FROM sessao JOIN usuario
+		ON sessao.id_do_usuario = usuario.id
+		WHERE seletor = '${seletor}';`
+	);
 		if (!sessaoExiste) {
 			console.log('Sessão não encontrada.');
 			return {status: 401, erro: {descricao: 'Sessão não encontrada.', codigo: 401}};
 		}
-		if(sessaoExiste.dataDeExpiracao < Date.now()) {
+		//if(sessaoExiste.dataDeExpiracao < Date.now()) {
+		if(sessaoExiste.dataDeCriacaoEmSeg*1000 + DURACAO_DO_TOKEN_DE_SESSAO < Date.now()) {
 			console.log('Sessão expirada.');
 			return {status: 401, erro: {descricao: 'Sessão expirada.', codigo: 401}};
 		}
@@ -3057,15 +2457,32 @@ async function autenticarSessao(token){
 
 async function verificarCredenciais(nome, senha, id) {
 	try {
-		const db = await abrirBanco;
+		//const db = await abrirBanco;
 		//const usuario = await db.get(
 		//	`SELECT id, nome, senhaHash FROM Usuarios WHERE ${id ? `id = ${id}` : 'nome = (?)'};`, [nome]
 		//);
-		let usuario;
-		if (id)
-			usuario = await db.get(`SELECT id, nome, senhaHash FROM Usuarios WHERE id = (?);`, [id]);
-		else
-			usuario = await db.get(`SELECT id, nome, senhaHash FROM Usuarios WHERE nome = (?);`, [nome]);
+		//let usuario;
+		//if (id)
+		//	usuario = await db.get(`SELECT id, nome, senhaHash FROM Usuarios WHERE id = (?);`, [id]);
+		//else
+		//	usuario = await db.get(`SELECT id, nome, senhaHash FROM Usuarios WHERE nome = (?);`, [nome]);
+
+		//let usuario;
+		//if (id)
+		//	usuario = await pool.query(
+		//		`SELECT id, nome_de_usuario AS nome, hash_da_senha AS senhaHash FROM usuario WHERE id = (?);`, [id]
+		//	);
+		//else
+		//	usuario = await pool.query(
+		//		`SELECT id, nome_de_usuario AS nome, hash_da_senha AS senhaHash FROM usuario
+		//		WHERE nome_de_usuario = (?);`, [nome]
+		//	);
+		let info = id ? id : nome;
+		const usuario = await pool.query(
+			`SELECT id, nome_de_usuario AS nome, hash_da_senha AS senhaHash FROM usuario
+			WHERE ${id ? 'id' : 'nome_de_usuario'} = (?);`, [info]
+		);
+
 		if (!usuario) {
 			console.log('Usuário não registrado.');
 			return {status: 404, erro: 'Usuário não registrado.'};
@@ -3122,24 +2539,30 @@ servidor.post('/sessoes', async (req, resp)=>{
 		};
 		//console.log('seletor,token='+seletor+','+tokenDaSessao);
 		const uuidDoTokenHash = await bcrypt.hash(uuidDoToken, BCRYPT_SALT_ROUNDS);
-		await db.run(//renomear token aki
-			`INSERT INTO Sessoes (idDoUsuario, seletor, tokenDaSessaoHash, dataDeExpiracao, manterSessao)
-			VALUES (${resposta.id}, '${seletor}', '${uuidDoTokenHash}', ${resposta.dataDeExpiracao},
-				${resposta.manterSessao});`,
-			//[tokenDaSessaoHash, token.id, daquiAUmMes],
-		//const token = {id: usuarioExiste.id, nome: usuarioExiste.nome, token: uuidv4()};
-		//await db.run(`INSERT INTO Sessoes (id, nome, token) VALUES (?,?,?);`,
-		//	[token.id, token.nome, token.token],
-			function(erro) {
-				console.log('quando isso é executado?? - criando sessão');
-				if (erro) {
-					console.log('erro:');
-					console.log(erro);
-					return console.log(erro);
-				}
-				console.log(`A row has been inserted with rowid ${this.lastID}`);
-				return this.lastID;
-			}
+		//await db.run(//renomear token aki
+		//	`INSERT INTO Sessoes (idDoUsuario, seletor, tokenDaSessaoHash, dataDeExpiracao, manterSessao)
+		//	VALUES (${resposta.id}, '${seletor}', '${uuidDoTokenHash}', ${resposta.dataDeExpiracao},
+		//		${resposta.manterSessao});`,
+		//	//[tokenDaSessaoHash, token.id, daquiAUmMes],
+		////const token = {id: usuarioExiste.id, nome: usuarioExiste.nome, token: uuidv4()};
+		////await db.run(`INSERT INTO Sessoes (id, nome, token) VALUES (?,?,?);`,
+		////	[token.id, token.nome, token.token],
+		//	function(erro) {
+		//		console.log('quando isso é executado?? - criando sessão');
+		//		if (erro) {
+		//			console.log('erro:');
+		//			console.log(erro);
+		//			return console.log(erro);
+		//		}
+		//		console.log(`A row has been inserted with rowid ${this.lastID}`);
+		//		return this.lastID;
+		//	}
+		//);
+		//const dataDeCriacao = (resposta.dataDeExpiracao - DURACAO_DO_TOKEN_DE_SESSAO)/1000;
+		await pool.query(//renomear token aki
+			`INSERT INTO sessao (id_do_usuario, seletor, hash_do_token, manter_sessao, data_de_expiracao)
+			VALUES (${resposta.id}, '${seletor}', '${uuidDoTokenHash}', ${resposta.manterSessao},
+			FROM_UNIXTIME(${resposta.dataDeExpiracao/1000}));`
 		);
 		console.log('Sessão criada.');
 		return resp.status(201).json(resposta);
