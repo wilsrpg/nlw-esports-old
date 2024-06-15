@@ -1311,11 +1311,11 @@ async function pesquisar(query, idDoUsuario) {
 				//`);
 
 				const consultaHorario = `(
-					horaDeInicio = horaDeTermino
+					hora_de_inicio = hora_de_termino
 				OR
-					((horaDeTermino - horaDeInicio + 1440) % 1440)
-					- ((${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} - horaDeInicio + 1440) % 1440)
-					>= ((${pesqHoraDeTermino == undefined ? 'horaDeTermino' : pesqHoraDeTermino} - ${pesqHoraDeInicio == undefined ? 'horaDeInicio' : pesqHoraDeInicio} + 1440) % 1440)
+					((hora_de_termino - hora_de_inicio + 1440) % 1440)
+					- ((${pesqHoraDeInicio == undefined ? 'hora_de_inicio' : pesqHoraDeInicio} - hora_de_inicio + 1440) % 1440)
+					>= ((${pesqHoraDeTermino == undefined ? 'hora_de_termino' : pesqHoraDeTermino} - ${pesqHoraDeInicio == undefined ? 'hora_de_inicio' : pesqHoraDeInicio} + 1440) % 1440)
 				)`;
 
 				//sqlDisp.push(
@@ -1334,12 +1334,12 @@ async function pesquisar(query, idDoUsuario) {
 				//);
 
 				//console.log(qualquerDia);
-				sqlDisp2.push(`Anuncios.idDoAnuncio IN (
-					SELECT idDoAnuncio
+				sqlDisp2.push(`anuncio.id_do_anuncio IN (
+					SELECT id_do_anuncio
 					FROM (
-						SELECT Disponibilidades.id, idDoAnuncio, dia
-						FROM Disponibilidades JOIN DiasDasDisponibilidades
-						ON Disponibilidades.id = DiasDasDisponibilidades.idDaDisponibilidade
+						SELECT disponibilidade.id, id_do_anuncio, dia
+						FROM disponibilidade JOIN dia_da_disponibilidade
+						ON disponibilidade.id = dia_da_disponibilidade.id_da_disponibilidade
 						WHERE ${qualquerDia ?
 								consultaHorario
 							:
@@ -1352,10 +1352,10 @@ async function pesquisar(query, idDoUsuario) {
 								);
 							}).join(' OR ')
 						}
-						GROUP BY idDoAnuncio,dia
+						GROUP BY id_do_anuncio,dia
 					)
-					GROUP BY idDoAnuncio
-					HAVING COUNT(idDoAnuncio) >= ${diasQueJoga.length}
+					GROUP BY id_do_anuncio
+					HAVING COUNT(id_do_anuncio) >= ${diasQueJoga.length}
 				)`);
 				
 				/*
@@ -1496,7 +1496,8 @@ async function pesquisar(query, idDoUsuario) {
 		//console.log('sqlDisp:');
 		//console.log(sqlDisp.map(s=>s.replaceAll('\t','').replaceAll('\n',' ')));
 
-		const jogos = await db.all(`SELECT id, nome, nomeUrl FROM Jogos;`);
+		//const jogos = await db.all(`SELECT id, nome, nomeUrl FROM Jogos;`);
+		const [jogos] = await pool.query(`SELECT id, nome, nome_url AS nomeUrl FROM jogo;`);
 
 		let jogo;
 		if (query.jogo)
@@ -1516,11 +1517,12 @@ async function pesquisar(query, idDoUsuario) {
 		//}
 		//	jogo = await db.get(`SELECT id FROM Jogos WHERE nomeUrl = (?);`, [body.jogo]);
 		//lembrete: remover idDoUsuario do resultado (vazamento de informação?)
-		let sqlAnuncios = `SELECT Anuncios.idDoAnuncio
-				, idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, usaChatDeVoz, dataDeCriacao
-			FROM Anuncios
-			JOIN Disponibilidades ON Anuncios.idDoAnuncio = Disponibilidades.idDoAnuncio
-			JOIN DiasDasDisponibilidades ON Disponibilidades.id = idDaDisponibilidade
+		let sqlAnuncios = `SELECT anuncio.id_do_anuncio AS idDoAnuncio
+				, id_do_jogo AS idDoJogo, id_do_usuario AS idDoUsuario, nome_no_jogo AS nomeNoJogo,
+				tempo_de_jogo_em_meses AS tempoDeJogoEmMeses, usa_chat_de_voz AS usaChatDeVoz, data_de_criacao AS dataDeCriacao
+			FROM anuncio
+			JOIN disponibilidade ON anuncio.id_do_anuncio = disponibilidade.id_do_anuncio
+			JOIN dia_da_disponibilidade ON disponibilidade.id = id_da_disponibilidade
 			WHERE nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
 				${idDoUsuario ? `AND idDoUsuario = '${idDoUsuario}'` : ''}
 				${jogo ? `AND idDoJogo = ${jogo.id}` : ''}
@@ -1534,7 +1536,7 @@ async function pesquisar(query, idDoUsuario) {
 				''}
 				${sqlDisp2.length > 0 ? ' AND ' + sqlDisp2.join(disponivelEmQualquer ? ' OR ' : ' AND ') : ''}
 			
-				GROUP BY Anuncios.idDoAnuncio
+				GROUP BY anuncio.id_do_anuncio
 			ORDER BY dataDeCriacao DESC;`;
 		
 		//console.log('sqlAnuncios:');
@@ -1548,7 +1550,8 @@ async function pesquisar(query, idDoUsuario) {
 		//	})
 		//});
 
-		let anuncios = await db.all(sqlAnuncios, [query.nomeNoJogo]);
+		//let anuncios = await db.all(sqlAnuncios, [query.nomeNoJogo]);
+		let [anuncios] = await pool.query(sqlAnuncios, [query.nomeNoJogo]);
 		//console.log(anuncios2.map(an=>an.idDoAnuncio));
 		//console.log(anuncios2.length);
 
@@ -1560,9 +1563,9 @@ async function pesquisar(query, idDoUsuario) {
 		//	WHERE idDoAnuncio IN (${idsDosAnuncios2});`
 		//);
 		const disponibilidades = await db.all(
-			`SELECT id, idDoAnuncio, horaDeInicio, horaDeTermino
+			`SELECT id, id_do_anuncio AS idDoAnuncio, hora_de_inicio AS horaDeInicio, hora_de_termino AS horaDeTermino
 			FROM Disponibilidades
-			WHERE idDoAnuncio IN (${idsDosAnuncios});`
+			WHERE id_do_anuncio IN (${idsDosAnuncios});`
 		);
 		//console.log('qtde disp='+disponibilidades.length);
 		const idsDasDisponibilidades = disponibilidades.map(disp=>disp.id).join();
@@ -1765,7 +1768,7 @@ servidor.delete('/anuncios/:idDoAnuncio', async (req, resp)=>{
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
-		const db = await abrirBanco;
+		//const db = await abrirBanco;
 		/*const sessaoExiste = await db.get(
 			`SELECT id, tokenDaSessaoHash, dataDeExpiracao, idDoUsuario FROM Sessoes WHERE seletor = '${seletor}';`
 		);
@@ -2510,7 +2513,7 @@ servidor.post('/sessoes', async (req, resp)=>{
 		const usuarioExiste = await verificarCredenciais(body.nomeDoUsuario, body.senha);
 		if (usuarioExiste.erro)
 			return resp.status(usuarioExiste.status).json({erro: usuarioExiste.erro});
-		const db = await abrirBanco;
+		//const db = await abrirBanco;
 		//const usuarioExiste = await db.get(`SELECT * FROM Usuarios WHERE nome = '${body.nomeDoUsuario}';`);
 		//const usuarioExiste = await db.get(
 		//	`SELECT id,senhaHash,nome FROM Usuarios WHERE nome = (?);`,
@@ -2587,7 +2590,7 @@ servidor.put('/sessoes', async (req, resp)=>{
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
-		const db = await abrirBanco;
+		//const db = await abrirBanco;
 		/*const sessaoExiste = await db.get(
 			`SELECT Sessoes.id, idDoUsuario, tokenDaSessaoHash, dataDeExpiracao, manterSessao,
 				Usuarios.nome AS nomeDoUsuario
@@ -2653,17 +2656,22 @@ servidor.put('/sessoes', async (req, resp)=>{
 
 		//sem atualizar token:
 		const resposta = {
-			id: sessaoExiste.idDoUsuario,
+			id: sessaoExiste.id,
+			idDoUsuario: sessaoExiste.idDoUsuario,
 			nome: sessaoExiste.nomeDoUsuario,
 			tokenDaSessao: req.get('Authorization'),
 			token: req.get('Authorization'),
 			dataDeExpiracao: Date.now() + DURACAO_DO_TOKEN_DE_SESSAO,
 			manterSessao: sessaoExiste.manterSessao
 		};
-		await db.run(
-			`UPDATE Sessoes SET dataDeExpiracao = ${resposta.dataDeExpiracao} WHERE id = ${sessaoExiste.id};`
-		);
+		//await db.run(
+		//	`UPDATE Sessoes SET dataDeExpiracao = ${resposta.dataDeExpiracao} WHERE id = ${sessaoExiste.id};`
+		//);
 		// */
+		await pool.query(
+			`UPDATE sessao SET data_de_expiracao = FROM_UNIXTIME(${resposta.dataDeExpiracao/1000})
+			WHERE id = ${sessaoExiste.id};`
+		);
 		console.log('Sessão autenticada e atualizada.');
 		return resp.status(200).json(resposta);
 	}
@@ -2688,7 +2696,7 @@ servidor.delete('/sessoes', async (req, resp)=>{
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
-		const db = await abrirBanco;
+		//const db = await abrirBanco;
 		/*const sessaoExiste = await db.get(
 			`SELECT id, tokenDaSessaoHash, dataDeExpiracao FROM Sessoes WHERE seletor = '${seletor}';`
 		);
@@ -2707,7 +2715,8 @@ servidor.delete('/sessoes', async (req, resp)=>{
 			//cookie roubado? oq deve ser feito nesse caso?
 		}*/
 
-		await db.run(`DELETE FROM Sessoes WHERE id = ${sessaoExiste.id};`);
+		//await db.run(`DELETE FROM Sessoes WHERE id = ${sessaoExiste.id};`);
+		await pool.query(`DELETE FROM sessao WHERE id = ${sessaoExiste.id};`);
 		console.log('Sessão excluída.');
 		return resp.status(200).json({ok: 'Sessão excluída.'});
 	}
@@ -2733,7 +2742,7 @@ servidor.delete('/usuarios/:idDoUsuario/outras-sessoes', async (req, resp)=>{
 		const sessaoExiste = await autenticarSessao(req.get('Authorization'));
 		if (sessaoExiste.erro)
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
-		const db = await abrirBanco;
+		//const db = await abrirBanco;
 		/*const sessaoExiste = await db.get(
 			`SELECT id, tokenDaSessaoHash, dataDeExpiracao FROM Sessoes WHERE seletor = '${seletor}';`
 		);
@@ -2752,14 +2761,20 @@ servidor.delete('/usuarios/:idDoUsuario/outras-sessoes', async (req, resp)=>{
 			//cookie roubado? oq deve ser feito nesse caso?
 		}*/
 
-		const sessoesConectadas = await db.get(
-			`SELECT COUNT(*) AS qtde FROM Sessoes
-			WHERE idDoUsuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}'
-			AND dataDeExpiracao > ${Date.now()};`
+		//const sessoesConectadas = await db.get(
+		//	`SELECT COUNT(*) AS qtde FROM Sessoes
+		//	WHERE idDoUsuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}'
+		//	AND dataDeExpiracao > ${Date.now()};`
+		//);
+		const sessoesConectadas = await pool.query(
+			`SELECT COUNT(*) AS qtde FROM sessao
+			WHERE id_do_usuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}'
+			AND data_de_expiracao > ${Date.now()};`
 		);
 		//if (!qtde)
 		//	qtde = 0;
-		await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`);
+		//await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`);
+		await pool.query(`DELETE FROM sessao WHERE id_do_usuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`);
 		console.log('Sessões desconectadas='+sessoesConectadas.qtde+'.');
 		return resp.status(200).json({qtdeSessoesDesconectadas: sessoesConectadas.qtde});
 	}

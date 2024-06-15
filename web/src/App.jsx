@@ -107,7 +107,7 @@ export default function App() {
         throw resp.erro;
       //if (componenteExiste) {
       definirUsuarioLogado({
-        id: resp.id,
+        id: resp.idDoUsuario,
         nome: resp.nome
       });
       //usuarioLogado = {id: resp.id, nome: resp.nome};
