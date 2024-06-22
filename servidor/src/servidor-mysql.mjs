@@ -9,6 +9,11 @@ import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import mysql from 'mysql2'
 
+/*lembrete: ajeitar no front-end:
+-deletei último anúncio e continuou dizendo q tinha 1 anúncio encontrado
+-alterei senha e o email na caixa d texto foi apagado
+*/
+
 const servidor = express();
 servidor.use(express.json());
 servidor.use(cors({
@@ -368,7 +373,7 @@ async function iniciar() {
 	//await pool.query('ALTER TABLE sessao ALTER COLUMN data_de_criacao SET DEFAULT CURRENT_TIMESTAMP;');
 	//await pool.query('ALTER TABLE recuperacao_de_conta ALTER COLUMN data_de_criacao SET DEFAULT CURRENT_TIMESTAMP;');
 	//await pool.query('ALTER TABLE anuncio ALTER COLUMN data_de_criacao SET DEFAULT CURRENT_TIMESTAMP;');
-	await pool.query('ALTER TABLE sessao ADD data_de_expiracao DATETIME NOT NULL;');
+	//await pool.query('ALTER TABLE sessao ADD data_de_expiracao DATETIME NOT NULL;');
 
 	//await pool.query('ALTER TABLE usuario DROP COLUMN timestamp_da_criacao_em_ms;');
 	//await pool.query('ALTER TABLE anuncio DROP COLUMN timestamp_da_criacao_em_ms;');
@@ -920,7 +925,7 @@ servidor.post('/anuncios', async (req, resp)=>{
 				anuncio.tempoDeJogoEmMeses, anuncio.discord, anuncio.usaChatDeVoz
 			]
 		);
-		//const anuncioPublicado = await pool.query(
+		//const [anuncioPublicado] = await pool.query(
 		//	`SELECT id FROM anuncio WHERE id = ${uuidDoAnuncio};`
 		//);
 
@@ -971,8 +976,8 @@ servidor.post('/anuncios', async (req, resp)=>{
 					converterHoraStringParaMinutos(anuncio.disponibilidades[i].horaDeTermino)
 				]
 			);
-			const [disp] = await pool.query(
-				`SELECT MAX(id) AS id FROM disponibilidade WHERE id_do_anuncio = ${anuncioPublicado.idDoAnuncio};`
+			const [[disp]] = await pool.query(
+				`SELECT MAX(id) AS id FROM disponibilidade WHERE id_do_anuncio = '${anuncioPublicado.idDoAnuncio}';`
 			);
 			//console.log(disp);
 			let j = 0;
@@ -1151,7 +1156,7 @@ async function pesquisar(query, idDoUsuario) {
 		//console.log('body convertido:');
 		//console.log(b2);
 
-		const db = await abrirBanco;
+		//const db = await abrirBanco;
 		/*let anuncios = await db.all(
 			`SELECT idDoAnuncio, idDoJogo, idDoUsuario, Jogos.nome AS nomeDoJogo, nomeNoJogo, tempoDeJogoEmMeses,
 				usaChatDeVoz, dataDeCriacao
@@ -1334,7 +1339,7 @@ async function pesquisar(query, idDoUsuario) {
 				//);
 
 				//console.log(qualquerDia);
-				sqlDisp2.push(`anuncio.id_do_anuncio IN (
+				sqlDisp2.push(`anuncio.id IN (
 					SELECT id_do_anuncio
 					FROM (
 						SELECT disponibilidade.id, id_do_anuncio, dia
@@ -1353,7 +1358,7 @@ async function pesquisar(query, idDoUsuario) {
 							}).join(' OR ')
 						}
 						GROUP BY id_do_anuncio,dia
-					)
+					) AS nome_irrelevante
 					GROUP BY id_do_anuncio
 					HAVING COUNT(id_do_anuncio) >= ${diasQueJoga.length}
 				)`);
@@ -1517,27 +1522,27 @@ async function pesquisar(query, idDoUsuario) {
 		//}
 		//	jogo = await db.get(`SELECT id FROM Jogos WHERE nomeUrl = (?);`, [body.jogo]);
 		//lembrete: remover idDoUsuario do resultado (vazamento de informação?)
-		let sqlAnuncios = `SELECT anuncio.id_do_anuncio AS idDoAnuncio
+		let sqlAnuncios = `SELECT anuncio.id AS idDoAnuncio
 				, id_do_jogo AS idDoJogo, id_do_usuario AS idDoUsuario, nome_no_jogo AS nomeNoJogo,
 				tempo_de_jogo_em_meses AS tempoDeJogoEmMeses, usa_chat_de_voz AS usaChatDeVoz, data_de_criacao AS dataDeCriacao
 			FROM anuncio
-			JOIN disponibilidade ON anuncio.id_do_anuncio = disponibilidade.id_do_anuncio
+			JOIN disponibilidade ON anuncio.id = disponibilidade.id_do_anuncio
 			JOIN dia_da_disponibilidade ON disponibilidade.id = id_da_disponibilidade
-			WHERE nomeNoJogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
-				${idDoUsuario ? `AND idDoUsuario = '${idDoUsuario}'` : ''}
-				${jogo ? `AND idDoJogo = ${jogo.id}` : ''}
+			WHERE nome_no_jogo ${exatamente ? '=' : (naoContem ? 'NOT ' : '') + 'LIKE'} (?)
+				${idDoUsuario ? `AND id_do_usuario = '${idDoUsuario}'` : ''}
+				${jogo ? `AND id_do_jogo = '${jogo.id}'` : ''}
 				${tempoDeJogoEmMeses == undefined ? '' :
-					`AND tempoDeJogoEmMeses ${noMaximo ? '<=' : '>='} ${tempoDeJogoEmMeses}`
+					`AND tempo_de_jogo_em_meses ${noMaximo ? '<=' : '>='} ${tempoDeJogoEmMeses}`
 				}
-				${entre ? 'AND tempoDeJogoEmMeses <=' + tempoDeJogoEmMeses2 : ''}
-				${usaChatDeVoz == undefined ? '' : `AND usaChatDeVoz = ${usaChatDeVoz}`}
+				${entre ? 'AND tempo_de_jogo_em_meses <=' + tempoDeJogoEmMeses2 : ''}
+				${usaChatDeVoz == undefined ? '' : `AND usa_chat_de_voz = ${usaChatDeVoz}`}
 
 				${//sqlDisp.length > 0 ? ' AND ' + sqlDisp.join(disponivelEmQualquer ? ' OR ' : ' AND ') : ''
 				''}
 				${sqlDisp2.length > 0 ? ' AND ' + sqlDisp2.join(disponivelEmQualquer ? ' OR ' : ' AND ') : ''}
 			
-				GROUP BY anuncio.id_do_anuncio
-			ORDER BY dataDeCriacao DESC;`;
+				GROUP BY anuncio.id
+			ORDER BY data_de_criacao DESC;`;
 		
 		//console.log('sqlAnuncios:');
 		//console.log(sqlAnuncios.replaceAll('\t','').replaceAll('\n',' '));
@@ -1555,24 +1560,24 @@ async function pesquisar(query, idDoUsuario) {
 		//console.log(anuncios2.map(an=>an.idDoAnuncio));
 		//console.log(anuncios2.length);
 
-		const idsDosAnuncios = anuncios.map(an=>an.idDoAnuncio).join();
+		const idsDosAnuncios = "'" + anuncios.map(an=>an.idDoAnuncio).join("','") + "'";
 		//console.log(idsDosAnuncios);
 		//let an2 = await db.all(
 		//	`SELECT idDoAnuncio, idDoJogo, idDoUsuario, nomeNoJogo, tempoDeJogoEmMeses, usaChatDeVoz, dataDeCriacao
 		//	FROM Anuncios
 		//	WHERE idDoAnuncio IN (${idsDosAnuncios2});`
 		//);
-		const disponibilidades = await db.all(
+		const [disponibilidades] = await pool.query(
 			`SELECT id, id_do_anuncio AS idDoAnuncio, hora_de_inicio AS horaDeInicio, hora_de_termino AS horaDeTermino
-			FROM Disponibilidades
+			FROM disponibilidade
 			WHERE id_do_anuncio IN (${idsDosAnuncios});`
 		);
 		//console.log('qtde disp='+disponibilidades.length);
-		const idsDasDisponibilidades = disponibilidades.map(disp=>disp.id).join();
-		const diasDasDisponibilidades = await db.all(
-			`SELECT idDaDisponibilidade, dia
-			FROM DiasDasDisponibilidades
-			WHERE idDaDisponibilidade IN (${idsDasDisponibilidades});`
+		const idsDasDisponibilidades = disponibilidades.length == 0 ? 'NULL' : disponibilidades.map(disp=>disp.id).join();
+		const [diasDasDisponibilidades] = await pool.query(
+			`SELECT id_da_disponibilidade AS idDaDisponibilidade, dia
+			FROM dia_da_disponibilidade
+			WHERE id_da_disponibilidade IN (${idsDasDisponibilidades});`
 		);
 		disponibilidades.map(disp=>{
 			disp.dias = diasDasDisponibilidades.filter(d=>d.idDaDisponibilidade == disp.id).map(d=>d.dia);
@@ -1739,7 +1744,7 @@ servidor.get('/anuncios/:idDoAnuncio/discord', async (req, resp)=>{
 			return resp.status(sessaoExiste.status).json({erro: sessaoExiste.erro});
 		//const db = await abrirBanco;
 		//const anuncioExiste = await db.get(`SELECT discord FROM Anuncios WHERE idDoAnuncio = ${idDoAnuncio};`);
-		const [anuncioExiste] = await pool.query(`SELECT discord FROM anuncio WHERE id = ${idDoAnuncio};`);
+		const [[anuncioExiste]] = await pool.query(`SELECT discord FROM anuncio WHERE id = '${idDoAnuncio}';`);
 		if (!anuncioExiste) {
 			console.log('Anúncio não encontrado.');
 			return resp.status(404).json({erro: 'Anúncio não encontrado.'});
@@ -1799,14 +1804,14 @@ servidor.delete('/anuncios/:idDoAnuncio', async (req, resp)=>{
 		//	WHERE idDaDisponibilidade IN (${idsDasDisponibilidades});`
 		//);
 		
-		const [anuncioExiste] = await pool.query(
-			`SELECT id, id_do_usuario AS idDoUsuario FROM anuncio WHERE id = ${idDoAnuncio};`
+		const [[anuncioExiste]] = await pool.query(
+			`SELECT id, id_do_usuario AS idDoUsuario FROM anuncio WHERE id = '${idDoAnuncio}';`
 		);
-		const disponibilidadesExistem = await pool.query(
-			`SELECT id, id_do_anuncio FROM disponibilidade WHERE id_do_anuncio = ${idDoAnuncio};`
+		const [disponibilidadesExistem] = await pool.query(
+			`SELECT id, id_do_anuncio FROM disponibilidade WHERE id_do_anuncio = '${idDoAnuncio}';`
 		);
 		const idsDasDisponibilidades = disponibilidadesExistem.map(d=>d.id).join();
-		const diasExistem = await pool.query(
+		const [diasExistem] = await pool.query(
 			`SELECT id FROM dia_da_disponibilidade
 			WHERE id_da_disponibilidade IN (${idsDasDisponibilidades});`
 		);
@@ -1823,8 +1828,8 @@ servidor.delete('/anuncios/:idDoAnuncio', async (req, resp)=>{
 		//	`DELETE FROM DiasDasDisponibilidades WHERE idDaDisponibilidade IN (${idsDasDisponibilidades});`
 		//);
 		
-		await pool.query(`DELETE FROM anuncio WHERE id = ${idDoAnuncio};`);
-		await pool.query(`DELETE FROM disponibilidade WHERE id_do_anuncio = ${idDoAnuncio};`);
+		await pool.query(`DELETE FROM anuncio WHERE id = '${idDoAnuncio}';`);
+		await pool.query(`DELETE FROM disponibilidade WHERE id_do_anuncio = '${idDoAnuncio}';`);
 		await pool.query(
 			`DELETE FROM dia_da_disponibilidade WHERE id_da_disponibilidade IN (${idsDasDisponibilidades});`
 		);
@@ -1851,7 +1856,25 @@ servidor.post('/usuarios', async (req, resp)=>{
 		//	`SELECT nome FROM Usuarios WHERE nome = (?);`,
 		//	[body.nomeDoUsuario]
 		//);
-		const [usuarioJaExiste] = await pool.query(
+    if (!body.nomeDoUsuario){
+			console.log('Digite um nome de usuário.');
+			return resp.status(422).json({erro: 'Digite um nome de usuário.'});
+		}
+    if (!body.senha){
+			console.log('Digite uma senha.');
+			return resp.status(422).json({erro: 'Digite uma senha.'});
+		}
+    if (!body.email){
+			console.log('Digite um e-mail.');
+			return resp.status(422).json({erro: 'Digite um e-mail.'});
+		}
+    if (body.email && !body.email.match(
+			/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+		)) {
+			console.log('Formato de e-mail inválido.');
+			return resp.status(422).json({erro: 'Formato de e-mail inválido.'});
+		}
+		const [[usuarioJaExiste]] = await pool.query(
 			`SELECT id FROM usuario WHERE nome_de_usuario = (?);`,
 			[body.nomeDoUsuario]
 		);
@@ -1931,8 +1954,8 @@ servidor.get('/usuarios/:idDoUsuario/dados', async (req, resp)=>{
 			return resp.status(409).json({erro: 'O token não pertence ao usuário informado.'});
 		//const db = await abrirBanco;
 		//const usuario = await db.get(`SELECT nome, email FROM Usuarios WHERE id = ${idDoUsuario};`);
-		const [usuario] = await pool.query(
-			`SELECT nome_de_usuario AS nome, email FROM usuario WHERE id = ${idDoUsuario};`
+		const [[usuario]] = await pool.query(
+			`SELECT nome_de_usuario AS nome, email FROM usuario WHERE id = '${idDoUsuario}';`
 		);
 		return resp.status(200).json(usuario);
 	}
@@ -2011,7 +2034,7 @@ servidor.put('/usuarios/:idDoUsuario', async (req, resp)=>{
 				return resp.status(400).json({erro: 'E-mail em formato inválido.'});
 			}
 			//await db.run(`UPDATE Usuarios SET email = '${body.email}' WHERE id = ${sessaoExiste.idDoUsuario};`);
-			await pool.query(`UPDATE usuario SET email = '${body.email}' WHERE id = ${sessaoExiste.idDoUsuario};`);
+			await pool.query(`UPDATE usuario SET email = '${body.email}' WHERE id = '${sessaoExiste.idDoUsuario}';`);
 		}
 		if (body.novaSenha) {
 			const novaSenhaIgual = await bcrypt.compare(body.novaSenha, usuarioExiste.senhaHash);
@@ -2024,7 +2047,7 @@ servidor.put('/usuarios/:idDoUsuario', async (req, resp)=>{
 			//	`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE id = ${sessaoExiste.idDoUsuario};`
 			//);
 			await pool.query(
-				`UPDATE usuario SET hash_da_senha = '${novaSenhaHash}' WHERE id = ${sessaoExiste.idDoUsuario};`
+				`UPDATE usuario SET hash_da_senha = '${novaSenhaHash}' WHERE id = '${sessaoExiste.idDoUsuario}';`
 			);
 		}
 		//await db.run(`INSERT INTO Usuarios (id, nome, senhaHash, dataDeCriacao) VALUES (?,?,?,?);`,
@@ -2039,7 +2062,7 @@ servidor.put('/usuarios/:idDoUsuario', async (req, resp)=>{
 		//);
 		await pool.query(
 			`DELETE FROM sessao
-			WHERE id_do_usuario = ${sessaoExiste.idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`
+			WHERE id_do_usuario = '${sessaoExiste.idDoUsuario}' AND seletor != '${sessaoExiste.seletor}';`
 		);
 		console.log('Dados alterados com sucesso.');
 		return resp.status(200).json({ok: 'Dados alterados com sucesso.'});
@@ -2058,14 +2081,14 @@ servidor.post('/recuperacao-de-conta', async (req, resp)=>{
 		console.log('POST recuperacao-de-conta, ip='+req.ip);
 		//const db = await abrirBanco;
 		//const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE email = (?);`, [body.email]);
-		const [usuarioExiste] = await pool.query(`SELECT id FROM Usuarios WHERE email = (?);`, [body.email]);
+		const [[usuarioExiste]] = await pool.query(`SELECT id FROM Usuarios WHERE email = (?);`, [body.email]);
 		if (!usuarioExiste) {
 			console.log('Conta não encontrada.');
 			return resp.status(404).json({erro: 'Conta não encontrada.'});
 		}
 		//remove requisições anteriores, caso haja
 		//await db.run(`DELETE FROM RecuperacoesDeConta WHERE idDoUsuario = ${usuarioExiste.id};`);
-		await pool.query(`DELETE FROM recuperacao_de_conta WHERE id_do_usuario = ${usuarioExiste.id};`);
+		await pool.query(`DELETE FROM recuperacao_de_conta WHERE id_do_usuario = '${usuarioExiste.id}';`);
 		const uuidDoToken = uuidv4();
 		const uuidDoTokenHash = await bcrypt.hash(uuidDoToken, BCRYPT_SALT_ROUNDS);
 		//const dataDeExpiracao = Date.now() + DURACAO_DO_TOKEN_DE_RECUPERACAO;
@@ -2074,8 +2097,8 @@ servidor.post('/recuperacao-de-conta', async (req, resp)=>{
 		//	VALUES (${usuarioExiste.id}, '${uuidDoTokenHash}', ${dataDeExpiracao});`
 		//);
 		await pool.query(
-			`INSERT INTO recuperacao_de_conta (id_do_usuario, hash_do_token)
-			VALUES (${usuarioExiste.id}, '${uuidDoTokenHash}');`
+			`INSERT INTO recuperacao_de_conta (id, id_do_usuario, hash_do_token)
+			VALUES ('${uuidDoToken}', '${usuarioExiste.id}', '${uuidDoTokenHash}');`
 		);
 		const emailEnviado = await enviarEmail(body.email, 'Redefinição de senha',
 			`<a href='http://localhost:3000/redefinir-senha?token=${uuidDoToken}&id=${usuarioExiste.id}'>
@@ -2148,7 +2171,7 @@ async function enviarEmail(email, assunto, texto) {
 async function validarRecuperacaoDeConta() {
 	//const db = await abrirBanco;
 	//const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE id = (?);`, [query.id]);
-	const [usuarioExiste] = await pool.query(`SELECT id FROM usuario WHERE id = (?);`, [query.id]);
+	const [[usuarioExiste]] = await pool.query(`SELECT id FROM usuario WHERE id = (?);`, [query.id]);
 	if (!usuarioExiste) {
 		console.log('Conta não encontrada.');
 		return resp.status(404).json({erro: 'Conta não encontrada.'});
@@ -2156,7 +2179,7 @@ async function validarRecuperacaoDeConta() {
 	//const recuperacaoExiste = await db.get(
 	//	`SELECT token, dataDeExpiracao FROM RecuperacoesDeConta WHERE idDoUsuario = (?);`, [query.id]
 	//);
-	const [recuperacaoExiste] = await pool.query(
+	const [[recuperacaoExiste]] = await pool.query(
 		`SELECT hash_do_token AS tokenDaSessaoHash, UNIX_TIMESTAMP(data_de_criacao) AS dataDeCriacaoEmSeg
 		FROM recuperacao_de_conta
 		WHERE id_do_usuario = (?);`, [query.id]
@@ -2185,7 +2208,7 @@ servidor.get('/recuperacao-de-conta', async (req, resp)=>{
 		console.log('GET recuperacao-de-conta, ip='+req.ip);
 		//const db = await abrirBanco;
 		//const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE id = (?);`, [query.id]);
-		const [usuarioExiste] = await pool.query(`SELECT id FROM usuario WHERE id = (?);`, [query.id]);
+		const [[usuarioExiste]] = await pool.query(`SELECT id FROM usuario WHERE id = (?);`, [query.id]);
 		if (!usuarioExiste) {
 			console.log('Conta não encontrada.');
 			return resp.status(404).json({erro: 'Conta não encontrada.'});
@@ -2193,7 +2216,7 @@ servidor.get('/recuperacao-de-conta', async (req, resp)=>{
 		//const recuperacaoExiste = await db.get(
 		//	`SELECT token, dataDeExpiracao FROM RecuperacoesDeConta WHERE idDoUsuario = (?);`, [query.id]
 		//);
-		const [recuperacaoExiste] = await pool.query(
+		const [[recuperacaoExiste]] = await pool.query(
 			`SELECT hash_do_token AS tokenDaSessaoHash, UNIX_TIMESTAMP(data_de_criacao) AS dataDeCriacaoEmSeg
 			FROM recuperacao_de_conta
 			WHERE id_do_usuario = (?);`, [query.id]
@@ -2228,7 +2251,7 @@ servidor.post('/redefinicao-de-senha', async (req, resp)=>{
 		console.log('POST redefinicao-de-senha, ip='+req.ip);
 		//const db = await abrirBanco;
 		//const usuarioExiste = await db.get(`SELECT id FROM Usuarios WHERE id = (?);`, [body.idDoUsuario]);
-		const [usuarioExiste] = await pool.query(`SELECT id FROM usuario WHERE id = (?);`, [body.idDoUsuario]);
+		const [[usuarioExiste]] = await pool.query(`SELECT id FROM usuario WHERE id = (?);`, [body.idDoUsuario]);
 		if (!usuarioExiste) {
 			console.log('Conta não encontrada.');
 			return resp.status(404).json({erro: 'Conta não encontrada.'});
@@ -2236,7 +2259,7 @@ servidor.post('/redefinicao-de-senha', async (req, resp)=>{
 		//const recuperacaoExiste = await db.get(
 		//	`SELECT token, dataDeExpiracao FROM RecuperacoesDeConta WHERE idDoUsuario = ${body.idDoUsuario};`
 		//);
-		const [recuperacaoExiste] = await pool.query(
+		const [[recuperacaoExiste]] = await pool.query(
 			`SELECT hash_do_token AS tokenDaSessaoHash, UNIX_TIMESTAMP(data_de_criacao) AS dataDeCriacaoEmSeg
 			FROM recuperacao_de_conta
 			WHERE id_do_usuario = (?);`, [body.idDoUsuario]
@@ -2259,9 +2282,9 @@ servidor.post('/redefinicao-de-senha', async (req, resp)=>{
 
 		const novaSenhaHash = await bcrypt.hash(body.novaSenha, BCRYPT_SALT_ROUNDS);
 		//await db.run(`UPDATE Usuarios SET senhaHash = '${novaSenhaHash}' WHERE id = ${body.idDoUsuario};`);
-		await pool.query(`UPDATE usuario SET hash_da_senha = '${novaSenhaHash}' WHERE id = ${body.idDoUsuario};`);
+		await pool.query(`UPDATE usuario SET hash_da_senha = '${novaSenhaHash}' WHERE id = '${body.idDoUsuario}';`);
 		//await db.run(`DELETE FROM RecuperacoesDeConta WHERE idDoUsuario = ${body.idDoUsuario};`);
-		await pool.query(`DELETE FROM recuperacao_de_conta WHERE id_do_usuario = ${body.idDoUsuario};`);
+		await pool.query(`DELETE FROM recuperacao_de_conta WHERE id_do_usuario = '${body.idDoUsuario}';`);
 		return resp.status(200).json({ok: 'Senha redefinida com sucesso.'});
 	}
 	catch (erro) {
@@ -2354,7 +2377,7 @@ servidor.delete('/usuarios/:idDoUsuario', async (req, resp)=>{
 		//await db.run(`DELETE FROM Usuarios WHERE id = ${sessaoExiste.idDoUsuario};`);
 
 		//todos os dados relacionados ao usuário estão referenciados por chave estrangeira, logo, basta excluí-lo
-		await pool.query(`DELETE FROM usuario WHERE id = ${sessaoExiste.idDoUsuario};`);
+		await pool.query(`DELETE FROM usuario WHERE id = '${sessaoExiste.idDoUsuario}';`);
 
 		console.log('Conta excluída, id='+sessaoExiste.idDoUsuario+'.');
 		return resp.status(200).json({ok: 'Conta excluída.'});
@@ -2379,9 +2402,9 @@ async function autenticarSessao(token){
 		//	ON Sessoes.idDoUsuario = Usuarios.id
 		//	WHERE seletor = '${seletor}';`
 		//);
-		const sessaoExiste = await pool.query(//renomear token aki
+		const [[sessaoExiste]] = await pool.query(//renomear token aki
 		`SELECT sessao.id, id_do_usuario AS idDoUsuario, hash_do_token AS tokenDaSessaoHash,
-			UNIX_TIMESTAMP(data_de_criacao) AS dataDeCriacaoEmSeg, manter_sessao AS manterSessao,
+			UNIX_TIMESTAMP(sessao.data_de_criacao) AS dataDeCriacaoEmSeg, manter_sessao AS manterSessao,
 			usuario.nome_de_usuario AS nomeDoUsuario
 		FROM sessao JOIN usuario
 		ON sessao.id_do_usuario = usuario.id
@@ -2472,16 +2495,16 @@ async function verificarCredenciais(nome, senha, id) {
 
 		//let usuario;
 		//if (id)
-		//	usuario = await pool.query(
+		//	[usuario] = await pool.query(
 		//		`SELECT id, nome_de_usuario AS nome, hash_da_senha AS senhaHash FROM usuario WHERE id = (?);`, [id]
 		//	);
 		//else
-		//	usuario = await pool.query(
+		//	[usuario] = await pool.query(
 		//		`SELECT id, nome_de_usuario AS nome, hash_da_senha AS senhaHash FROM usuario
 		//		WHERE nome_de_usuario = (?);`, [nome]
 		//	);
 		let info = id ? id : nome;
-		const usuario = await pool.query(
+		const [[usuario]] = await pool.query(
 			`SELECT id, nome_de_usuario AS nome, hash_da_senha AS senhaHash FROM usuario
 			WHERE ${id ? 'id' : 'nome_de_usuario'} = (?);`, [info]
 		);
@@ -2563,8 +2586,8 @@ servidor.post('/sessoes', async (req, resp)=>{
 		//);
 		//const dataDeCriacao = (resposta.dataDeExpiracao - DURACAO_DO_TOKEN_DE_SESSAO)/1000;
 		await pool.query(//renomear token aki
-			`INSERT INTO sessao (id_do_usuario, seletor, hash_do_token, manter_sessao, data_de_expiracao)
-			VALUES (${resposta.id}, '${seletor}', '${uuidDoTokenHash}', ${resposta.manterSessao},
+			`INSERT INTO sessao (id, id_do_usuario, seletor, hash_do_token, manter_sessao, data_de_expiracao)
+			VALUES ('${uuidDoToken}', '${resposta.id}', '${seletor}', '${uuidDoTokenHash}', ${resposta.manterSessao},
 			FROM_UNIXTIME(${resposta.dataDeExpiracao/1000}));`
 		);
 		console.log('Sessão criada.');
@@ -2670,7 +2693,7 @@ servidor.put('/sessoes', async (req, resp)=>{
 		// */
 		await pool.query(
 			`UPDATE sessao SET data_de_expiracao = FROM_UNIXTIME(${resposta.dataDeExpiracao/1000})
-			WHERE id = ${sessaoExiste.id};`
+			WHERE id = '${sessaoExiste.id}';`
 		);
 		console.log('Sessão autenticada e atualizada.');
 		return resp.status(200).json(resposta);
@@ -2716,7 +2739,7 @@ servidor.delete('/sessoes', async (req, resp)=>{
 		}*/
 
 		//await db.run(`DELETE FROM Sessoes WHERE id = ${sessaoExiste.id};`);
-		await pool.query(`DELETE FROM sessao WHERE id = ${sessaoExiste.id};`);
+		await pool.query(`DELETE FROM sessao WHERE id = '${sessaoExiste.id}';`);
 		console.log('Sessão excluída.');
 		return resp.status(200).json({ok: 'Sessão excluída.'});
 	}
@@ -2766,15 +2789,15 @@ servidor.delete('/usuarios/:idDoUsuario/outras-sessoes', async (req, resp)=>{
 		//	WHERE idDoUsuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}'
 		//	AND dataDeExpiracao > ${Date.now()};`
 		//);
-		const sessoesConectadas = await pool.query(
+		const [[sessoesConectadas]] = await pool.query(
 			`SELECT COUNT(*) AS qtde FROM sessao
-			WHERE id_do_usuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}'
-			AND data_de_expiracao > ${Date.now()};`
+			WHERE id_do_usuario = '${idDoUsuario}' AND seletor != '${sessaoExiste.seletor}'
+			AND data_de_expiracao > FROM_UNIXTIME(${Date.now()/1000});`
 		);
 		//if (!qtde)
 		//	qtde = 0;
 		//await db.run(`DELETE FROM Sessoes WHERE idDoUsuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`);
-		await pool.query(`DELETE FROM sessao WHERE id_do_usuario = ${idDoUsuario} AND seletor != '${sessaoExiste.seletor}';`);
+		await pool.query(`DELETE FROM sessao WHERE id_do_usuario = '${idDoUsuario}' AND seletor != '${sessaoExiste.seletor}';`);
 		console.log('Sessões desconectadas='+sessoesConectadas.qtde+'.');
 		return resp.status(200).json({qtdeSessoesDesconectadas: sessoesConectadas.qtde});
 	}
