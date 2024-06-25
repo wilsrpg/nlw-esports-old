@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+//import sqlite3 from 'sqlite3';
+//import { open } from 'sqlite';
 import { config as dotenvConfig } from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
@@ -22,10 +22,10 @@ servidor.use(cors({
 
 dotenvConfig();
 
-const abrirBanco = open({
-	filename: '../db/db.sqlite',
-	driver: sqlite3.Database
-});
+//const abrirBanco = open({
+//	filename: '../db/db.sqlite',
+//	driver: sqlite3.Database
+//});
 
 //const con = mysql.createConnection({
 //	host: 'johnny.heliohost.org',
@@ -774,6 +774,17 @@ async function iniciar() {
 	//);
 }
 iniciar();
+
+servidor.get('/', async (req, resp)=>{
+	try {
+    console.log("Servidor acessado com sucesso.");
+		return resp.status(200).json({status: "Servidor acessado com sucesso."});
+	}
+	catch (erro) {
+		console.log(erro);
+		return resp.status(500).json({erro: 'Erro interno no servidor.'});
+	}
+});
 
 //retorna uma lista de jogos
 servidor.get('/jogos', async (req, resp)=>{
