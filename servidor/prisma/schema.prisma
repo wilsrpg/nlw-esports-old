@@ -32,10 +32,3 @@ model Anuncios {
 
   jogo Jogos @relation(fields: [jogoId], references: [id])
 }
-
-model Usuarios {
-  id            Int      @id @default(autoincrement())
-  nome          String   @unique
-  senhaHash     String
-  dataDeCriacao DateTime @default(now())
-}

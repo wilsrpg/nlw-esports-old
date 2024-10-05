@@ -9,7 +9,8 @@ import logo from '../../imagens/logo-nlw-esports.png'
 import { Titulo } from '../../componentes/Titulo';
 import { Carregando } from '../../componentes/Carregando';
 import { CartaoDeJogo } from '../../componentes/CartaoDeJogo';
-import { SERVIDOR } from '../../../../enderecoDoServidor';
+//import { SERVIDOR } from '../../../../enderecoDoServidor';
+import { SERVIDOR0 as SERVIDOR } from '@env';
 
 export function TelaInicial() {
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);

@@ -52,9 +52,9 @@ export default function ModalConectar({discord, funcFechar}) {
             <strong>{discord}</strong>
             {window.isSecureContext && (
               !copiou ? 
-                <img src={iconeCopiar} className='botaoCopiar' onClick={copiar}/>
+                <img src={iconeCopiar} className='botaoCopiar' onClick={copiar} title='Copiar'/>
               :
-                <img src={iconeCopiado} className='botaoCopiar' onClick={()=>definirCopiou(false)}/>
+                <img src={iconeCopiado} className='botaoCopiar' onClick={()=>definirCopiou(false)} title='Copiado'/>
             )}
           </div>
           </div>

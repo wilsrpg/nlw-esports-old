@@ -9,7 +9,8 @@ import { Titulo } from '../../componentes/Titulo';
 import { Carregando } from '../../componentes/Carregando';
 import { CartaoDeAnuncio } from '../../componentes/CartaoDeAnuncio';
 import { ModalConectar } from '../../componentes/ModalConectar';
-import { SERVIDOR } from '../../../../enderecoDoServidor';
+//import { SERVIDOR } from '../../../../enderecoDoServidor';
+import { SERVIDOR0 as SERVIDOR } from '@env';
 
 export function TelaDoJogo() {
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
