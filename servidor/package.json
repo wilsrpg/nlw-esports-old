@@ -5,7 +5,8 @@
   "main": "src/servidor.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "tsnd --exit-child src/servidor.ts"
+    "dev": "tsnd --exit-child src/servidor.ts",
+    "start": "node build/servidor.js"
   },
   "keywords": [],
   "author": "",
