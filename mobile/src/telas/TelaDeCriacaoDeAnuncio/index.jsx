@@ -8,8 +8,7 @@ import { styles } from './styles';
 import { THEME } from '../../tema';
 import { ImagemDeFundo } from '../../componentes/ImagemDeFundo';
 import { Cabecalho } from '../../componentes/Cabecalho';
-//import { SERVIDOR } from '../../../../enderecoDoServidor';
-import { SERVIDOR0 as SERVIDOR } from '@env';
+import { SERVIDOR } from '@env';
 
 export function TelaDeCriacaoDeAnuncio() {
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);

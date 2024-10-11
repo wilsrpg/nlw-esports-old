@@ -3,7 +3,6 @@ import CartaoDeAnuncio from './CartaoDeAnuncio';
 import carregando from '../imagens/loading.svg'
 import ModalConectar from './ModalConectar';
 import iconeFechar from '../imagens/x.svg'
-import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
   let componenteExiste = true;
@@ -12,7 +11,7 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
   const [discord, definirDiscord] = useState('');
 
   useEffect(()=>{
-    fetch(SERVIDOR+`/jogos/${jogo.nomeUrl}/anuncios`)
+    fetch(import.meta.env.VITE_SERVIDOR+`/jogos/${jogo.nomeUrl}/anuncios`)
     .then(resp=>resp.json())
     .then(resp=>{
       if (resp.erro)
@@ -44,7 +43,7 @@ export default function ModalDeJogoSelecionado({jogo, funcFechar}) {
   }
 
   function obterDiscord(anuncioId) {
-    fetch(SERVIDOR+`/anuncios/${anuncioId}/discord`)
+    fetch(import.meta.env.VITE_SERVIDOR+`/anuncios/${anuncioId}/discord`)
     .then(resp=>resp.json())
     .then(resp=>{
       if (componenteExiste) {

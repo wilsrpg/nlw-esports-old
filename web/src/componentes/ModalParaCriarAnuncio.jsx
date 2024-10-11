@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import carregando from '../imagens/loading.svg'
 import iconeFechar from '../imagens/x.svg'
-import { SERVIDOR } from '../../../enderecoDoServidor';
 
 export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) {
   let componenteExiste = true;
@@ -21,7 +20,7 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
 
   useEffect(()=>{
     document.body.onkeydown = e=>fechar(e);
-    fetch(SERVIDOR+`/jogos`)
+    fetch(import.meta.env.VITE_SERVIDOR+`/jogos`)
     .then(resp=>resp.json())
     .then(resp=>{
       if (componenteExiste) {
@@ -97,7 +96,7 @@ export default function ModalParaCriarAnuncio({funcRecarregarJogos,funcFechar}) 
       headers: {'Content-Type': 'application/json'},
       body: anuncio,
     };
-    fetch(SERVIDOR+`/jogos/${jogoId}/anuncios`, dados)
+    fetch(import.meta.env.VITE_SERVIDOR+`/jogos/${jogoId}/anuncios`, dados)
     .then(resp=>{
       if (resp.ok) {
         funcRecarregarJogos();

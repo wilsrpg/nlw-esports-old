@@ -6,7 +6,6 @@ import CartaoDeJogo from './componentes/CartaoDeJogo'
 import lupa from './imagens/magnifying-glass-plus-reverse.svg'
 import ModalParaCriarAnuncio from './componentes/ModalParaCriarAnuncio';
 import ModalDeJogoSelecionado from './componentes/ModalDeJogoSelecionado'
-import { SERVIDOR } from '../../enderecoDoServidor';
 
 export default function App() {
   const [erroAoObterDados, definirErroAoObterDados] = useState(false);
@@ -18,7 +17,7 @@ export default function App() {
   useEffect(()=>{
     if (exibindoModalParaCriarAnuncio && !recarregarJogos || jogoProModalDeAnuncios)
       return;
-    fetch(SERVIDOR+`/jogos`)
+    fetch(import.meta.env.VITE_SERVIDOR+`/jogos`)
     .then(resp=>resp.json())
     .then(resp=>{
       if (resp.erro)
