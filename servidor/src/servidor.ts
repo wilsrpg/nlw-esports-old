@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 const servidor = express();
 servidor.use(express.json());
@@ -10,6 +10,24 @@ servidor.use(cors({
 const prisma = new PrismaClient(
 	//{log:['query']}
 );
+
+servidor.get('/', async (req, resp)=>{
+	console.log("GET /, ip="+req.ip);
+	return resp.json("Servidor acessado com sucesso.");
+})
+
+servidor.get('/ver-bd', async (req, resp)=>{
+	try {
+		const tables = Prisma.ModelName;
+		console.log("GET ver-bd, ip="+req.ip);
+		return resp.json(tables);
+	}
+	catch (erro) {
+		console.log("entrou no catch");
+		console.log(erro);
+		return resp.status(500).json({erro});
+	}
+})
 
 servidor.get('/jogos', async (req, resp)=>{
 	try {
