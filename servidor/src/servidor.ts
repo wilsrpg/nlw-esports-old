@@ -20,7 +20,8 @@ servidor.get('/ver-bd', async (req, resp)=>{
 	try {
 		const tables = Prisma.ModelName;
 		console.log("GET ver-bd, ip="+req.ip);
-		return resp.json(tables);
+		return resp.json(await prisma.jogos.findMany());
+		//return resp.json(tables);
 	}
 	catch (erro) {
 		console.log("entrou no catch");
