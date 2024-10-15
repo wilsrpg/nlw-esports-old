@@ -61,20 +61,6 @@ servidor.get('/', async (req, resp)=>{
 	return resp.json("Servidor acessado com sucesso.");
 })
 
-servidor.get('/ver-bd', async (req, resp)=>{
-	try {
-		const tables = Prisma.ModelName;
-		console.log("GET ver-bd, ip="+req.ip);
-		return resp.json(await prisma.jogos.findMany());
-		//return resp.json(tables);
-	}
-	catch (erro) {
-		console.log("entrou no catch");
-		console.log(erro);
-		return resp.status(500).json({erro});
-	}
-})
-
 servidor.get('/jogos', async (req, resp)=>{
 	try {
 		const jogos = await prisma.jogos.findMany({
