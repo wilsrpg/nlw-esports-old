@@ -5,21 +5,22 @@ generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "sqlite"
+datasource nlwesports {
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model Jogos {
-  id        String     @id @default(uuid())
+  id        String     @id @default(uuid()) @map("_id")
   nome      String
+  url       String
   nomeUrl   String     @unique
   urlImagem String
   anuncios  Anuncios[]
 }
 
 model Anuncios {
-  id                String   @id @default(uuid())
+  id                String   @id @default(uuid()) @map("_id")
   jogoId            String
   nomeDoUsuario     String
   tempoDeJogoEmAnos Int

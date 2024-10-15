@@ -1,15 +1,60 @@
 import express from 'express'
 import cors from 'cors'
 import { PrismaClient, Prisma } from '@prisma/client';
+//import { PrismaClient as PrismaClientSqlite } from '../prisma/generated-sqlite'
 
 const servidor = express();
 servidor.use(express.json());
 servidor.use(cors({
 	//origin: 'http://meudominio.com'
 }));
+
 const prisma = new PrismaClient(
 	//{log:['query']}
 );
+
+//const prismaSqlite = new PrismaClientSqlite();
+
+async function iniciar() {
+	//preparação dos dados para importação
+	//const jogos = await prismaSqlite.jogos.findMany();
+	//const anuncios = await prismaSqlite.anuncios.findMany();
+	//console.log(jogos);
+
+	//importação dos dados
+	//let i = 0;
+	//while (i < jogos.length) {
+  //	await prisma.jogos.create({data: jogos[i]});
+	//	i++;
+	//}
+	//i = 0;
+	//while (i < anuncios.length) {
+  //	await prisma.anuncios.create({data: anuncios[i]});
+	//	i++;
+	//}
+	
+	//modelo de inserção de dados
+	//await prisma.jogos.create({
+  //  data: {
+  //    id: '30153e3e-d98f-41cf-84df-a7ebe2eebee0',
+  //    nome: 'Sword of Mana',
+  //    url: 'https://gamefaqs.gamespot.com/gba/914616-sword-of-mana',
+  //    nomeUrl: 'sword-of-mana',
+  //    urlImagem: 'https://gamefaqs.gamespot.com/a/box/8/7/2/52872_front.jpg'
+  //  }
+  //});
+	
+	//modelo de alteração de dados
+	//await prisma.jogos.update({
+  //  data: {
+  //    url: 'https://gamefaqs.gamespot.com/gba/914616-sword-of-mana',
+  //  },
+	//	where: {
+  //    nomeUrl: 'sword-of-mana'
+	//	}
+  //});
+}
+iniciar();
 
 servidor.get('/', async (req, resp)=>{
 	console.log("GET /, ip="+req.ip);
